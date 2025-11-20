@@ -1,50 +1,64 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+/// Exception hierarchy for API errors
+///
+/// Provides typed exceptions for different network failure scenarios:
+/// - [NetworkException]: General network connectivity issues
+/// - [TimeoutException]: Request timeout
+/// - [ServerException]: Server-side errors (4xx, 5xx)
+/// - [ParseException]: JSON parsing failures
+sealed class ApiException implements Exception {
+  const ApiException();
 
-part 'api_exception.freezed.dart';
-
-/// API Exception for handling errors from OpenF1 API
-@freezed
-class ApiException with _$ApiException implements Exception {
-  const factory ApiException.network(String message) = NetworkException;
-  const factory ApiException.timeout() = TimeoutException;
-  const factory ApiException.server(int statusCode) = ServerException;
-  const factory ApiException.parse(String message) = ParseException;
-
-  const ApiException._();
-
-  /// Get user-friendly error message
-  String get userMessage {
-    return when(
-      network: (message) => 'Network error: $message',
-      timeout: () => 'Request timed out. Please try again.',
-      server: (code) {
-        switch (code) {
-          case 400:
-            return 'Bad request. Please check your query.';
-          case 404:
-            return 'Data not found.';
-          case 500:
-            return 'Server error. Please try again later.';
-          case 503:
-            return 'Service unavailable. Please try again later.';
-          default:
-            return 'Server error ($code). Please try again.';
-        }
-      },
-      parse: (message) => 'Failed to process data: $message',
-    );
+  @override
+  String toString() {
+    return switch (this) {
+      NetworkException(:final message) => 'Network Error: $message',
+      TimeoutException() => 'Request Timeout: The request took too long to complete',
+      ServerException(:final statusCode, :final message) => 'Server Error [$statusCode]: $message',
+      ParseException(:final message) => 'Parse Error: $message',
+    };
   }
+}
 
-  /// Check if error is network related
-  bool get isNetworkError => maybeWhen(
-        network: (_) => true,
-        timeout: () => true,
-        orElse: () => false,
-      );
+/// Network connectivity error
+///
+/// Thrown when there's no internet connection or the request fails
+/// due to network issues (DNS, connection refused, etc.)
+class NetworkException extends ApiException {
+  final String message;
 
-  /// Check if error is server related
-  bool get isServerError => maybeWhen(
-        server: (_) => true,
-        orElse: () => false,
-      );
+  const NetworkException(this.message);
+}
+
+/// Request timeout error
+///
+/// Thrown when a request exceeds the configured timeout duration
+/// (default: 30 seconds for both connect and receive)
+class TimeoutException extends ApiException {
+  const TimeoutException();
+}
+
+/// Server-side error
+///
+/// Thrown for HTTP errors (4xx client errors, 5xx server errors)
+///
+/// Common status codes:
+/// - 400: Bad Request (invalid parameters)
+/// - 404: Not Found (invalid endpoint)
+/// - 429: Too Many Requests (rate limit exceeded)
+/// - 500: Internal Server Error
+/// - 503: Service Unavailable
+class ServerException extends ApiException {
+  final int statusCode;
+  final String message;
+
+  const ServerException(this.statusCode, [this.message = '']);
+}
+
+/// JSON parsing error
+///
+/// Thrown when the API response cannot be parsed into the expected model
+class ParseException extends ApiException {
+  final String message;
+
+  const ParseException(this.message);
 }
