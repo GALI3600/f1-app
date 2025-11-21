@@ -6,6 +6,7 @@ import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
 import '../../../../shared/widgets/loading_widget.dart';
 import '../../../../shared/widgets/error_widget.dart';
+import '../../../../core/error/error_mapper.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 import '../providers/drivers_list_provider.dart';
 import '../providers/driver_filter_provider.dart';
@@ -120,8 +121,8 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                   ),
                 ),
               ),
-              error: (error, stack) => F1ErrorWidget.generic(
-                error: error,
+              error: (error, stack) => ErrorMapper.mapToWidget(
+                error,
                 onRetry: () {
                   ref.invalidate(driversListNotifierProvider());
                 },
