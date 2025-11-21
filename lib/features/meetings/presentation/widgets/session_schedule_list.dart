@@ -185,13 +185,13 @@ class SessionListItem extends StatelessWidget {
 
     // Dim icon if session is completed
     if (status == SessionStatus.completed) {
-      color = color.withOpacity(0.5);
+      color = color.withValues(alpha: 0.5);
     }
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
@@ -207,7 +207,7 @@ class SessionListItem extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: F1Colors.ciano.withOpacity(0.15),
+          color: F1Colors.ciano.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(8),
         ),
         child: const Text(

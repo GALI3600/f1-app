@@ -30,7 +30,7 @@ class SessionResultCard extends StatelessWidget {
             // Team color strip
             if (driver != null)
               TeamColorStrip(
-                teamColor: _getTeamColor(driver!.teamColour),
+                teamColor: driver!.teamColour,
                 width: 4,
               ),
             // Position badge
@@ -40,8 +40,9 @@ class SessionResultCard extends StatelessWidget {
             if (driver != null) ...[
               DriverAvatar(
                 imageUrl: driver!.headshotUrl,
-                driverName: driver!.nameAcronym,
-                size: 40,
+                teamColor: driver!.teamColour,
+                driverName: driver!.fullName,
+                size: DriverAvatarSize.small,
               ),
               const SizedBox(width: 12),
             ],
@@ -68,7 +69,7 @@ class SessionResultCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: F1Colors.roxo.withOpacity(0.2),
+                            color: F1Colors.roxo.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                             border: Border.all(color: F1Colors.roxo),
                           ),
@@ -216,7 +217,7 @@ class SessionResultCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: color),
       ),
@@ -237,7 +238,7 @@ class SessionResultCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -259,15 +260,6 @@ class SessionResultCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Color _getTeamColor(String teamColour) {
-    try {
-      final hex = teamColour.startsWith('#') ? teamColour : '#$teamColour';
-      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
-    } catch (e) {
-      return F1Colors.ciano;
-    }
   }
 
   String _formatDuration(double seconds) {

@@ -59,7 +59,7 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
         border: showBottomBorder
             ? Border(
                 bottom: BorderSide(
-                  color: F1Colors.ciano.withOpacity(0.3),
+                  color: F1Colors.ciano.withValues(alpha: 0.3),
                   width: 1,
                 ),
               )

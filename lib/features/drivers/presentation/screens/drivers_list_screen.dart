@@ -5,7 +5,7 @@ import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
 import '../../../../shared/widgets/loading_widget.dart';
-import '../../../../shared/widgets/error_widget.dart';
+import '../../../../core/error/error_mapper.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 import '../providers/drivers_list_provider.dart';
 import '../providers/driver_filter_provider.dart';
@@ -120,8 +120,8 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                   ),
                 ),
               ),
-              error: (error, stack) => F1ErrorWidget.generic(
-                error: error,
+              error: (error, stack) => ErrorMapper.mapToWidget(
+                error,
                 onRetry: () {
                   ref.invalidate(driversListNotifierProvider());
                 },
@@ -143,7 +143,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
         color: F1Colors.navy,
         border: Border(
           bottom: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -182,13 +182,13 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: F1Colors.ciano.withOpacity(0.3),
+                  color: F1Colors.ciano.withValues(alpha: 0.3),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: F1Colors.ciano.withOpacity(0.3),
+                  color: F1Colors.ciano.withValues(alpha: 0.3),
                 ),
               ),
               focusedBorder: OutlineInputBorder(

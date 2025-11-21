@@ -44,7 +44,7 @@ class RateLimiter {
           .add(const Duration(minutes: 1))
           .difference(now);
 
-      if (waitTime.isPositive) {
+      if (waitTime.inMicroseconds > 0) {
         await Future.delayed(waitTime);
       }
 

@@ -89,7 +89,7 @@ class SessionDetailNotifier extends AutoDisposeAsyncNotifier<SessionDetailState>
       sessionsRepo.getSessions(sessionKey: sessionKey),
       driversRepo.getDrivers(sessionKey: sessionKey),
       weatherRepo.getWeather(sessionKey: sessionKey),
-      raceControlRepo.getRaceControl(sessionKey: sessionKey),
+      raceControlRepo.getRaceControlMessages(sessionKey: sessionKey),
     ]);
 
     final sessions = results[0] as List<Session>;

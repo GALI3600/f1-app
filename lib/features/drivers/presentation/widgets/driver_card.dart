@@ -38,12 +38,12 @@ class DriverCard extends StatelessWidget {
           color: F1Colors.navy,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: teamColor.withOpacity(0.3),
+            color: teamColor.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: teamColor.withOpacity(0.1),
+              color: teamColor.withValues(alpha: 0.1),
               blurRadius: 12,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -58,8 +58,8 @@ class DriverCard extends StatelessWidget {
               top: 0,
               bottom: 0,
               child: TeamColorStrip(
-                color: teamColor,
-                thickness: TeamColorThickness.medium,
+                teamColor: driver.teamColour,
+                width: 4,
               ),
             ),
 
@@ -72,9 +72,9 @@ class DriverCard extends StatelessWidget {
                   // Large driver avatar with team color border
                   DriverAvatar(
                     imageUrl: driver.headshotUrl,
-                    teamColor: teamColor,
+                    teamColor: driver.teamColour,
+                    driverName: driver.fullName,
                     size: DriverAvatarSize.large,
-                    driverInitials: driver.nameAcronym,
                   ),
 
                   const SizedBox(height: 16),
@@ -122,8 +122,8 @@ class DriverCard extends StatelessWidget {
                     center: Alignment.center,
                     radius: 1.0,
                     colors: [
-                      teamColor.withOpacity(0.0),
-                      teamColor.withOpacity(0.05),
+                      teamColor.withValues(alpha: 0.0),
+                      teamColor.withValues(alpha: 0.05),
                     ],
                   ),
                 ),
@@ -170,7 +170,7 @@ class DriverCardCompact extends StatelessWidget {
           color: F1Colors.navy,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: teamColor.withOpacity(0.3),
+            color: teamColor.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -178,8 +178,8 @@ class DriverCardCompact extends StatelessWidget {
           children: [
             // Team color strip
             TeamColorStrip(
-              color: teamColor,
-              thickness: TeamColorThickness.medium,
+              teamColor: driver.teamColour,
+              width: 4,
             ),
 
             const SizedBox(width: 12),
@@ -187,9 +187,9 @@ class DriverCardCompact extends StatelessWidget {
             // Driver avatar
             DriverAvatar(
               imageUrl: driver.headshotUrl,
-              teamColor: teamColor,
+              teamColor: driver.teamColour,
+              driverName: driver.fullName,
               size: DriverAvatarSize.medium,
-              driverInitials: driver.nameAcronym,
             ),
 
             const SizedBox(width: 16),

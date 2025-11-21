@@ -75,7 +75,7 @@ class F1Gradients {
     end: Alignment.centerRight,
     colors: [
       F1Colors.vermelho,
-      F1Colors.vermelho.withOpacity(0.6),
+      F1Colors.vermelho.withValues(alpha: 0.6),
       F1Colors.vermelho,
     ],
     stops: const [0.0, 0.5, 1.0],
@@ -88,7 +88,7 @@ class F1Gradients {
     end: Alignment.centerRight,
     colors: [
       F1Colors.navy,
-      F1Colors.ciano.withOpacity(0.3),
+      F1Colors.ciano.withValues(alpha: 0.3),
       F1Colors.navy,
     ],
     stops: const [0.0, 0.5, 1.0],
@@ -115,8 +115,8 @@ class F1Gradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      F1Colors.navyDeep.withOpacity(0.0),
-      F1Colors.navyDeep.withOpacity(0.9),
+      F1Colors.navyDeep.withValues(alpha: 0.0),
+      F1Colors.navyDeep.withValues(alpha: 0.9),
     ],
   );
 
@@ -126,8 +126,8 @@ class F1Gradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      F1Colors.ciano.withOpacity(0.0),
-      F1Colors.ciano.withOpacity(0.3),
+      F1Colors.ciano.withValues(alpha: 0.0),
+      F1Colors.ciano.withValues(alpha: 0.3),
     ],
   );
 
@@ -166,9 +166,9 @@ class F1Gradients {
       center: Alignment.center,
       radius: 0.8,
       colors: [
-        color.withOpacity(0.8),
-        color.withOpacity(0.4),
-        color.withOpacity(0.0),
+        color.withValues(alpha: 0.8),
+        color.withValues(alpha: 0.4),
+        color.withValues(alpha: 0.0),
       ],
       stops: const [0.0, 0.5, 1.0],
     );
@@ -180,7 +180,7 @@ class F1Gradients {
     center: Alignment.topCenter,
     radius: 1.5,
     colors: [
-      F1Colors.navy.withOpacity(0.0),
+      F1Colors.navy.withValues(alpha: 0.0),
       F1Colors.navyDeep,
     ],
   );
@@ -225,10 +225,10 @@ class F1Gradients {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [
-        if (fadeTop) F1Colors.navyDeep.withOpacity(0.0),
+        if (fadeTop) F1Colors.navyDeep.withValues(alpha: 0.0),
         if (fadeTop) F1Colors.navyDeep,
         if (fadeBottom) F1Colors.navyDeep,
-        if (fadeBottom) F1Colors.navyDeep.withOpacity(0.0),
+        if (fadeBottom) F1Colors.navyDeep.withValues(alpha: 0.0),
       ],
       stops: fadeTop && fadeBottom
           ? const [0.0, 0.1, 0.9, 1.0]

@@ -38,7 +38,7 @@ class DriverProfileHeader extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            teamColor.withOpacity(0.8),
+            teamColor.withValues(alpha: 0.8),
             F1Colors.navyDeep,
           ],
           stops: const [0.0, 1.0],
@@ -88,8 +88,8 @@ class DriverProfileHeader extends StatelessWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    F1Colors.navyDeep.withOpacity(0.9),
-                    F1Colors.navyDeep.withOpacity(0.6),
+                    F1Colors.navyDeep.withValues(alpha: 0.9),
+                    F1Colors.navyDeep.withValues(alpha: 0.6),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.5, 1.0],
@@ -254,7 +254,7 @@ class DriverProfileHeaderCompact extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            teamColor.withOpacity(0.2),
+            teamColor.withValues(alpha: 0.2),
             F1Colors.navy,
           ],
         ),

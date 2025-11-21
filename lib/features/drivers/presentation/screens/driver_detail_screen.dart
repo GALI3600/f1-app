@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/loading_widget.dart';
-import '../../../../shared/widgets/error_widget.dart';
+import '../../../../core/error/error_mapper.dart';
 import '../providers/driver_detail_provider.dart';
 import '../widgets/driver_profile_header.dart';
 import '../widgets/lap_times_chart.dart';
@@ -141,8 +141,8 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: F1ErrorWidget.generic(
-            error: error,
+          body: ErrorMapper.mapToWidget(
+            error,
             onRetry: () {
               ref.invalidate(driverDetailNotifierProvider(
                 driverNumber: widget.driverNumber,
@@ -286,7 +286,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -325,7 +325,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.dourado.withOpacity(0.5),
+          color: F1Colors.dourado.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -367,7 +367,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

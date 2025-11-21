@@ -2,7 +2,7 @@ import 'package:f1sync/features/meetings/presentation/providers/meetings_provide
 import 'package:f1sync/features/meetings/presentation/widgets/gp_list_tile.dart';
 import 'package:f1sync/features/meetings/presentation/widgets/year_selector.dart';
 import 'package:f1sync/shared/widgets/f1_app_bar.dart';
-import 'package:f1sync/shared/widgets/f1_error_widget.dart';
+import 'package:f1sync/shared/widgets/error_widget.dart';
 import 'package:f1sync/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,8 +79,10 @@ class MeetingsHistoryScreen extends ConsumerWidget {
               },
               loading: () => const LoadingWidget(),
               error: (error, stack) => F1ErrorWidget(
-                error: error,
-                stackTrace: stack,
+                title: 'Error Loading Meetings',
+                message: error.toString(),
+                errorDetails: stack.toString(),
+                showDetails: true,
                 onRetry: () {
                   ref.invalidate(meetingsListProvider(selectedYear));
                 },

@@ -153,7 +153,7 @@ class StintsTimeline extends StatelessWidget {
         color: compoundColor,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -180,7 +180,7 @@ class StintsTimeline extends StatelessWidget {
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: compoundColor.withOpacity(0.5),
+          color: compoundColor.withValues(alpha: 0.5),
           width: 1,
         ),
       ),
@@ -280,7 +280,7 @@ class StintsTimeline extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               width: 1,
             ),
           ),
@@ -312,7 +312,7 @@ class _TimelineGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = F1Colors.navyLight.withOpacity(0.2)
+      ..color = F1Colors.navyLight.withValues(alpha: 0.2)
       ..strokeWidth = 1;
 
     // Draw vertical grid lines every 10 laps

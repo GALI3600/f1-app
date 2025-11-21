@@ -81,8 +81,8 @@ class CurrentGPCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  F1Colors.ciano.withOpacity(0.3),
-                  F1Colors.roxo.withOpacity(0.3),
+                  F1Colors.ciano.withValues(alpha: 0.3),
+                  F1Colors.roxo.withValues(alpha: 0.3),
                 ],
               ),
             ),

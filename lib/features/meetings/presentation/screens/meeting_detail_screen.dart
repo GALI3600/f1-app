@@ -2,7 +2,7 @@ import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/features/meetings/presentation/providers/meetings_providers.dart';
 import 'package:f1sync/features/meetings/presentation/widgets/gp_header_card.dart';
 import 'package:f1sync/features/meetings/presentation/widgets/session_schedule_list.dart';
-import 'package:f1sync/shared/widgets/f1_error_widget.dart';
+import 'package:f1sync/shared/widgets/error_widget.dart';
 import 'package:f1sync/shared/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -112,8 +112,10 @@ class MeetingDetailScreen extends ConsumerWidget {
         loading: () => const Center(child: LoadingWidget()),
         error: (error, stack) => Center(
           child: F1ErrorWidget(
-            error: error,
-            stackTrace: stack,
+            title: 'Error Loading Meeting',
+            message: error.toString(),
+            errorDetails: stack.toString(),
+            showDetails: true,
             onRetry: () {
               ref.invalidate(meetingDetailProvider(meetingKey));
             },

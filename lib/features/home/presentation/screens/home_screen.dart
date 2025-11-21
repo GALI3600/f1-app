@@ -56,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
             data: (session) => session != null
                 ? const Padding(
                     padding: EdgeInsets.only(right: 8),
-                    child: LiveIndicator(isLive: true),
+                    child: LiveIndicator(),
                   )
                 : null,
           ) ?? const SizedBox.shrink(),
@@ -155,7 +155,7 @@ class HomeScreen extends ConsumerWidget {
       data: (drivers) {
         // Get session name if available
         final sessionName = sessionAsync.whenOrNull(
-          data: (session) => session?.sessionName,
+          data: (session) => session?.sessionName as String?,
         );
 
         return QuickStatsCard(

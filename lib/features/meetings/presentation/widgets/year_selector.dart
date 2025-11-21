@@ -85,7 +85,7 @@ class _SelectedChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: F1Colors.ciano.withOpacity(0.3),
+              color: F1Colors.ciano.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -125,7 +125,7 @@ class _UnselectedChip extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: F1Colors.ciano.withOpacity(0.5),
+            color: F1Colors.ciano.withValues(alpha: 0.5),
             width: 1.5,
           ),
         ),

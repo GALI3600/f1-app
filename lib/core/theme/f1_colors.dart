@@ -56,6 +56,9 @@ class F1Colors {
   /// Error - Critical alerts, red flags
   static const Color error = Color(0xFFFF1744);
 
+  /// Danger - Alias for error (for consistency)
+  static const Color danger = error;
+
   /// Info - Information badges
   static const Color info = Color(0xFF2196F3);
 
@@ -66,6 +69,9 @@ class F1Colors {
 
   /// Secondary text - lower emphasis
   static const Color textSecondary = Color(0xFFB6BABD);
+
+  /// Tertiary text - even lower emphasis
+  static const Color textTertiary = Color(0xFF909497);
 
   /// Disabled text
   static const Color textDisabled = Color(0xFF707070);
@@ -86,6 +92,13 @@ class F1Colors {
 
   /// Wet compound - Blue
   static const Color tyreWet = Color(0xFF0000FF);
+
+  // Tire compound shortcuts (for backwards compatibility)
+  static const Color soft = tyreSoft;
+  static const Color medium = tyreMedium;
+  static const Color hard = tyreHard;
+  static const Color intermediate = tyreIntermediate;
+  static const Color wet = tyreWet;
 
   // ========== Lap Sector Colors ==========
 

@@ -45,13 +45,13 @@ class AppTheme {
       ),
 
       // ========== Card ==========
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: F1Colors.navy,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -130,7 +130,7 @@ class AppTheme {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -165,7 +165,7 @@ class AppTheme {
         backgroundColor: F1Colors.navy,
         labelStyle: F1TextStyles.labelMedium,
         side: BorderSide(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -195,13 +195,13 @@ class AppTheme {
       ),
 
       // ========== Dialog ==========
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: F1Colors.navy,
         elevation: 8,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
           side: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
           ),
         ),
         titleTextStyle: F1TextStyles.headlineMedium,
@@ -221,7 +221,7 @@ class AppTheme {
 
       // ========== Divider ==========
       dividerTheme: DividerThemeData(
-        color: F1Colors.ciano.withOpacity(0.2),
+        color: F1Colors.ciano.withValues(alpha: 0.2),
         thickness: 1,
         space: 1,
       ),
@@ -288,7 +288,7 @@ class AppTheme {
       ),
 
       // ========== TabBar ==========
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: F1Colors.ciano,
         unselectedLabelColor: F1Colors.textSecondary,
         indicatorColor: F1Colors.ciano,

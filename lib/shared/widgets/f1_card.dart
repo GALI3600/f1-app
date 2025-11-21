@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 
 /// F1-themed card with gradient border options
 ///
@@ -177,12 +176,12 @@ class F1Card extends StatelessWidget {
     switch (variant) {
       case F1CardVariant.primary:
         return Border.all(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
           width: 1.5,
         );
       case F1CardVariant.outlined:
         return Border.all(
-          color: F1Colors.ciano.withOpacity(0.5),
+          color: F1Colors.ciano.withValues(alpha: 0.5),
           width: 1.5,
         );
       case F1CardVariant.gradient:
@@ -197,8 +196,8 @@ class F1Card extends StatelessWidget {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        F1Colors.ciano.withOpacity(0.5),
-        F1Colors.roxo.withOpacity(0.5),
+        F1Colors.ciano.withValues(alpha: 0.5),
+        F1Colors.roxo.withValues(alpha: 0.5),
       ],
     );
   }
@@ -209,12 +208,12 @@ class F1Card extends StatelessWidget {
       case F1CardVariant.elevated:
         return [
           BoxShadow(
-            color: F1Colors.ciano.withOpacity(0.15),
+            color: F1Colors.ciano.withValues(alpha: 0.15),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: F1Colors.roxo.withOpacity(0.1),
+            color: F1Colors.roxo.withValues(alpha: 0.1),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -223,7 +222,7 @@ class F1Card extends StatelessWidget {
       case F1CardVariant.gradient:
         return [
           BoxShadow(
-            color: F1Colors.ciano.withOpacity(0.1),
+            color: F1Colors.ciano.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

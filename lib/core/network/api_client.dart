@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:f1sync/core/constants/api_constants.dart';
 import 'package:f1sync/core/network/api_exception.dart';
 import 'package:f1sync/core/network/rate_limiter.dart';
 
@@ -43,7 +42,8 @@ class OpenF1ApiClient {
   /// Parameters:
   /// - [endpoint]: API endpoint path (e.g., '/drivers')
   /// - [fromJson]: Factory function to convert JSON map to model instance
-  /// - [queryParameters]: Optional query parameters for filtering/pagination
+  /// - [queryParameters]: Optional query parameters for filtering/pagination (preferred)
+  /// - [queryParams]: Alias for queryParameters (for backwards compatibility)
   ///
   /// Returns a list of [T] instances.
   ///
@@ -56,15 +56,19 @@ class OpenF1ApiClient {
     required String endpoint,
     required T Function(Map<String, dynamic>) fromJson,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? queryParams,
   }) async {
     // Wait if we've hit the rate limit
     await _rateLimiter.waitIfNeeded();
+
+    // Use queryParams if provided, otherwise use queryParameters
+    final params = queryParams ?? queryParameters;
 
     return await _retryRequest(
       () => _getListInternal(
         endpoint: endpoint,
         fromJson: fromJson,
-        queryParameters: queryParameters,
+        queryParameters: params,
       ),
     );
   }
@@ -188,6 +192,22 @@ class OpenF1ApiClient {
     );
 
     return list.isEmpty ? null : list.first;
+  }
+
+  /// Alias for getOne() to match data source interface
+  ///
+  /// This method exists for backwards compatibility with data sources
+  /// that use the getSingle naming convention.
+  Future<T?> getSingle<T>({
+    required String endpoint,
+    required T Function(Map<String, dynamic>) fromJson,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    return getOne<T>(
+      endpoint: endpoint,
+      fromJson: fromJson,
+      queryParameters: queryParams,
+    );
   }
 
   /// Get the current rate limiter instance (useful for testing/debugging)

@@ -1,5 +1,5 @@
 import 'package:f1sync/core/cache/cache_service.dart';
-import 'package:f1sync/core/network/api_client.dart';
+import 'package:f1sync/core/network/providers.dart' as network_providers;
 import 'package:f1sync/features/drivers/data/datasources/drivers_remote_data_source.dart';
 import 'package:f1sync/features/drivers/data/repositories/drivers_repository_impl.dart';
 import 'package:f1sync/features/drivers/domain/repositories/drivers_repository.dart';
@@ -30,12 +30,6 @@ part 'providers.g.dart';
 
 // ========== Core Services ==========
 
-/// API Client Provider
-@riverpod
-OpenF1ApiClient apiClient(ApiClientRef ref) {
-  return OpenF1ApiClient();
-}
-
 /// Cache Service Provider
 @riverpod
 CacheService cacheService(CacheServiceRef ref) {
@@ -51,52 +45,52 @@ CacheService cacheService(CacheServiceRef ref) {
 MeetingsRemoteDataSource meetingsRemoteDataSource(
   MeetingsRemoteDataSourceRef ref,
 ) {
-  return MeetingsRemoteDataSource(ref.watch(apiClientProvider));
+  return MeetingsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 SessionsRemoteDataSource sessionsRemoteDataSource(
   SessionsRemoteDataSourceRef ref,
 ) {
-  return SessionsRemoteDataSource(ref.watch(apiClientProvider));
+  return SessionsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 DriversRemoteDataSource driversRemoteDataSource(
   DriversRemoteDataSourceRef ref,
 ) {
-  return DriversRemoteDataSource(ref.watch(apiClientProvider));
+  return DriversRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 LapsRemoteDataSource lapsRemoteDataSource(LapsRemoteDataSourceRef ref) {
-  return LapsRemoteDataSource(ref.watch(apiClientProvider));
+  return LapsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 PositionsRemoteDataSource positionsRemoteDataSource(
   PositionsRemoteDataSourceRef ref,
 ) {
-  return PositionsRemoteDataSource(ref.watch(apiClientProvider));
+  return PositionsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 WeatherRemoteDataSource weatherRemoteDataSource(
   WeatherRemoteDataSourceRef ref,
 ) {
-  return WeatherRemoteDataSource(ref.watch(apiClientProvider));
+  return WeatherRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 RaceControlRemoteDataSource raceControlRemoteDataSource(
   RaceControlRemoteDataSourceRef ref,
 ) {
-  return RaceControlRemoteDataSource(ref.watch(apiClientProvider));
+  return RaceControlRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 @riverpod
 StintsRemoteDataSource stintsRemoteDataSource(StintsRemoteDataSourceRef ref) {
-  return StintsRemoteDataSource(ref.watch(apiClientProvider));
+  return StintsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
 }
 
 // ========== Repositories ==========
