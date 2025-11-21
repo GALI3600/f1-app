@@ -35,8 +35,8 @@ class ConnectivityService {
 
   /// Get current connectivity status
   Future<ConnectivityStatus> get currentStatus async {
-    final results = await _connectivity.checkConnectivity();
-    return _mapToStatus(results);
+    final result = await _connectivity.checkConnectivity();
+    return _mapToStatus([result]);
   }
 
   /// Check if device is connected to internet
@@ -75,11 +75,11 @@ class ConnectivityService {
     return _statusController!.stream;
   }
 
-  StreamSubscription<List<ConnectivityResult>>? _subscription;
+  StreamSubscription<ConnectivityResult>? _subscription;
 
   void _startListening() {
-    _subscription = _connectivity.onConnectivityChanged.listen((results) {
-      final status = _mapToStatus(results);
+    _subscription = _connectivity.onConnectivityChanged.listen((result) {
+      final status = _mapToStatus([result]);
       _statusController?.add(status);
     });
   }

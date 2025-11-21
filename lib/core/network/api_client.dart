@@ -190,6 +190,22 @@ class OpenF1ApiClient {
     return list.isEmpty ? null : list.first;
   }
 
+  /// Alias for getOne() to match data source interface
+  ///
+  /// This method exists for backwards compatibility with data sources
+  /// that use the getSingle naming convention.
+  Future<T?> getSingle<T>({
+    required String endpoint,
+    required T Function(Map<String, dynamic>) fromJson,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    return getOne<T>(
+      endpoint: endpoint,
+      fromJson: fromJson,
+      queryParameters: queryParams,
+    );
+  }
+
   /// Get the current rate limiter instance (useful for testing/debugging)
   RateLimiter get rateLimiter => _rateLimiter;
 }

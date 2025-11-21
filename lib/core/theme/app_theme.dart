@@ -45,7 +45,7 @@ class AppTheme {
       ),
 
       // ========== Card ==========
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: F1Colors.navy,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -195,7 +195,7 @@ class AppTheme {
       ),
 
       // ========== Dialog ==========
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: F1Colors.navy,
         elevation: 8,
         shape: RoundedRectangleBorder(
@@ -288,7 +288,7 @@ class AppTheme {
       ),
 
       // ========== TabBar ==========
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         labelColor: F1Colors.ciano,
         unselectedLabelColor: F1Colors.textSecondary,
         indicatorColor: F1Colors.ciano,
