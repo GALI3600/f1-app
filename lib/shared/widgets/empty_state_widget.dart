@@ -151,57 +151,58 @@ class F1EmptyStateWidget extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-            // Title
-            Text(
-              title,
-              style: F1TextStyles.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-
-            // Message
-            if (message != null)
+              // Title
               Text(
-                message!,
-                style: F1TextStyles.bodyMedium,
+                title,
+                style: F1TextStyles.headlineSmall,
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 12),
 
-            // Action Button
-            if (onAction != null) ...[
-              const SizedBox(height: 24),
-              if (useTextButton)
-                TextButton.icon(
-                  onPressed: onAction,
-                  icon: const Icon(Icons.arrow_forward_rounded),
-                  label: Text(actionText),
-                  style: TextButton.styleFrom(
-                    foregroundColor: F1Colors.ciano,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                  ),
-                )
-              else
-                ElevatedButton.icon(
-                  onPressed: onAction,
-                  icon: const Icon(Icons.arrow_forward_rounded),
-                  label: Text(actionText),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: F1Colors.ciano,
-                    foregroundColor: F1Colors.navyDeep,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+              // Message
+              if (message != null)
+                Text(
+                  message!,
+                  style: F1TextStyles.bodyMedium,
+                  textAlign: TextAlign.center,
                 ),
+
+              // Action Button
+              if (onAction != null) ...[
+                const SizedBox(height: 24),
+                if (useTextButton)
+                  TextButton.icon(
+                    onPressed: onAction,
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(actionText),
+                    style: TextButton.styleFrom(
+                      foregroundColor: F1Colors.ciano,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                  )
+                else
+                  ElevatedButton.icon(
+                    onPressed: onAction,
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(actionText),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: F1Colors.ciano,
+                      foregroundColor: F1Colors.navyDeep,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

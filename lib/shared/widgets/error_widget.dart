@@ -183,57 +183,58 @@ class F1ErrorWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
 
-            // Error Details (for debugging)
-            if (showDetails && errorDetails != null) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: F1Colors.navyLight,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: F1Colors.error.withOpacity(0.3),
-                    width: 1,
+              // Error Details (for debugging)
+              if (showDetails && errorDetails != null) ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: F1Colors.navyLight,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: F1Colors.error.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    errorDetails!,
+                    style: F1TextStyles.bodySmall.copyWith(
+                      fontFamily: 'RobotoMono',
+                      color: F1Colors.error,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
                 ),
-                child: Text(
-                  errorDetails!,
-                  style: F1TextStyles.bodySmall.copyWith(
-                    fontFamily: 'RobotoMono',
-                    color: F1Colors.error,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ],
+              ],
 
-            // Retry Button
-            if (onRetry != null) ...[
-              const SizedBox(height: 24),
-              Semantics(
-                button: true,
-                enabled: true,
-                label: retryText,
-                hint: 'Double tap to retry',
-                child: ElevatedButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh_rounded),
-                  label: Text(retryText),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: F1Colors.ciano,
-                    foregroundColor: F1Colors.navyDeep,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              // Retry Button
+              if (onRetry != null) ...[
+                const SizedBox(height: 24),
+                Semantics(
+                  button: true,
+                  enabled: true,
+                  label: retryText,
+                  hint: 'Double tap to retry',
+                  child: ElevatedButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(retryText),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: F1Colors.ciano,
+                      foregroundColor: F1Colors.navyDeep,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
