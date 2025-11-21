@@ -30,7 +30,7 @@ class SessionResultCard extends StatelessWidget {
             // Team color strip
             if (driver != null)
               TeamColorStrip(
-                teamColor: _getTeamColor(driver!.teamColour),
+                teamColor: driver!.teamColour,
                 width: 4,
               ),
             // Position badge
@@ -40,8 +40,9 @@ class SessionResultCard extends StatelessWidget {
             if (driver != null) ...[
               DriverAvatar(
                 imageUrl: driver!.headshotUrl,
-                driverName: driver!.nameAcronym,
-                size: 40,
+                teamColor: driver!.teamColour,
+                driverName: driver!.fullName,
+                size: DriverAvatarSize.small,
               ),
               const SizedBox(width: 12),
             ],

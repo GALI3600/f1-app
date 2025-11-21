@@ -79,8 +79,10 @@ class MeetingsHistoryScreen extends ConsumerWidget {
               },
               loading: () => const LoadingWidget(),
               error: (error, stack) => F1ErrorWidget(
-                error: error,
-                stackTrace: stack,
+                title: 'Error Loading Meetings',
+                message: error.toString(),
+                errorDetails: stack.toString(),
+                showDetails: true,
                 onRetry: () {
                   ref.invalidate(meetingsListProvider(selectedYear));
                 },

@@ -43,7 +43,8 @@ class OpenF1ApiClient {
   /// Parameters:
   /// - [endpoint]: API endpoint path (e.g., '/drivers')
   /// - [fromJson]: Factory function to convert JSON map to model instance
-  /// - [queryParameters]: Optional query parameters for filtering/pagination
+  /// - [queryParameters]: Optional query parameters for filtering/pagination (preferred)
+  /// - [queryParams]: Alias for queryParameters (for backwards compatibility)
   ///
   /// Returns a list of [T] instances.
   ///
@@ -56,15 +57,19 @@ class OpenF1ApiClient {
     required String endpoint,
     required T Function(Map<String, dynamic>) fromJson,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? queryParams,
   }) async {
     // Wait if we've hit the rate limit
     await _rateLimiter.waitIfNeeded();
+
+    // Use queryParams if provided, otherwise use queryParameters
+    final params = queryParams ?? queryParameters;
 
     return await _retryRequest(
       () => _getListInternal(
         endpoint: endpoint,
         fromJson: fromJson,
-        queryParameters: queryParameters,
+        queryParameters: params,
       ),
     );
   }

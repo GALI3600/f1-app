@@ -85,7 +85,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
           );
         },
         loading: () => const LoadingWidget(),
-        error: (error, stack) => custom.ErrorWidget(
+        error: (error, stack) => custom.F1ErrorWidget(
           message: error.toString(),
           onRetry: () {
             ref
@@ -246,7 +246,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
           );
         },
         loading: () => const LoadingWidget(),
-        error: (error, stack) => custom.ErrorWidget(
+        error: (error, stack) => custom.F1ErrorWidget(
           message: error.toString(),
           onRetry: () {
             ref.invalidate(sessionResultsProvider(widget.sessionKey));
