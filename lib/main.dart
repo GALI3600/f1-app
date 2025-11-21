@@ -3,9 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:f1sync/core/router/app_router.dart';
 import 'package:f1sync/core/theme/app_theme.dart';
+import 'package:f1sync/core/error/global_error_handler.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize global error handler
+  GlobalErrorHandler.initialize();
 
   // Configure system UI overlay style (status bar, nav bar)
   SystemChrome.setSystemUIOverlayStyle(
@@ -44,6 +48,8 @@ class F1SyncApp extends ConsumerWidget {
       themeMode: ThemeMode.dark, // Always use dark theme for Phase 1
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      // Global scaffold messenger key for error notifications
+      scaffoldMessengerKey: GlobalErrorHandler.scaffoldMessengerKey,
     );
   }
 }

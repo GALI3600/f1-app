@@ -88,7 +88,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                                 .clearFilters();
                           }
                         : null,
-                    actionLabel: 'Clear Filters',
+                    actionText: 'Clear Filters',
                   );
                 }
 

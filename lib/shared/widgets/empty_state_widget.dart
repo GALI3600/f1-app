@@ -131,21 +131,25 @@ class F1EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon
-            Icon(
-              icon,
-              size: iconSize,
-              color: iconColor,
-            ),
-            const SizedBox(height: 24),
+    return Semantics(
+      label: '$title${message != null ? '. $message' : ''}',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Icon
+              ExcludeSemantics(
+                child: Icon(
+                  icon,
+                  size: iconSize,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(height: 24),
 
             // Title
             Text(

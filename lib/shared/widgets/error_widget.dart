@@ -103,39 +103,85 @@ class F1ErrorWidget extends StatelessWidget {
     this.errorDetails,
   });
 
+  /// Generic error variant (for uncategorized errors)
+  const F1ErrorWidget.generic({
+    super.key,
+    this.title = 'Something went wrong',
+    this.message = 'An unexpected error occurred. Please try again',
+    this.icon = Icons.error_outline_rounded,
+    this.iconColor = F1Colors.error,
+    this.onRetry,
+    this.retryText = 'Retry',
+    this.showDetails = false,
+    this.errorDetails,
+  });
+
+  /// Timeout error variant
+  const F1ErrorWidget.timeout({
+    super.key,
+    this.title = 'Request Timed Out',
+    this.message = 'The request took too long. Please try again',
+    this.icon = Icons.schedule_outlined,
+    this.iconColor = F1Colors.warning,
+    this.onRetry,
+    this.retryText = 'Retry',
+    this.showDetails = false,
+    this.errorDetails,
+  });
+
+  /// Rate limited error variant
+  const F1ErrorWidget.rateLimited({
+    super.key,
+    this.title = 'Too Many Requests',
+    this.message = 'Please wait a moment before trying again',
+    this.icon = Icons.speed_rounded,
+    this.iconColor = F1Colors.warning,
+    this.onRetry,
+    this.retryText = 'Try Again',
+    this.showDetails = false,
+    this.errorDetails,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Error Icon
-            Icon(
-              icon,
-              size: 64,
-              color: iconColor,
-            ),
-            const SizedBox(height: 24),
-
-            // Error Title
-            Text(
-              title,
-              style: F1TextStyles.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-
-            // Error Message
-            if (message != null)
-              Text(
-                message!,
-                style: F1TextStyles.bodyMedium,
-                textAlign: TextAlign.center,
+    return Semantics(
+      label: 'Error: $title${message != null ? '. $message' : ''}',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Error Icon
+              ExcludeSemantics(
+                child: Icon(
+                  icon,
+                  size: 64,
+                  color: iconColor,
+                ),
               ),
+              const SizedBox(height: 24),
+
+              // Error Title
+              Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  style: F1TextStyles.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Error Message
+              if (message != null)
+                Text(
+                  message!,
+                  style: F1TextStyles.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
 
             // Error Details (for debugging)
             if (showDetails && errorDetails != null) ...[
@@ -164,19 +210,25 @@ class F1ErrorWidget extends StatelessWidget {
             // Retry Button
             if (onRetry != null) ...[
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(retryText),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: F1Colors.ciano,
-                  foregroundColor: F1Colors.navyDeep,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              Semantics(
+                button: true,
+                enabled: true,
+                label: retryText,
+                hint: 'Double tap to retry',
+                child: ElevatedButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: Text(retryText),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: F1Colors.ciano,
+                    foregroundColor: F1Colors.navyDeep,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ),
