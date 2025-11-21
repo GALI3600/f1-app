@@ -5,7 +5,6 @@ import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
 import '../../../../shared/widgets/loading_widget.dart';
-import '../../../../shared/widgets/error_widget.dart';
 import '../../../../core/error/error_mapper.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 import '../providers/drivers_list_provider.dart';

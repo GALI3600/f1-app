@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/loading_widget.dart';
-import '../../../../shared/widgets/error_widget.dart';
 import '../../../../core/error/error_mapper.dart';
 import '../providers/driver_detail_provider.dart';
 import '../widgets/driver_profile_header.dart';
