@@ -21,6 +21,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         backgroundColor: Colors.transparent,
       ),
       body: custom.F1ErrorWidget(
+        title: 'Page Not Found',
         message: 'Page not found: ${state.uri.path}',
         onRetry: () => context.go('/'),
       ),
@@ -59,6 +60,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               state: state,
               child: Scaffold(
                 body: custom.F1ErrorWidget(
+                  title: 'Invalid Meeting',
                   message: 'Invalid meeting key',
                   onRetry: () => context.go('/meetings'),
                 ),
@@ -94,6 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               state: state,
               child: Scaffold(
                 body: custom.F1ErrorWidget(
+                  title: 'Invalid Driver',
                   message: 'Invalid driver number',
                   onRetry: () => context.go('/drivers'),
                 ),
@@ -120,6 +123,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               state: state,
               child: Scaffold(
                 body: custom.F1ErrorWidget(
+                  title: 'Invalid Session',
                   message: 'Invalid session key',
                   onRetry: () => context.go('/'),
                 ),

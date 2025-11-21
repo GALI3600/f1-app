@@ -52,7 +52,7 @@ class _RaceControlFeedState extends State<RaceControlFeed> {
                           widget.onFilterChanged?.call(filter);
                         }
                       },
-                      selectedColor: F1Colors.ciano.withOpacity(0.3),
+                      selectedColor: F1Colors.ciano.withValues(alpha: 0.3),
                       checkmarkColor: F1Colors.ciano,
                     ),
                   );
@@ -87,10 +87,14 @@ class _RaceControlFeedState extends State<RaceControlFeed> {
                   itemCount: filteredMessages.length,
                   itemBuilder: (context, index) {
                     final message = filteredMessages[index];
-                    final driver = widget.drivers?.firstWhere(
-                      (d) => d.driverNumber == message.driverNumber,
-                      orElse: () => null as Driver,
-                    );
+                    Driver? driver;
+                    try {
+                      driver = widget.drivers?.firstWhere(
+                        (d) => d.driverNumber == message.driverNumber,
+                      );
+                    } catch (e) {
+                      driver = null;
+                    }
 
                     return _RaceControlMessageCard(
                       message: message,
@@ -146,7 +150,7 @@ class _RaceControlMessageCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: _getCategoryColor().withOpacity(0.2),
+                color: _getCategoryColor().withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -170,7 +174,7 @@ class _RaceControlMessageCard extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: _getCategoryColor().withOpacity(0.2),
+                          color: _getCategoryColor().withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: _getCategoryColor()),
                         ),
@@ -257,7 +261,7 @@ class _RaceControlMessageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: flagColor.withOpacity(0.2),
+        color: flagColor.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: flagColor),
       ),

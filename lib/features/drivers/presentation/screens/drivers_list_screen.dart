@@ -143,7 +143,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
         color: F1Colors.navy,
         border: Border(
           bottom: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -182,13 +182,13 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: F1Colors.ciano.withOpacity(0.3),
+                  color: F1Colors.ciano.withValues(alpha: 0.3),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
-                  color: F1Colors.ciano.withOpacity(0.3),
+                  color: F1Colors.ciano.withValues(alpha: 0.3),
                 ),
               ),
               focusedBorder: OutlineInputBorder(

@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:f1sync/core/constants/api_constants.dart';
 import 'package:f1sync/core/network/api_exception.dart';
 import 'package:f1sync/core/network/rate_limiter.dart';
 

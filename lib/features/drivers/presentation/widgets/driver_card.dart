@@ -38,12 +38,12 @@ class DriverCard extends StatelessWidget {
           color: F1Colors.navy,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: teamColor.withOpacity(0.3),
+            color: teamColor.withValues(alpha: 0.3),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: teamColor.withOpacity(0.1),
+              color: teamColor.withValues(alpha: 0.1),
               blurRadius: 12,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -122,8 +122,8 @@ class DriverCard extends StatelessWidget {
                     center: Alignment.center,
                     radius: 1.0,
                     colors: [
-                      teamColor.withOpacity(0.0),
-                      teamColor.withOpacity(0.05),
+                      teamColor.withValues(alpha: 0.0),
+                      teamColor.withValues(alpha: 0.05),
                     ],
                   ),
                 ),
@@ -170,7 +170,7 @@ class DriverCardCompact extends StatelessWidget {
           color: F1Colors.navy,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: teamColor.withOpacity(0.3),
+            color: teamColor.withValues(alpha: 0.3),
             width: 1,
           ),
         ),

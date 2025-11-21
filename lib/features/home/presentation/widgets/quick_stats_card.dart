@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/theme/f1_text_styles.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:f1sync/features/drivers/data/models/driver.dart';
 import 'package:f1sync/shared/widgets/f1_card.dart';
 
@@ -167,7 +166,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.15),
+              color: iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(

@@ -33,7 +33,7 @@ class GPListTile extends StatelessWidget {
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [
-                F1Colors.ciano.withOpacity(0.3),
+                F1Colors.ciano.withValues(alpha: 0.3),
                 Colors.transparent,
               ],
               stops: const [0.0, 0.05], // Gradient only on left border

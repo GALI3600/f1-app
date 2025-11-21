@@ -210,7 +210,7 @@ void main() {
       );
 
       final color = driver.teamColor;
-      expect(color.value, 0xFF3671C6);
+      expect(color.toARGB32(), 0xFF3671C6);
     });
 
     test('avatarUrl extension provides fallback', () {

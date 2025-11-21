@@ -98,7 +98,7 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
       baseColor: F1Colors.navy,
-      highlightColor: F1Colors.ciano.withOpacity(0.3),
+      highlightColor: F1Colors.ciano.withValues(alpha: 0.3),
       period: duration,
       child: child ??
           Container(

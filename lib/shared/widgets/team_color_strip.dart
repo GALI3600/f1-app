@@ -88,7 +88,7 @@ class TeamColorStrip extends StatelessWidget {
         boxShadow: showGlow
             ? [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: 8,
                   spreadRadius: 1,
                 ),
@@ -179,7 +179,7 @@ class HorizontalTeamColorStrip extends StatelessWidget {
         boxShadow: showGlow
             ? [
                 BoxShadow(
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   blurRadius: 8,
                   spreadRadius: 1,
                 ),
@@ -259,7 +259,7 @@ class TeamColorCard extends StatelessWidget {
         boxShadow: showShadow
             ? [
                 BoxShadow(
-                  color: F1Colors.ciano.withOpacity(0.1),
+                  color: F1Colors.ciano.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),

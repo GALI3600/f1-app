@@ -77,13 +77,13 @@ class LapTimesChart extends StatelessWidget {
                   verticalInterval: 5,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: F1Colors.navyLight.withOpacity(0.3),
+                      color: F1Colors.navyLight.withValues(alpha: 0.3),
                       strokeWidth: 1,
                     );
                   },
                   getDrawingVerticalLine: (value) {
                     return FlLine(
-                      color: F1Colors.navyLight.withOpacity(0.3),
+                      color: F1Colors.navyLight.withValues(alpha: 0.3),
                       strokeWidth: 1,
                     );
                   },
@@ -142,7 +142,7 @@ class LapTimesChart extends StatelessWidget {
                 borderData: FlBorderData(
                   show: true,
                   border: Border.all(
-                    color: F1Colors.navyLight.withOpacity(0.3),
+                    color: F1Colors.navyLight.withValues(alpha: 0.3),
                   ),
                 ),
                 minX: validLaps.first.lapNumber.toDouble(),
@@ -189,8 +189,8 @@ class LapTimesChart extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          lineColor.withOpacity(0.3),
-                          lineColor.withOpacity(0.0),
+                          lineColor.withValues(alpha: 0.3),
+                          lineColor.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -240,7 +240,7 @@ class LapTimesChart extends StatelessWidget {
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: F1Colors.dourado.withOpacity(0.5),
+          color: F1Colors.dourado.withValues(alpha: 0.5),
           width: 1,
         ),
       ),

@@ -286,7 +286,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -325,7 +325,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.dourado.withOpacity(0.5),
+          color: F1Colors.dourado.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -367,7 +367,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.ciano.withOpacity(0.3),
+          color: F1Colors.ciano.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

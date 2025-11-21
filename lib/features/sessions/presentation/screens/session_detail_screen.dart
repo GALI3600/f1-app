@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/session_detail_provider.dart';
-import '../../session_results/presentation/providers/session_results_provider.dart';
+import '../../../session_results/presentation/providers/session_results_provider.dart';
 import '../widgets/session_result_card.dart';
 import '../widgets/weather_widget.dart';
 import '../widgets/race_control_feed.dart';
@@ -86,6 +86,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
         },
         loading: () => const LoadingWidget(),
         error: (error, stack) => custom.F1ErrorWidget(
+          title: 'Failed to Load Session',
           message: error.toString(),
           onRetry: () {
             ref
@@ -124,7 +125,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
         color: F1Colors.navy,
         border: Border(
           bottom: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -184,7 +185,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
         color: F1Colors.navyDeep,
         border: Border(
           bottom: BorderSide(
-            color: F1Colors.ciano.withOpacity(0.3),
+            color: F1Colors.ciano.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -247,6 +248,7 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
         },
         loading: () => const LoadingWidget(),
         error: (error, stack) => custom.F1ErrorWidget(
+          title: 'Failed to Load Results',
           message: error.toString(),
           onRetry: () {
             ref.invalidate(sessionResultsProvider(widget.sessionKey));

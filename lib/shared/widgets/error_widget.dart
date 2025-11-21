@@ -192,7 +192,7 @@ class F1ErrorWidget extends StatelessWidget {
                     color: F1Colors.navyLight,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: F1Colors.error.withOpacity(0.3),
+                      color: F1Colors.error.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),

@@ -177,7 +177,7 @@ class _WeatherDataItem extends StatelessWidget {
         Icon(
           icon,
           size: 20,
-          color: F1Colors.ciano.withOpacity(0.7),
+          color: F1Colors.ciano.withValues(alpha: 0.7),
         ),
         const SizedBox(width: 8),
         Expanded(
