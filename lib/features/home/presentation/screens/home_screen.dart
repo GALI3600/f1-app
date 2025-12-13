@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/theme/f1_text_styles.dart';
 import 'package:f1sync/core/theme/f1_gradients.dart';
@@ -114,7 +115,9 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 24),
 
               // Navigation Grid
-              const NavigationGrid(),
+              NavigationGrid(
+                onNavigate: (route) => context.go(route),
+              ),
 
               // Bottom spacing
               const SizedBox(height: 24),

@@ -7,12 +7,12 @@ part 'stint.g.dart';
 @freezed
 class Stint with _$Stint {
   const factory Stint({
-    @JsonKey(name: 'compound') required String compound,
+    @JsonKey(name: 'compound') @Default('UNKNOWN') String compound,
     @JsonKey(name: 'driver_number') required int driverNumber,
-    @JsonKey(name: 'lap_end') required int lapEnd,
-    @JsonKey(name: 'lap_start') required int lapStart,
-    @JsonKey(name: 'stint_number') required int stintNumber,
-    @JsonKey(name: 'tyre_age_at_start') required int tyreAgeAtStart,
+    @JsonKey(name: 'lap_end') int? lapEnd,
+    @JsonKey(name: 'lap_start') @Default(1) int lapStart,
+    @JsonKey(name: 'stint_number') @Default(1) int stintNumber,
+    @JsonKey(name: 'tyre_age_at_start') @Default(0) int tyreAgeAtStart,
     @JsonKey(name: 'session_key') required int sessionKey,
     @JsonKey(name: 'meeting_key') required int meetingKey,
   }) = _Stint;

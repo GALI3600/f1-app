@@ -292,25 +292,27 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
             icon,
             color: F1Colors.ciano,
-            size: 24,
+            size: 22,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           Text(
             value,
             style: F1TextStyles.displaySmall.copyWith(
-              fontSize: 32,
+              fontSize: 28,
               color: valueColor,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
             label,
             style: F1TextStyles.bodyMedium.copyWith(
               color: F1Colors.textSecondary,
+              fontSize: 12,
             ),
           ),
         ],
@@ -337,23 +339,27 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
             size: 32,
           ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _formatLapTime(lap.lapDuration),
-                style: F1TextStyles.lapTime.copyWith(
-                  color: F1Colors.dourado,
-                  fontSize: 24,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _formatLapTime(lap.lapDuration),
+                  style: F1TextStyles.lapTime.copyWith(
+                    color: F1Colors.dourado,
+                    fontSize: 22,
+                  ),
                 ),
-              ),
-              Text(
-                'Lap ${lap.lapNumber}',
-                style: F1TextStyles.bodyMedium.copyWith(
-                  color: F1Colors.textSecondary,
+                Text(
+                  'Lap ${lap.lapNumber}',
+                  style: F1TextStyles.bodyMedium.copyWith(
+                    color: F1Colors.textSecondary,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

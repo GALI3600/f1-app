@@ -156,38 +156,39 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return F1Card.primary(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Icon
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
               icon,
               color: iconColor,
-              size: 20,
+              size: 18,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           // Label
           Text(
             label,
             style: F1TextStyles.labelSmall.copyWith(
               color: F1Colors.textSecondary,
-              fontSize: 10,
+              fontSize: 9,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
 
           // Value
           Text(
@@ -195,25 +196,23 @@ class _StatCard extends StatelessWidget {
             style: F1TextStyles.headlineSmall.copyWith(
               color: F1Colors.textPrimary,
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 16,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
 
           // Subtitle (optional)
-          if (subtitle != null) ...[
-            const SizedBox(height: 2),
+          if (subtitle != null)
             Text(
               subtitle!,
               style: F1TextStyles.bodySmall.copyWith(
                 color: F1Colors.textSecondary,
-                fontSize: 10,
+                fontSize: 9,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          ],
         ],
       ),
     );

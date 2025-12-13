@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter create:*)",
+      "Bash(powershell.exe -Command \"cd ''C:\\Users\\Gabriel\\Documents\\Projects\\personal\\f1-app''; flutter pub run build_runner build --delete-conflicting-outputs\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

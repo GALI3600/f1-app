@@ -114,7 +114,8 @@ class StintsTimeline extends StatelessWidget {
                     ),
                     child: Row(
                       children: sortedStints.map((stint) {
-                        final stintLaps = stint.lapEnd - stint.lapStart + 1;
+                        final lapEnd = stint.lapEnd ?? totalLaps;
+                        final stintLaps = lapEnd - stint.lapStart + 1;
                         final stintWidth = (stintLaps / totalLaps);
 
                         return Flexible(
@@ -171,7 +172,8 @@ class StintsTimeline extends StatelessWidget {
 
   Widget _buildStintCard(Stint stint) {
     final compoundColor = _getCompoundColor(stint.compound);
-    final stintLaps = stint.lapEnd - stint.lapStart + 1;
+    final lapEnd = stint.lapEnd ?? totalLaps;
+    final stintLaps = lapEnd - stint.lapStart + 1;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -231,7 +233,7 @@ class StintsTimeline extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Laps ${stint.lapStart} - ${stint.lapEnd} • Age: ${stint.tyreAgeAtStart} laps',
+                  'Laps ${stint.lapStart} - $lapEnd • Age: ${stint.tyreAgeAtStart} laps',
                   style: F1TextStyles.bodySmall.copyWith(
                     color: F1Colors.textSecondary,
                   ),

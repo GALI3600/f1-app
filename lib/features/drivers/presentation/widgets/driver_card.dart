@@ -65,9 +65,10 @@ class DriverCard extends StatelessWidget {
 
             // Card content
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Large driver avatar with team color border
                   DriverAvatar(
@@ -77,33 +78,36 @@ class DriverCard extends StatelessWidget {
                     size: DriverAvatarSize.large,
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   // Huge driver number
                   Text(
                     driver.driverNumber.toString(),
                     style: F1TextStyles.driverNumber.copyWith(
-                      fontSize: 48,
+                      fontSize: 40,
                       color: teamColor,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   // Driver name acronym
                   Text(
                     driver.nameAcronym,
-                    style: F1TextStyles.headlineMedium,
+                    style: F1TextStyles.headlineMedium.copyWith(
+                      fontSize: 16,
+                    ),
                     textAlign: TextAlign.center,
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
 
                   // Team name
                   Text(
                     driver.teamName,
                     style: F1TextStyles.bodySmall.copyWith(
                       color: F1Colors.textSecondary,
+                      fontSize: 11,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
@@ -198,18 +202,22 @@ class DriverCardCompact extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     driver.fullName,
-                    style: F1TextStyles.headlineSmall,
+                    style: F1TextStyles.headlineSmall.copyWith(
+                      fontSize: 14,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     driver.teamName,
                     style: F1TextStyles.bodyMedium.copyWith(
                       color: F1Colors.textSecondary,
+                      fontSize: 12,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

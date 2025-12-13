@@ -170,24 +170,25 @@ class DriverProfileHeader extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Country flag and code
-                Row(
-                  children: [
-                    // Country flag emoji (if we can construct it from country code)
-                    Text(
-                      _getCountryFlag(driver.countryCode),
-                      style: const TextStyle(fontSize: 24),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      driver.countryCode,
-                      style: F1TextStyles.bodyLarge.copyWith(
-                        color: F1Colors.textSecondary,
-                        fontWeight: FontWeight.w600,
+                // Country flag and code (only show if available)
+                if (driver.countryCode != null)
+                  Row(
+                    children: [
+                      // Country flag emoji (if we can construct it from country code)
+                      Text(
+                        _getCountryFlag(driver.countryCode!),
+                        style: const TextStyle(fontSize: 24),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 8),
+                      Text(
+                        driver.countryCode!,
+                        style: F1TextStyles.bodyLarge.copyWith(
+                          color: F1Colors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),

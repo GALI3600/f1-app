@@ -15,7 +15,7 @@ class Driver with _$Driver {
     @JsonKey(name: 'last_name') required String lastName,
     @JsonKey(name: 'team_name') required String teamName,
     @JsonKey(name: 'team_colour') required String teamColour,
-    @JsonKey(name: 'country_code') required String countryCode,
+    @JsonKey(name: 'country_code') String? countryCode,
     @JsonKey(name: 'headshot_url') String? headshotUrl,
     @JsonKey(name: 'session_key') required int sessionKey,
     @JsonKey(name: 'meeting_key') required int meetingKey,

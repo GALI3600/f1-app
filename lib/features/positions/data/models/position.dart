@@ -7,7 +7,7 @@ part 'position.g.dart';
 @freezed
 class Position with _$Position {
   const factory Position({
-    @JsonKey(name: 'date') required DateTime date,
+    @JsonKey(name: 'date') DateTime? date,
     @JsonKey(name: 'driver_number') required int driverNumber,
     @JsonKey(name: 'position') required int position,
     @JsonKey(name: 'session_key') required int sessionKey,
