@@ -38,19 +38,27 @@ class CacheService {
   static const String _boxName = 'f1sync_cache';
   Box? _box;
   final Logger _logger = Logger();
+  bool _isInitialized = false;
+  bool _isDisposed = false;
 
   /// In-memory cache for faster access
   final Map<String, CacheEntry> _memoryCache = {};
 
+  /// Check if the box is available for operations
+  bool get _isBoxAvailable => _box != null && _box!.isOpen && !_isDisposed;
+
   /// Initialize the cache service
   Future<void> init() async {
+    if (_isInitialized) return;
+
     try {
       await Hive.initFlutter();
       _box = await Hive.openBox(_boxName);
+      _isInitialized = true;
       _logger.i('Cache service initialized');
     } catch (e) {
       _logger.e('Failed to initialize cache: $e');
-      rethrow;
+      // Don't rethrow - allow app to work without disk cache
     }
   }
 
@@ -106,7 +114,7 @@ class CacheService {
 
   /// Get data from disk cache
   Future<T?> _getFromDisk<T>(String key) async {
-    if (_box == null) return null;
+    if (!_isBoxAvailable) return null;
 
     try {
       final entry = _box!.get(key);
@@ -116,7 +124,9 @@ class CacheService {
       if (entry is Map) {
         final expiresAt = DateTime.parse(entry['expiresAt'] as String);
         if (DateTime.now().isAfter(expiresAt)) {
-          await _box!.delete(key);
+          if (_isBoxAvailable) {
+            await _box!.delete(key);
+          }
           return null;
         }
         return entry['data'] as T;
@@ -139,23 +149,61 @@ class CacheService {
 
   /// Store data to disk cache
   Future<void> _storeToDisk<T>(String key, T data, Duration ttl) async {
-    if (_box == null) return;
+    if (!_isBoxAvailable) return;
 
     try {
+      // Convert data to JSON-serializable format
+      final serializedData = _serializeForDisk(data);
       final entry = {
-        'data': data,
+        'data': serializedData,
         'expiresAt': DateTime.now().add(ttl).toIso8601String(),
       };
-      await _box!.put(key, entry);
+
+      // Double-check box is still available before writing
+      if (_isBoxAvailable) {
+        await _box!.put(key, entry);
+      }
     } catch (e) {
       _logger.e('Error writing to disk cache: $e');
+    }
+  }
+
+  /// Convert data to a format that Hive can store
+  dynamic _serializeForDisk(dynamic data) {
+    if (data == null) return null;
+
+    // Primitive types (String, int, double, bool) - return as is
+    if (data is String || data is num || data is bool) {
+      return data;
+    }
+
+    // Handle Lists - convert each item
+    if (data is List) {
+      return data.map((item) => _serializeForDisk(item)).toList();
+    }
+
+    // Handle Maps
+    if (data is Map) {
+      return data.map((k, v) => MapEntry(k.toString(), _serializeForDisk(v)));
+    }
+
+    // Handle objects with toJson() method (freezed models)
+    try {
+      final result = (data as dynamic).toJson();
+      if (result is Map) {
+        return _serializeForDisk(result);
+      }
+      return result;
+    } catch (_) {
+      // Object doesn't have toJson - try toString as last resort
+      return data.toString();
     }
   }
 
   /// Clear all caches
   Future<void> clearAll() async {
     _memoryCache.clear();
-    if (_box != null) {
+    if (_isBoxAvailable) {
       await _box!.clear();
     }
     _logger.i('All caches cleared');
@@ -163,7 +211,7 @@ class CacheService {
 
   /// Clear expired entries from disk cache
   Future<void> clearExpired() async {
-    if (_box == null) return;
+    if (!_isBoxAvailable) return;
 
     try {
       final now = DateTime.now();
@@ -180,7 +228,9 @@ class CacheService {
       }
 
       for (var key in keysToDelete) {
-        await _box!.delete(key);
+        if (_isBoxAvailable) {
+          await _box!.delete(key);
+        }
       }
 
       _logger.i('Cleared ${keysToDelete.length} expired entries');
@@ -193,13 +243,17 @@ class CacheService {
   Map<String, dynamic> getStats() {
     return {
       'memory_entries': _memoryCache.length,
-      'disk_entries': _box?.length ?? 0,
+      'disk_entries': _isBoxAvailable ? _box!.length : 0,
     };
   }
 
   /// Dispose the cache service
   Future<void> dispose() async {
+    _isDisposed = true;
     _memoryCache.clear();
-    await _box?.close();
+    if (_box != null && _box!.isOpen) {
+      await _box!.close();
+    }
+    _box = null;
   }
 }

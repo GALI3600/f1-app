@@ -1,4 +1,4 @@
-import 'package:f1sync/core/cache/cache_service.dart';
+import 'package:f1sync/shared/services/cache/cache_service.dart';
 import 'package:f1sync/features/sessions/data/datasources/sessions_remote_data_source.dart';
 import 'package:f1sync/features/sessions/data/models/session.dart';
 import 'package:f1sync/features/sessions/domain/repositories/sessions_repository.dart';
@@ -21,7 +21,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
   }) async {
     final cacheKey = 'sessions_${meetingKey}_${sessionKey}_$sessionType';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Session>(
       key: cacheKey,
       ttl: CacheTTL.medium, // 1 hour - session schedule is stable
       fetch: () => _remoteDataSource.getSessions(
@@ -29,6 +29,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
         sessionKey: sessionKey,
         sessionType: sessionType,
       ),
+      fromJson: Session.fromJson,
     );
   }
 
@@ -40,6 +41,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
       key: cacheKey,
       ttl: CacheTTL.medium,
       fetch: () => _remoteDataSource.getSessionByKey(sessionKey),
+      fromJson: (json) => Session.fromJson(json),
     );
   }
 
@@ -51,6 +53,7 @@ class SessionsRepositoryImpl implements SessionsRepository {
       key: cacheKey,
       ttl: CacheTTL.short, // 5 minutes - current session changes frequently
       fetch: () => _remoteDataSource.getLatestSession(),
+      fromJson: (json) => Session.fromJson(json),
     );
   }
 }

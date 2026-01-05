@@ -4,12 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:f1sync/core/router/app_router.dart';
 import 'package:f1sync/core/theme/app_theme.dart';
 import 'package:f1sync/core/error/global_error_handler.dart';
+import 'package:f1sync/shared/services/cache/cache_service.dart';
+import 'package:f1sync/shared/services/providers.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize global error handler
   GlobalErrorHandler.initialize();
+
+  // Initialize cache service before app starts
+  final cacheService = CacheService();
+  await cacheService.init();
 
   // Configure system UI overlay style (status bar, nav bar)
   SystemChrome.setSystemUIOverlayStyle(
@@ -21,17 +27,23 @@ void main() {
     ),
   );
 
-  // Lock orientation to portrait (optional, can be removed for tablet support)
-  SystemChrome.setPreferredOrientations([
+  // Allow all orientations for landscape support
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((_) {
-    runApp(
-      const ProviderScope(
-        child: F1SyncApp(),
-      ),
-    );
-  });
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        // Use the pre-initialized cache service
+        cacheServiceProvider.overrideWithValue(cacheService),
+      ],
+      child: const F1SyncApp(),
+    ),
+  );
 }
 
 class F1SyncApp extends ConsumerWidget {

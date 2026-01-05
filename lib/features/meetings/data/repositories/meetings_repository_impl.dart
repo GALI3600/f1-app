@@ -1,4 +1,4 @@
-import 'package:f1sync/core/cache/cache_service.dart';
+import 'package:f1sync/shared/services/cache/cache_service.dart';
 import 'package:f1sync/features/meetings/data/datasources/meetings_remote_data_source.dart';
 import 'package:f1sync/features/meetings/data/models/meeting.dart';
 import 'package:f1sync/features/meetings/domain/repositories/meetings_repository.dart';
@@ -21,7 +21,7 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
   }) async {
     final cacheKey = 'meetings_${year}_${meetingKey}_$countryName';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Meeting>(
       key: cacheKey,
       ttl: CacheTTL.long, // 7 days - historical data doesn't change often
       fetch: () => _remoteDataSource.getMeetings(
@@ -29,6 +29,7 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
         meetingKey: meetingKey,
         countryName: countryName,
       ),
+      fromJson: Meeting.fromJson,
     );
   }
 
@@ -40,6 +41,7 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
       key: cacheKey,
       ttl: CacheTTL.long,
       fetch: () => _remoteDataSource.getMeetingByKey(meetingKey),
+      fromJson: (json) => Meeting.fromJson(json),
     );
   }
 
@@ -51,6 +53,7 @@ class MeetingsRepositoryImpl implements MeetingsRepository {
       key: cacheKey,
       ttl: CacheTTL.medium, // 1 hour - current GP changes weekly
       fetch: () => _remoteDataSource.getLatestMeeting(),
+      fromJson: (json) => Meeting.fromJson(json),
     );
   }
 }

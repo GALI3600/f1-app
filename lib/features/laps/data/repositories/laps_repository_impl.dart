@@ -1,4 +1,4 @@
-import 'package:f1sync/core/cache/cache_service.dart';
+import 'package:f1sync/shared/services/cache/cache_service.dart';
 import 'package:f1sync/features/laps/data/datasources/laps_remote_data_source.dart';
 import 'package:f1sync/features/laps/data/models/lap.dart';
 import 'package:f1sync/features/laps/domain/repositories/laps_repository.dart';
@@ -21,7 +21,7 @@ class LapsRepositoryImpl implements LapsRepository {
   }) async {
     final cacheKey = 'laps_${sessionKey}_${driverNumber}_$lapNumber';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Lap>(
       key: cacheKey,
       ttl: CacheTTL.short, // 5 minutes - laps update frequently during session
       fetch: () => _remoteDataSource.getLaps(
@@ -29,6 +29,7 @@ class LapsRepositoryImpl implements LapsRepository {
         driverNumber: driverNumber,
         lapNumber: lapNumber,
       ),
+      fromJson: Lap.fromJson,
     );
   }
 
@@ -39,13 +40,14 @@ class LapsRepositoryImpl implements LapsRepository {
   }) async {
     final cacheKey = 'driver_laps_${driverNumber}_$sessionKey';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Lap>(
       key: cacheKey,
       ttl: CacheTTL.short,
       fetch: () => _remoteDataSource.getDriverLaps(
         driverNumber: driverNumber,
         sessionKey: sessionKey,
       ),
+      fromJson: Lap.fromJson,
     );
   }
 }

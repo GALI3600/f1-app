@@ -1,6 +1,14 @@
 import 'package:f1sync/shared/services/cache/disk_cache.dart';
 import 'package:f1sync/shared/services/cache/memory_cache.dart';
 
+/// TTL presets for different types of data
+class CacheTTL {
+  static const short = Duration(minutes: 5); // Live data
+  static const medium = Duration(hours: 1); // Session data
+  static const long = Duration(days: 7); // Historical data
+  static const permanent = Duration(days: 365); // Results
+}
+
 /// Unified cache service with 3-layer strategy: Memory → Disk → Network
 ///
 /// Provides a high-level API for caching that automatically manages both
@@ -69,6 +77,8 @@ class CacheService {
   /// - [ttl]: Time to live duration
   /// - [fetch]: Function to fetch fresh data on cache miss
   /// - [diskTTL]: Optional different TTL for disk (defaults to [ttl])
+  /// - [fromJsonList]: Function to deserialize a list item from JSON (for List<T>)
+  /// - [fromJson]: Function to deserialize a single object from JSON
   ///
   /// Returns the cached or freshly fetched data.
   Future<T> getCached<T>({
@@ -76,22 +86,78 @@ class CacheService {
     required Duration ttl,
     required Future<T> Function() fetch,
     Duration? diskTTL,
+    dynamic Function(Map<String, dynamic>)? fromJsonList,
+    T Function(Map<String, dynamic>)? fromJson,
   }) async {
     // 1. Try memory cache
     final memoryData = _memoryCache.get<T>(key);
     if (memoryData != null) {
+      print('✅ Cache HIT (memory): $key');
       return memoryData;
     }
 
     // 2. Try disk cache
-    final diskData = await _diskCache.get<T>(key);
+    final diskData = await _diskCache.getWithDeserializer<T>(
+      key,
+      fromJsonList: fromJsonList,
+      fromJson: fromJson,
+    );
     if (diskData != null) {
+      print('✅ Cache HIT (disk): $key');
       // Populate memory cache
       _memoryCache.set(key, diskData, ttl);
       return diskData;
     }
 
     // 3. Fetch fresh data
+    print('❌ Cache MISS: $key');
+    final freshData = await fetch();
+
+    // 4. Store in both caches
+    await setInBothCaches(key, freshData, ttl, diskTTL);
+
+    return freshData;
+  }
+
+  /// Get cached list data with proper typing
+  ///
+  /// This method properly types list elements to avoid List<dynamic> issues.
+  /// Use this instead of getCached when dealing with List<E> types.
+  ///
+  /// Parameters:
+  /// - [key]: Unique cache key
+  /// - [ttl]: Time to live duration
+  /// - [fetch]: Function to fetch fresh data on cache miss
+  /// - [fromJson]: Function to deserialize a single list element from JSON
+  /// - [diskTTL]: Optional different TTL for disk (defaults to [ttl])
+  Future<List<E>> getCachedList<E>({
+    required String key,
+    required Duration ttl,
+    required Future<List<E>> Function() fetch,
+    required E Function(Map<String, dynamic>) fromJson,
+    Duration? diskTTL,
+  }) async {
+    // 1. Try memory cache
+    final memoryData = _memoryCache.get<List<E>>(key);
+    if (memoryData != null) {
+      print('✅ Cache HIT (memory): $key');
+      return memoryData;
+    }
+
+    // 2. Try disk cache with proper typing
+    final diskData = await _diskCache.getListFromCache<E>(
+      key,
+      fromJson: fromJson,
+    );
+    if (diskData != null) {
+      print('✅ Cache HIT (disk): $key');
+      // Populate memory cache
+      _memoryCache.set(key, diskData, ttl);
+      return diskData;
+    }
+
+    // 3. Fetch fresh data
+    print('❌ Cache MISS: $key');
     final freshData = await fetch();
 
     // 4. Store in both caches

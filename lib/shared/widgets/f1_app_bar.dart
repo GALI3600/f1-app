@@ -38,6 +38,12 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Whether to show a bottom border
   final bool showBottomBorder;
 
+  /// Background color behind rounded corners (defaults to navy for drawer consistency)
+  final Color? cornerBackgroundColor;
+
+  /// Background color for left corner only (overrides cornerBackgroundColor for left side)
+  final Color? cornerBackgroundColorLeft;
+
   const F1AppBar({
     super.key,
     this.title,
@@ -48,41 +54,71 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
     this.height = 56.0,
     this.gradient,
     this.showBottomBorder = false,
+    this.cornerBackgroundColor,
+    this.cornerBackgroundColorLeft,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        gradient: gradient ?? F1Gradients.cianRoxo,
-        border: showBottomBorder
-            ? Border(
-                bottom: BorderSide(
-                  color: F1Colors.ciano.withValues(alpha: 0.3),
-                  width: 1,
-                ),
-              )
-            : null,
-      ),
-      child: AppBar(
-        title: titleWidget ?? (title != null ? Text(title!) : null),
-        leading: leading,
-        actions: actions,
-        centerTitle: centerTitle,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        foregroundColor: F1Colors.textPrimary,
-        iconTheme: const IconThemeData(
-          color: F1Colors.textPrimary,
+    final defaultCornerColor = cornerBackgroundColor ?? F1Colors.navy;
+    final leftCornerColor = cornerBackgroundColorLeft ?? defaultCornerColor;
+    final rightCornerColor = defaultCornerColor;
+
+    return Stack(
+      children: [
+        // Background layer with split colors for corners
+        SizedBox(
+          height: height,
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(color: leftCornerColor),
+              ),
+              Expanded(
+                child: Container(color: rightCornerColor),
+              ),
+            ],
+          ),
         ),
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          color: F1Colors.textPrimary,
-          letterSpacing: 0.5,
+        // Foreground layer with gradient and rounded corners
+        Container(
+          height: height,
+          decoration: BoxDecoration(
+            gradient: gradient ?? F1Gradients.cianRoxo,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+            border: showBottomBorder
+                ? Border(
+                    bottom: BorderSide(
+                      color: F1Colors.ciano.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  )
+                : null,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: AppBar(
+            title: titleWidget ?? (title != null ? Text(title!) : null),
+            leading: leading,
+            actions: actions,
+            centerTitle: centerTitle,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            foregroundColor: F1Colors.textPrimary,
+            iconTheme: const IconThemeData(
+              color: F1Colors.textPrimary,
+            ),
+            titleTextStyle: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: F1Colors.textPrimary,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

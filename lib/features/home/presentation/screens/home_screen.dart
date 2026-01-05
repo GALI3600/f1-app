@@ -14,6 +14,7 @@ import 'package:f1sync/features/home/presentation/widgets/navigation_card.dart';
 import 'package:f1sync/shared/widgets/loading_widget.dart';
 import 'package:f1sync/shared/widgets/error_widget.dart';
 import 'package:f1sync/shared/widgets/live_indicator.dart';
+import 'package:f1sync/shared/widgets/f1_logo.dart';
 
 /// Home Screen - F1Sync Dashboard
 ///
@@ -35,20 +36,31 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       // Gradient AppBar using F1 colors
       appBar: AppBar(
-        title: ShaderMask(
-          shaderCallback: (bounds) => F1Gradients.main.createShader(bounds),
-          child: const Text(
-            'F1Sync',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
+        centerTitle: true,
+        toolbarHeight: 56,
+        title: const Center(
+          child: F1Logo(
+            size: 48,
+            color: Colors.white,
+            strokeWidth: 2.5,
           ),
         ),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: F1Gradients.cianRoxo,
+          color: F1Colors.navy,
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: F1Gradients.main,
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
           ),
         ),
         actions: [
@@ -61,14 +73,6 @@ class HomeScreen extends ConsumerWidget {
                   )
                 : null,
           ) ?? const SizedBox.shrink(),
-
-          // Settings icon
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
-          ),
         ],
       ),
 
@@ -84,47 +88,168 @@ class HomeScreen extends ConsumerWidget {
         },
         color: F1Colors.ciano,
         backgroundColor: F1Colors.navy,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome message
-              Text(
-                'Welcome to F1Sync',
-                style: F1TextStyles.headlineMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Your Formula 1 companion',
-                style: F1TextStyles.bodyMedium.copyWith(
-                  color: F1Colors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 24),
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            final isLandscape = orientation == Orientation.landscape;
 
-              // Current GP Card
-              _buildCurrentGPSection(gpAsync),
-              const SizedBox(height: 24),
+            if (isLandscape) {
+              return _buildLandscapeLayout(
+                context,
+                gpAsync,
+                driversAsync,
+                sessionAsync,
+              );
+            }
 
-              // Quick Stats Section
-              _buildQuickStatsSection(driversAsync, sessionAsync),
-              const SizedBox(height: 24),
-
-              // Navigation Grid
-              NavigationGrid(
-                onNavigate: (route) => context.go(route),
-              ),
-
-              // Bottom spacing
-              const SizedBox(height: 24),
-            ],
-          ),
+            return _buildPortraitLayout(
+              context,
+              gpAsync,
+              driversAsync,
+              sessionAsync,
+            );
+          },
         ),
       ),
+    );
+  }
+
+  /// Build portrait layout (vertical scroll)
+  Widget _buildPortraitLayout(
+    BuildContext context,
+    AsyncValue gpAsync,
+    AsyncValue driversAsync,
+    AsyncValue sessionAsync,
+  ) {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(AppConstants.defaultPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome message
+          Text(
+            'Welcome to F1Sync',
+            style: F1TextStyles.headlineMedium.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Your Formula 1 companion',
+            style: F1TextStyles.bodyMedium.copyWith(
+              color: F1Colors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Current GP Card
+          _buildCurrentGPSection(gpAsync),
+          const SizedBox(height: 24),
+
+          // Quick Stats Section
+          _buildQuickStatsSection(driversAsync, sessionAsync),
+          const SizedBox(height: 24),
+
+          // Navigation Grid
+          NavigationGrid(
+            onNavigate: (route) => context.go(route),
+          ),
+
+          // Bottom spacing
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  /// Build landscape layout (side-by-side panels)
+  Widget _buildLandscapeLayout(
+    BuildContext context,
+    AsyncValue gpAsync,
+    AsyncValue driversAsync,
+    AsyncValue sessionAsync,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left panel - GP Card and Stats
+        Expanded(
+          flex: 2,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Welcome message - compact
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome to F1Sync',
+                            style: F1TextStyles.headlineSmall.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Your Formula 1 companion',
+                            style: F1TextStyles.bodySmall.copyWith(
+                              color: F1Colors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Current GP Card
+                _buildCurrentGPSection(gpAsync),
+                const SizedBox(height: 16),
+
+                // Quick Stats Section
+                _buildQuickStatsSection(driversAsync, sessionAsync),
+              ],
+            ),
+          ),
+        ),
+
+        // Divider
+        Container(
+          width: 1,
+          color: F1Colors.ciano.withValues(alpha: 0.3),
+        ),
+
+        // Right panel - Navigation Grid
+        Expanded(
+          flex: 3,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Quick Access',
+                  style: F1TextStyles.headlineSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                NavigationGrid(
+                  onNavigate: (route) => context.go(route),
+                  crossAxisCount: 2,
+                  showTitle: false,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

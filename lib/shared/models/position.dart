@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'position.freezed.dart';
-part 'position.g.dart';
 
 /// Driver position changes during a session
 ///
@@ -17,6 +16,13 @@ class Position with _$Position {
     @JsonKey(name: 'meeting_key') required int meetingKey,
   }) = _Position;
 
-  factory Position.fromJson(Map<String, dynamic> json) =>
-      _$PositionFromJson(json);
+  factory Position.fromJson(Map<String, dynamic> json) {
+    return Position(
+      date: json['date'] != null ? DateTime.parse(json['date'] as String) : null,
+      driverNumber: (json['driver_number'] as num?)?.toInt() ?? 0,
+      position: (json['position'] as num?)?.toInt() ?? 0,
+      sessionKey: (json['session_key'] as num?)?.toInt() ?? 0,
+      meetingKey: (json['meeting_key'] as num?)?.toInt() ?? 0,
+    );
+  }
 }

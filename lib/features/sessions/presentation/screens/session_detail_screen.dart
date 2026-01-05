@@ -8,7 +8,7 @@ import '../widgets/weather_widget.dart';
 import '../widgets/race_control_feed.dart';
 import '../../../../shared/widgets/live_indicator.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
-import '../../../../shared/widgets/loading_widget.dart';
+import '../../../../shared/widgets/f1_loading.dart';
 import '../../../../shared/widgets/error_widget.dart' as custom;
 import '../../../../core/theme/f1_colors.dart';
 
@@ -84,7 +84,13 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
             ],
           );
         },
-        loading: () => const LoadingWidget(),
+        loading: () => const Center(
+          child: F1LoadingWidget(
+            size: 50,
+            color: F1Colors.ciano,
+            message: 'Loading session...',
+          ),
+        ),
         error: (error, stack) => custom.F1ErrorWidget(
           title: 'Failed to Load Session',
           message: error.toString(),
@@ -246,7 +252,13 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
             },
           );
         },
-        loading: () => const LoadingWidget(),
+        loading: () => const Center(
+          child: F1LoadingWidget(
+            size: 50,
+            color: F1Colors.ciano,
+            message: 'Loading results...',
+          ),
+        ),
         error: (error, stack) => custom.F1ErrorWidget(
           title: 'Failed to Load Results',
           message: error.toString(),

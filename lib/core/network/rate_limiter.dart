@@ -1,33 +1,76 @@
+import 'dart:async';
 import 'dart:collection';
 
 /// Rate limiter to prevent exceeding API rate limits
 ///
-/// Implements a sliding window rate limiter that tracks request timestamps
-/// and enforces a maximum of 60 requests per minute.
+/// Uses a chain-of-futures pattern to ensure requests are serialized
+/// and properly spaced. OpenF1 API allows max 2 requests/second.
 ///
 /// Usage:
 /// ```dart
 /// final limiter = RateLimiter();
-/// await limiter.waitIfNeeded(); // Blocks if limit reached
+/// await limiter.waitIfNeeded(); // Blocks until it's safe to request
 /// // Make API request
 /// ```
 class RateLimiter {
   /// Maximum number of requests allowed per minute
   static const int maxRequestsPerMinute = 60;
 
-  /// Queue of timestamps for recent requests
+  /// Minimum delay between requests (1000ms = 1 req/sec max)
+  /// Using 1000ms to ensure we never hit the 2 req/sec API limit
+  static const Duration minRequestInterval = Duration(milliseconds: 1000);
+
+  /// Chain of futures - each request waits for the previous one
+  Future<void> _lock = Future.value();
+
+  /// Last request timestamp for per-second limiting
+  DateTime? _lastRequestTime;
+
+  /// Queue of timestamps for per-minute limiting
   final Queue<DateTime> _requestTimestamps = Queue();
 
   /// Wait if the rate limit would be exceeded
   ///
-  /// This method:
-  /// 1. Removes timestamps older than 1 minute
-  /// 2. Checks if we've hit the rate limit
-  /// 3. If yes, waits until the oldest request expires
-  /// 4. Records the current timestamp
-  ///
-  /// The method blocks execution until it's safe to make another request.
+  /// Uses a chain-of-futures pattern to serialize all requests:
+  /// 1. Capture the current lock
+  /// 2. Replace with a new lock (our completer)
+  /// 3. Wait for previous lock
+  /// 4. Wait for rate limit interval
+  /// 5. Release our lock
   Future<void> waitIfNeeded() async {
+    // Capture current lock and create our own
+    final previousLock = _lock;
+    final completer = Completer<void>();
+    _lock = completer.future;
+
+    try {
+      // Wait for previous request to complete its rate limit check
+      await previousLock;
+
+      // Wait for minimum interval between requests
+      if (_lastRequestTime != null) {
+        final elapsed = DateTime.now().difference(_lastRequestTime!);
+        if (elapsed < minRequestInterval) {
+          final waitTime = minRequestInterval - elapsed;
+          await Future.delayed(waitTime);
+        }
+      }
+
+      // Also enforce per-minute limit
+      await _enforceMinuteLimit();
+
+      // Record this request
+      final now = DateTime.now();
+      _lastRequestTime = now;
+      _requestTimestamps.add(now);
+    } finally {
+      // Always release our lock, even if there's an error
+      completer.complete();
+    }
+  }
+
+  /// Enforce the per-minute rate limit
+  Future<void> _enforceMinuteLimit() async {
     final now = DateTime.now();
     final oneMinuteAgo = now.subtract(const Duration(minutes: 1));
 
@@ -51,9 +94,6 @@ class RateLimiter {
       // Remove the oldest request after waiting
       _requestTimestamps.removeFirst();
     }
-
-    // Record this request
-    _requestTimestamps.add(now);
   }
 
   /// Get the number of requests made in the last minute
@@ -72,6 +112,8 @@ class RateLimiter {
 
   /// Reset the rate limiter (useful for testing)
   void reset() {
+    _lock = Future.value();
+    _lastRequestTime = null;
     _requestTimestamps.clear();
   }
 }

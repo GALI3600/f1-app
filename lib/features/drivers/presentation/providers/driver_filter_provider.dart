@@ -24,7 +24,7 @@ class DriverFilterState {
 
   const DriverFilterState({
     this.filter = DriverFilter.all,
-    this.sort = DriverSort.byNumber,
+    this.sort = DriverSort.byTeam,
     this.selectedTeam,
     this.searchQuery = '',
   });
@@ -33,12 +33,13 @@ class DriverFilterState {
     DriverFilter? filter,
     DriverSort? sort,
     String? selectedTeam,
+    bool clearSelectedTeam = false,
     String? searchQuery,
   }) {
     return DriverFilterState(
       filter: filter ?? this.filter,
       sort: sort ?? this.sort,
-      selectedTeam: selectedTeam ?? this.selectedTeam,
+      selectedTeam: clearSelectedTeam ? null : (selectedTeam ?? this.selectedTeam),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
@@ -71,6 +72,7 @@ class DriverFilterNotifier extends _$DriverFilterNotifier {
   void setSelectedTeam(String? team) {
     state = state.copyWith(
       selectedTeam: team,
+      clearSelectedTeam: team == null,
       filter: team != null ? DriverFilter.byTeam : DriverFilter.all,
     );
   }

@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:logger/logger.dart';
 import '../../../../core/providers.dart';
 import '../../data/models/driver.dart';
 import '../../../laps/data/models/lap.dart';
@@ -6,6 +7,8 @@ import '../../../stints/data/models/stint.dart';
 import '../../../positions/data/models/position.dart';
 
 part 'driver_detail_provider.g.dart';
+
+final _logger = Logger();
 
 /// Aggregated driver detail data
 class DriverDetailData {
@@ -21,17 +24,19 @@ class DriverDetailData {
     required this.positions,
   });
 
-  /// Get fastest lap
+  /// Get fastest lap (excludes laps with 0 or invalid duration)
   Lap? get fastestLap {
     if (laps.isEmpty) return null;
-    return laps.reduce((a, b) =>
+    final validLaps = laps.where((lap) => lap.lapDuration > 0).toList();
+    if (validLaps.isEmpty) return null;
+    return validLaps.reduce((a, b) =>
         a.lapDuration < b.lapDuration ? a : b);
   }
 
-  /// Get average lap time
+  /// Get average lap time (excludes pit out laps and laps with 0 duration)
   double get averageLapTime {
     if (laps.isEmpty) return 0.0;
-    final validLaps = laps.where((lap) => !lap.isPitOutLap).toList();
+    final validLaps = laps.where((lap) => !lap.isPitOutLap && lap.lapDuration > 0).toList();
     if (validLaps.isEmpty) return 0.0;
 
     final total = validLaps.fold<double>(
@@ -44,8 +49,8 @@ class DriverDetailData {
   /// Get total laps completed
   int get totalLaps => laps.length;
 
-  /// Get number of pit stops
-  int get pitStops => stints.length - 1;
+  /// Get number of pit stops (minimum 0)
+  int get pitStops => stints.length > 1 ? stints.length - 1 : 0;
 
   /// Get current position (latest)
   int? get currentPosition {
@@ -70,13 +75,18 @@ class DriverDetailNotifier extends _$DriverDetailNotifier {
     required int driverNumber,
     String sessionKey = 'latest',
   }) async {
+    _logger.i('DriverDetailNotifier.build() called for driver #$driverNumber, sessionKey: $sessionKey');
+
     final driversRepo = ref.watch(driversRepositoryProvider);
     final lapsRepo = ref.watch(lapsRepositoryProvider);
     final stintsRepo = ref.watch(stintsRepositoryProvider);
     final positionsRepo = ref.watch(positionsRepositoryProvider);
 
     try {
-      // Fetch all data in parallel
+      // First, try to get all data in parallel (works great with cache)
+      // If we get rate limited, the repositories handle retries internally
+      _logger.d('Fetching all data in parallel (cache-optimized)...');
+
       final results = await Future.wait([
         driversRepo.getDriverByNumber(
           driverNumber: driverNumber,
@@ -97,17 +107,41 @@ class DriverDetailNotifier extends _$DriverDetailNotifier {
       ]);
 
       final driver = results[0] as Driver?;
+      final laps = results[1] as List<Lap>;
+      final stints = results[2] as List<Stint>;
+      final positions = results[3] as List<Position>;
+
+      _logger.d('All data fetched successfully');
+      _logger.d('driver: $driver');
+      _logger.d('laps: ${laps.length} items');
+      _logger.d('stints: ${stints.length} items');
+      _logger.d('positions: ${positions.length} items');
+
       if (driver == null) {
+        _logger.e('Driver #$driverNumber not found!');
         throw Exception('Driver not found');
       }
 
-      return DriverDetailData(
+      _logger.i('Creating DriverDetailData for ${driver.fullName}');
+
+      final detailData = DriverDetailData(
         driver: driver,
-        laps: results[1] as List<Lap>,
-        stints: results[2] as List<Stint>,
-        positions: results[3] as List<Position>,
+        laps: laps,
+        stints: stints,
+        positions: positions,
       );
-    } catch (e) {
+
+      _logger.i('DriverDetailData created successfully: '
+          'laps=${detailData.laps.length}, '
+          'stints=${detailData.stints.length}, '
+          'positions=${detailData.positions.length}, '
+          'fastestLap=${detailData.fastestLap?.lapDuration}, '
+          'avgLapTime=${detailData.averageLapTime}');
+
+      return detailData;
+    } catch (e, stackTrace) {
+      _logger.e('Error in DriverDetailNotifier.build(): $e');
+      _logger.e('Stack trace: $stackTrace');
       rethrow;
     }
   }

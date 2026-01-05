@@ -9,11 +9,15 @@ import '../../data/models/driver.dart';
 class DriverProfileHeader extends StatelessWidget {
   final Driver driver;
   final double height;
+  final bool isLandscape;
+  final bool isPanelMode;
 
   const DriverProfileHeader({
     super.key,
     required this.driver,
     this.height = 300,
+    this.isLandscape = false,
+    this.isPanelMode = false,
   });
 
   Color _getTeamColor() {
@@ -31,6 +35,16 @@ class DriverProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
 
+    if (isPanelMode) {
+      return _buildPanelLayout(teamColor);
+    }
+    if (isLandscape) {
+      return _buildLandscapeLayout(teamColor);
+    }
+    return _buildPortraitLayout(teamColor);
+  }
+
+  Widget _buildPortraitLayout(Color teamColor) {
     return Container(
       height: height,
       decoration: BoxDecoration(
@@ -189,6 +203,321 @@ class DriverProfileHeader extends StatelessWidget {
                       ),
                     ],
                   ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelLayout(Color teamColor) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            teamColor.withValues(alpha: 0.9),
+            teamColor.withValues(alpha: 0.6),
+            F1Colors.navyDeep,
+          ],
+          stops: const [0.0, 0.4, 1.0],
+        ),
+      ),
+      child: Row(
+        children: [
+          // Driver headshot - left side
+          Expanded(
+            flex: 3,
+            child: Stack(
+              children: [
+                // Photo
+                if (driver.headshotUrl != null)
+                  Positioned.fill(
+                    child: Hero(
+                      tag: 'driver_panel_${driver.driverNumber}',
+                      child: CachedNetworkImage(
+                        imageUrl: driver.headshotUrl!,
+                        fit: BoxFit.contain,
+                        alignment: Alignment.bottomCenter,
+                        placeholder: (context, url) => const SizedBox.shrink(),
+                        errorWidget: (context, url, error) => const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          // Driver info - right side
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Driver number badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      driver.driverNumber.toString(),
+                      style: F1TextStyles.driverNumber.copyWith(
+                        fontSize: 28,
+                        color: teamColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Full name
+                  Text(
+                    driver.fullName.toUpperCase(),
+                    style: F1TextStyles.displayMedium.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0.5,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  // Team name
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      driver.teamName.toUpperCase(),
+                      style: F1TextStyles.bodySmall.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  // Country flag
+                  if (driver.countryCode != null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _getCountryFlag(driver.countryCode!),
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          driver.countryCode!,
+                          style: F1TextStyles.bodySmall.copyWith(
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLandscapeLayout(Color teamColor) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            teamColor.withValues(alpha: 0.9),
+            teamColor.withValues(alpha: 0.6),
+            F1Colors.navyDeep,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Background pattern/texture
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.1,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: F1Gradients.main,
+                ),
+              ),
+            ),
+          ),
+
+          // Driver headshot - centered and larger in landscape
+          if (driver.headshotUrl != null)
+            Positioned.fill(
+              child: Hero(
+                tag: 'driver_${driver.driverNumber}',
+                child: CachedNetworkImage(
+                  imageUrl: driver.headshotUrl!,
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                  placeholder: (context, url) => const SizedBox.shrink(),
+                  errorWidget: (context, url, error) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+
+          // Gradient overlay for text readability
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.transparent,
+                    F1Colors.navyDeep.withValues(alpha: 0.8),
+                    F1Colors.navyDeep.withValues(alpha: 0.95),
+                  ],
+                  stops: const [0.0, 0.4, 0.7, 1.0],
+                ),
+              ),
+            ),
+          ),
+
+          // Driver information - bottom aligned in landscape
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 24,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Driver number with team color
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: teamColor,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    driver.driverNumber.toString(),
+                    style: F1TextStyles.driverNumber.copyWith(
+                      fontSize: 36,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Full name - centered
+                Text(
+                  driver.fullName.toUpperCase(),
+                  style: F1TextStyles.displayMedium.copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 8),
+
+                // Team name - centered with pill background
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: teamColor.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    driver.teamName.toUpperCase(),
+                    style: F1TextStyles.bodyMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+
+                // Country flag
+                if (driver.countryCode != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _getCountryFlag(driver.countryCode!),
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        driver.countryCode!,
+                        style: F1TextStyles.bodySmall.copyWith(
+                          color: F1Colors.textSecondary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

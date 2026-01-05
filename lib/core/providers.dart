@@ -1,4 +1,4 @@
-import 'package:f1sync/core/cache/cache_service.dart';
+import 'package:f1sync/shared/services/providers.dart' show cacheServiceProvider;
 import 'package:f1sync/core/network/providers.dart' as network_providers;
 import 'package:f1sync/features/drivers/data/datasources/drivers_remote_data_source.dart';
 import 'package:f1sync/features/drivers/data/repositories/drivers_repository_impl.dart';
@@ -27,17 +27,6 @@ import 'package:f1sync/features/weather/domain/repositories/weather_repository.d
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
-
-// ========== Core Services ==========
-
-/// Cache Service Provider
-@riverpod
-CacheService cacheService(CacheServiceRef ref) {
-  final service = CacheService();
-  // Initialize cache service
-  service.init();
-  return service;
-}
 
 // ========== Data Sources ==========
 

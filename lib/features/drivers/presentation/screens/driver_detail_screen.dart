@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logger/logger.dart';
 import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
-import '../../../../shared/widgets/loading_widget.dart';
+import '../../../../core/utils/responsive_utils.dart';
+import '../../../../shared/widgets/f1_loading.dart';
 import '../../../../core/error/error_mapper.dart';
 import '../providers/driver_detail_provider.dart';
+import '../providers/driver_career_provider.dart';
 import '../widgets/driver_profile_header.dart';
 import '../widgets/lap_times_chart.dart';
 import '../widgets/stints_timeline.dart';
+import '../widgets/career_stats_card.dart';
+
+final _logger = Logger();
 
 /// Screen displaying detailed driver information with tabs
 class DriverDetailScreen extends ConsumerStatefulWidget {
@@ -50,87 +56,35 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    _logger.i('DriverDetailScreen.build() for driver #${widget.driverNumber}');
+
     final detailAsync = ref.watch(driverDetailNotifierProvider(
       driverNumber: widget.driverNumber,
     ));
+    final isLandscape = ResponsiveUtils.isLandscape(context);
+
+    _logger.d('detailAsync state: ${detailAsync.isLoading ? "loading" : detailAsync.hasError ? "error" : "data"}');
+    if (detailAsync.hasError) {
+      _logger.e('detailAsync error: ${detailAsync.error}');
+      _logger.e('detailAsync stackTrace: ${detailAsync.stackTrace}');
+    }
 
     return Scaffold(
       body: detailAsync.when(
         data: (detail) {
+          _logger.i('Rendering driver detail for ${detail.driver.fullName}');
           final teamColor = _getTeamColor(detail.driver.teamColour);
 
-          return NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                // App bar with driver header
-                SliverAppBar(
-                  expandedHeight: 300,
-                  pinned: true,
-                  backgroundColor: F1Colors.navyDeep,
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: DriverProfileHeader(
-                      driver: detail.driver,
-                      height: 300,
-                    ),
-                  ),
-                ),
-
-                // Tab bar
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _SliverTabBarDelegate(
-                    TabBar(
-                      controller: _tabController,
-                      indicatorColor: teamColor,
-                      indicatorWeight: 3,
-                      labelColor: teamColor,
-                      unselectedLabelColor: F1Colors.textSecondary,
-                      labelStyle: F1TextStyles.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                      tabs: const [
-                        Tab(text: 'Profile'),
-                        Tab(text: 'Lap Times'),
-                        Tab(text: 'Strategy'),
-                      ],
-                    ),
-                    teamColor,
-                  ),
-                ),
-              ];
-            },
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                // Profile tab
-                _buildProfileTab(detail),
-
-                // Lap times tab
-                _buildLapTimesTab(detail, teamColor),
-
-                // Strategy tab
-                _buildStrategyTab(detail),
-              ],
-            ),
-          );
+          if (isLandscape) {
+            return _buildLandscapeLayout(detail, teamColor);
+          }
+          return _buildPortraitLayout(detail, teamColor);
         },
-        loading: () => const LoadingWidget.custom(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircularProgressIndicator(color: F1Colors.ciano),
-                SizedBox(height: 16),
-                Text(
-                  'Loading driver data...',
-                  style: TextStyle(color: F1Colors.textSecondary),
-                ),
-              ],
-            ),
+        loading: () => const Center(
+          child: F1LoadingWidget(
+            size: 50,
+            color: F1Colors.ciano,
+            message: 'Loading driver data...',
           ),
         ),
         error: (error, stack) => Scaffold(
@@ -154,12 +108,213 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
     );
   }
 
+  /// Build portrait layout with collapsing header
+  Widget _buildPortraitLayout(DriverDetailData detail, Color teamColor) {
+    return NestedScrollView(
+      headerSliverBuilder: (context, innerBoxIsScrolled) {
+        return [
+          // App bar with driver header
+          SliverAppBar(
+            expandedHeight: 300,
+            pinned: true,
+            backgroundColor: F1Colors.navyDeep,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: DriverProfileHeader(
+                driver: detail.driver,
+                height: 300,
+              ),
+            ),
+          ),
+
+          // Tab bar
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _SliverTabBarDelegate(
+              TabBar(
+                controller: _tabController,
+                indicatorColor: teamColor,
+                indicatorWeight: 3,
+                labelColor: teamColor,
+                unselectedLabelColor: F1Colors.textSecondary,
+                labelStyle: F1TextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                tabs: const [
+                  Tab(text: 'Profile'),
+                  Tab(text: 'Lap Times'),
+                  Tab(text: 'Strategy'),
+                ],
+              ),
+              teamColor,
+            ),
+          ),
+        ];
+      },
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Profile tab
+          _buildProfileTab(detail),
+
+          // Lap times tab
+          _buildLapTimesTab(detail, teamColor),
+
+          // Strategy tab
+          _buildStrategyTab(detail),
+        ],
+      ),
+    );
+  }
+
+  /// Build landscape layout with side-by-side panels
+  Widget _buildLandscapeLayout(DriverDetailData detail, Color teamColor) {
+    return Row(
+      children: [
+        // Left side - Driver header (fixed)
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.35,
+          child: Stack(
+            children: [
+              // Driver header taking full height
+              Positioned.fill(
+                child: DriverProfileHeader(
+                  driver: detail.driver,
+                  height: double.infinity,
+                  isLandscape: true,
+                ),
+              ),
+
+              // Back button
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                left: 8,
+                child: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Divider
+        Container(
+          width: 1,
+          color: teamColor.withValues(alpha: 0.3),
+        ),
+
+        // Right side - Tabs content
+        Expanded(
+          child: Column(
+            children: [
+              // Safe area padding at top
+              SizedBox(height: MediaQuery.of(context).padding.top),
+
+              // Tab bar
+              Container(
+                color: F1Colors.navyDeep,
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorColor: teamColor,
+                  indicatorWeight: 3,
+                  labelColor: teamColor,
+                  unselectedLabelColor: F1Colors.textSecondary,
+                  labelStyle: F1TextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  tabs: const [
+                    Tab(text: 'Profile'),
+                    Tab(text: 'Lap Times'),
+                    Tab(text: 'Strategy'),
+                  ],
+                ),
+              ),
+
+              // Tab content
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildProfileTab(detail),
+                    _buildLapTimesTab(detail, teamColor),
+                    _buildStrategyTab(detail),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildProfileTab(DriverDetailData detail) {
+    // Watch career stats
+    final careerAsync = ref.watch(driverCareerNotifierProvider(
+      driverNumber: widget.driverNumber,
+    ));
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Career Statistics Card (from Jolpica API)
+          careerAsync.when(
+            data: (career) {
+              if (career == null) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                children: [
+                  CareerStatsCard(career: career),
+                  const SizedBox(height: 24),
+                ],
+              );
+            },
+            loading: () => Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: F1Colors.navy,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  F1WheelLoading(
+                    size: 24,
+                    color: F1Colors.ciano,
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Loading career stats...',
+                    style: TextStyle(color: F1Colors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+
+          // Session stats header
+          Text(
+            'Session Stats',
+            style: F1TextStyles.headlineMedium,
+          ),
+          const SizedBox(height: 12),
+
           // Stats cards
           Row(
             children: [

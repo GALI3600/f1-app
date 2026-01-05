@@ -42,10 +42,15 @@ Dio dio(DioRef ref) {
   return dio;
 }
 
-/// Provides the RateLimiter instance
+/// Provides the RateLimiter instance (singleton)
 ///
-/// Enforces 60 requests per minute rate limit
-@riverpod
+/// Enforces rate limits:
+/// - 2 requests per second (OpenF1 API limit)
+/// - 60 requests per minute (safety net)
+///
+/// Uses keepAlive: true to ensure the same rate limiter is shared
+/// across all API client instances and persists across navigation.
+@Riverpod(keepAlive: true)
 RateLimiter rateLimiter(RateLimiterRef ref) {
   return RateLimiter();
 }

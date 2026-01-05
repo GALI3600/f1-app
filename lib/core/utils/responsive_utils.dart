@@ -380,3 +380,138 @@ class ResponsiveGridView<T> extends StatelessWidget {
     );
   }
 }
+
+/// Orientation-aware builder widget
+///
+/// Builds different widgets based on device orientation.
+///
+/// Usage:
+/// ```dart
+/// OrientationBuilder(
+///   portrait: (context) => PortraitLayout(),
+///   landscape: (context) => LandscapeLayout(),
+/// )
+/// ```
+class OrientationLayoutBuilder extends StatelessWidget {
+  final Widget Function(BuildContext) portrait;
+  final Widget Function(BuildContext)? landscape;
+
+  const OrientationLayoutBuilder({
+    super.key,
+    required this.portrait,
+    this.landscape,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (orientation == Orientation.landscape && landscape != null) {
+          return landscape!(context);
+        }
+        return portrait(context);
+      },
+    );
+  }
+}
+
+/// Adaptive layout that combines device type and orientation
+///
+/// Provides maximum flexibility for responsive layouts.
+///
+/// Usage:
+/// ```dart
+/// AdaptiveLayout(
+///   mobilePortrait: (context) => MobilePortraitLayout(),
+///   mobileLandscape: (context) => MobileLandscapeLayout(),
+///   tabletPortrait: (context) => TabletPortraitLayout(),
+///   tabletLandscape: (context) => TabletLandscapeLayout(),
+/// )
+/// ```
+class AdaptiveLayout extends StatelessWidget {
+  final Widget Function(BuildContext) mobilePortrait;
+  final Widget Function(BuildContext)? mobileLandscape;
+  final Widget Function(BuildContext)? tabletPortrait;
+  final Widget Function(BuildContext)? tabletLandscape;
+  final Widget Function(BuildContext)? desktop;
+
+  const AdaptiveLayout({
+    super.key,
+    required this.mobilePortrait,
+    this.mobileLandscape,
+    this.tabletPortrait,
+    this.tabletLandscape,
+    this.desktop,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final deviceType = ResponsiveUtils.getDeviceType(context);
+    final isLandscape = ResponsiveUtils.isLandscape(context);
+
+    return switch (deviceType) {
+      DeviceType.mobile => isLandscape
+          ? (mobileLandscape ?? mobilePortrait)(context)
+          : mobilePortrait(context),
+      DeviceType.tablet => isLandscape
+          ? (tabletLandscape ?? tabletPortrait ?? mobilePortrait)(context)
+          : (tabletPortrait ?? mobilePortrait)(context),
+      DeviceType.desktop => (desktop ?? tabletLandscape ?? mobilePortrait)(context),
+    };
+  }
+}
+
+/// Split view for landscape orientation
+///
+/// Shows two widgets side by side in landscape mode.
+///
+/// Usage:
+/// ```dart
+/// LandscapeSplitView(
+///   left: LeftPanel(),
+///   right: RightPanel(),
+///   leftFlex: 1,
+///   rightFlex: 2,
+/// )
+/// ```
+class LandscapeSplitView extends StatelessWidget {
+  final Widget left;
+  final Widget right;
+  final int leftFlex;
+  final int rightFlex;
+  final double dividerWidth;
+  final Color? dividerColor;
+
+  const LandscapeSplitView({
+    super.key,
+    required this.left,
+    required this.right,
+    this.leftFlex = 1,
+    this.rightFlex = 1,
+    this.dividerWidth = 1,
+    this.dividerColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          flex: leftFlex,
+          child: left,
+        ),
+        if (dividerWidth > 0)
+          VerticalDivider(
+            width: dividerWidth,
+            thickness: dividerWidth,
+            color: dividerColor ?? Theme.of(context).dividerColor,
+          ),
+        Expanded(
+          flex: rightFlex,
+          child: right,
+        ),
+      ],
+    );
+  }
+}

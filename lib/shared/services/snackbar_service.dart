@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/error/error_mapper.dart';
 import 'package:f1sync/shared/services/haptic_service.dart';
+import 'package:f1sync/shared/widgets/f1_loading.dart';
 
 /// Service for displaying consistent snackbar/toast messages
 ///
@@ -331,13 +332,10 @@ class SnackbarService {
       SnackBar(
         content: Row(
           children: [
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
+            const F1WheelLoading(
+              size: 16,
+              color: Colors.white,
+              duration: Duration(milliseconds: 600),
             ),
             const SizedBox(width: 12),
             Expanded(

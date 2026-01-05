@@ -1,7 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'stint.freezed.dart';
-part 'stint.g.dart';
 
 /// Tire stint information
 ///
@@ -20,5 +19,16 @@ class Stint with _$Stint {
     @JsonKey(name: 'meeting_key') required int meetingKey,
   }) = _Stint;
 
-  factory Stint.fromJson(Map<String, dynamic> json) => _$StintFromJson(json);
+  factory Stint.fromJson(Map<String, dynamic> json) {
+    return Stint(
+      compound: json['compound'] as String? ?? 'UNKNOWN',
+      driverNumber: (json['driver_number'] as num?)?.toInt() ?? 0,
+      lapEnd: (json['lap_end'] as num?)?.toInt(),
+      lapStart: (json['lap_start'] as num?)?.toInt() ?? 1,
+      stintNumber: (json['stint_number'] as num?)?.toInt() ?? 1,
+      tyreAgeAtStart: (json['tyre_age_at_start'] as num?)?.toInt() ?? 0,
+      sessionKey: (json['session_key'] as num?)?.toInt() ?? 0,
+      meetingKey: (json['meeting_key'] as num?)?.toInt() ?? 0,
+    );
+  }
 }

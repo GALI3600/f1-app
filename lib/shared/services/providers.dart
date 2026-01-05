@@ -32,6 +32,7 @@ StorageService storageService(StorageServiceRef ref) {
 /// Used for multi-layer caching (Memory → Disk → Network).
 ///
 /// The service is initialized lazily on first access.
+/// Uses keepAlive: true to persist cache across navigation.
 ///
 /// Usage:
 /// ```dart
@@ -42,14 +43,14 @@ StorageService storageService(StorageServiceRef ref) {
 ///   fetch: () => apiClient.getDrivers(),
 /// );
 /// ```
-@riverpod
+@Riverpod(keepAlive: true)
 CacheService cacheService(CacheServiceRef ref) {
   final service = CacheService();
 
   // Initialize on first access (async initialization)
   service.init();
 
-  // Clean up on dispose
+  // Clean up on dispose (only when app closes)
   ref.onDispose(() {
     service.close();
   });

@@ -1,4 +1,4 @@
-import 'package:f1sync/core/cache/cache_service.dart';
+import 'package:f1sync/shared/services/cache/cache_service.dart';
 import 'package:f1sync/features/positions/data/datasources/positions_remote_data_source.dart';
 import 'package:f1sync/features/positions/data/models/position.dart';
 import 'package:f1sync/features/positions/domain/repositories/positions_repository.dart';
@@ -21,7 +21,7 @@ class PositionsRepositoryImpl implements PositionsRepository {
   }) async {
     final cacheKey = 'positions_${sessionKey}_${driverNumber}_$position';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Position>(
       key: cacheKey,
       ttl: CacheTTL.short, // 5 minutes - positions change frequently
       fetch: () => _remoteDataSource.getPositions(
@@ -29,6 +29,7 @@ class PositionsRepositoryImpl implements PositionsRepository {
         driverNumber: driverNumber,
         position: position,
       ),
+      fromJson: Position.fromJson,
     );
   }
 
@@ -38,12 +39,13 @@ class PositionsRepositoryImpl implements PositionsRepository {
   }) async {
     final cacheKey = 'current_positions_$sessionKey';
 
-    return await _cacheService.getCached(
+    return await _cacheService.getCachedList<Position>(
       key: cacheKey,
       ttl: CacheTTL.short,
       fetch: () => _remoteDataSource.getCurrentPositions(
         sessionKey: sessionKey,
       ),
+      fromJson: Position.fromJson,
     );
   }
 }

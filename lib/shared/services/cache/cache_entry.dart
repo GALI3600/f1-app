@@ -1,7 +1,3 @@
-import 'package:hive/hive.dart';
-
-part 'cache_entry.g.dart';
-
 /// A cache entry with expiration support
 ///
 /// Wraps cached data with metadata for TTL-based cache invalidation.
@@ -22,14 +18,11 @@ part 'cache_entry.g.dart';
 ///   // Fetch fresh data
 /// }
 /// ```
-@HiveType(typeId: 0)
 class CacheEntry<T> {
   /// The cached data
-  @HiveField(0)
   final T data;
 
   /// Timestamp when this entry expires
-  @HiveField(1)
   final DateTime expiresAt;
 
   /// Create a cache entry
