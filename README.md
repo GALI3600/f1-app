@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="screenshots/logo.png" alt="F1Sync Logo" width="120">
+  <img src="screenshots/logo.png" alt="F1Sync Logo" width="120" style="border-radius: 24px;">
 </p>
 
 <h1 align="center">F1Sync</h1>
@@ -10,17 +10,32 @@
 
 ## Features
 
-- **Home Dashboard**: Current GP information, quick stats, and navigation to all features
-- **Meetings/Calendar**: Browse race calendar by year, view Grand Prix details and session schedules
-- **Drivers**: Complete driver listings with filtering, detailed profiles, and career statistics
-- **Sessions**: Live session data including race control messages, weather conditions, and results
-- **Lap Times & Stints**: Detailed lap time charts and tire strategy visualization
+### Home Dashboard
+Current GP information, quick stats, and navigation to all features.
 
-## Screenshots
+<p align="center">
+  <img src="screenshots/home.png" alt="Home Dashboard" width="600">
+</p>
 
-| Home | Grand Prix | Drivers |
-|:----:|:----------:|:-------:|
-| ![Home](screenshots/home.png) | ![Grand Prix](screenshots/grand-prix.png) | ![Drivers](screenshots/drivers.png) |
+### Grand Prix Calendar
+Browse race calendar by year, view Grand Prix details and session schedules.
+
+<p align="center">
+  <img src="screenshots/grand-prix.png" alt="Grand Prix Calendar" width="600">
+</p>
+
+### Drivers
+Complete driver listings with filtering, detailed profiles, and career statistics.
+
+<p align="center">
+  <img src="screenshots/drivers.png" alt="Drivers" width="600">
+</p>
+
+### Sessions
+Live session data including race control messages, weather conditions, and results.
+
+### Lap Times & Stints
+Detailed lap time charts and tire strategy visualization.
 
 ## Tech Stack
 
