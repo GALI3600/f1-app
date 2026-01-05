@@ -1,6 +1,12 @@
-# F1Sync
+<p align="center">
+  <img src="screenshots/logo.png" alt="F1Sync Logo" width="120">
+</p>
 
-A comprehensive Formula 1 information app built with Flutter, providing real-time race data, driver statistics, and session information using the OpenF1 API.
+<h1 align="center">F1Sync</h1>
+
+<p align="center">
+  A comprehensive Formula 1 information app built with Flutter, providing real-time race data, driver statistics, and session information using the OpenF1 and Jolpica APIs.
+</p>
 
 ## Features
 
@@ -9,6 +15,12 @@ A comprehensive Formula 1 information app built with Flutter, providing real-tim
 - **Drivers**: Complete driver listings with filtering, detailed profiles, and career statistics
 - **Sessions**: Live session data including race control messages, weather conditions, and results
 - **Lap Times & Stints**: Detailed lap time charts and tire strategy visualization
+
+## Screenshots
+
+| Home | Grand Prix | Drivers |
+|:----:|:----------:|:-------:|
+| ![Home](screenshots/home.png) | ![Grand Prix](screenshots/grand-prix.png) | ![Drivers](screenshots/drivers.png) |
 
 ## Tech Stack
 
@@ -65,7 +77,11 @@ lib/
 
 ## API Integration
 
-F1Sync uses the **OpenF1 API** (https://api.openf1.org/v1) which provides access to 16 endpoints:
+F1Sync uses two complementary APIs for comprehensive F1 data coverage.
+
+### OpenF1 API (Real-time Data)
+
+The **OpenF1 API** (https://api.openf1.org/v1) provides real-time and current season data with 16 endpoints:
 
 | Endpoint | Description | Cache Strategy |
 |----------|-------------|----------------|
@@ -89,6 +105,25 @@ F1Sync uses the **OpenF1 API** (https://api.openf1.org/v1) which provides access
 ### Rate Limiting
 
 The app implements client-side rate limiting (60 requests/minute) to respect API guidelines.
+
+### Jolpica API (Historical Data)
+
+For historical career statistics, the app uses the **Jolpica F1 API** (https://api.jolpi.ca/ergast/f1), a continuation of the deprecated Ergast API.
+
+| Endpoint | Description | Cache Strategy |
+|----------|-------------|----------------|
+| `/drivers/{id}` | Driver biographical info | 7 days |
+| `/drivers/{id}/results` | All race results | 7 days |
+| `/drivers/{id}/results/1` | Race wins | 7 days |
+| `/drivers/{id}/qualifying/1` | Pole positions | 7 days |
+| `/{year}/driverstandings` | Season standings | 7 days |
+| `/seasons` | All F1 seasons | 7 days |
+| `/circuits` | Circuit information | 7 days |
+| `/constructors` | Team information | 7 days |
+
+**Used for**: Driver career stats (wins, poles, podiums, championships), historical race results.
+
+**Rate limit**: 200 requests/hour
 
 ## Getting Started
 
@@ -215,5 +250,6 @@ This project is for personal/educational use. F1, Formula 1, and related marks a
 
 ## Acknowledgments
 
-- [OpenF1 API](https://openf1.org/) for providing free F1 data
+- [OpenF1 API](https://openf1.org/) for providing free real-time F1 data
+- [Jolpica F1 API](https://github.com/jolpica/jolpica-f1) for historical F1 data (Ergast successor)
 - Flutter and Dart teams for the amazing framework
