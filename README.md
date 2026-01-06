@@ -28,7 +28,14 @@ Browse race calendar by year, view Grand Prix details and session schedules.
 Complete driver listings with filtering, detailed profiles, and career statistics.
 
 <p align="center">
-  <img src="screenshots/drivers.png" alt="Drivers" width="600">
+  <img src="screenshots/drivers.png" alt="Drivers List" width="600">
+</p>
+
+### Driver Details
+View detailed driver profiles with career statistics including championships, wins, podiums, pole positions, and race starts.
+
+<p align="center">
+  <img src="screenshots/driver-detail.png" alt="Driver Details" width="600">
 </p>
 
 ### Sessions
