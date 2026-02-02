@@ -6,15 +6,15 @@ class DriverAssets {
   /// Driver data by driver ID (from Jolpica API)
   /// Format: driverId -> {teamName, teamColour, headshotUrl}
   static const Map<String, Map<String, String>> drivers = {
-    // 2026 Grid - Red Bull
+    // 2026 Grid - Red Bull (lighter blue than Williams)
     'max_verstappen': {
       'teamName': 'Red Bull Racing',
-      'teamColour': '3671C6',
+      'teamColour': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/1col/image.png',
     },
     'hadjar': {
       'teamName': 'Red Bull Racing',
-      'teamColour': '3671C6',
+      'teamColour': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png.transform/1col/image.png',
     },
     // Ferrari
@@ -72,67 +72,72 @@ class DriverAssets {
       'teamColour': 'FF87BC',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/1col/image.png',
     },
-    // Williams
+    // Williams (navy blue)
     'albon': {
       'teamName': 'Williams',
-      'teamColour': '64C4FF',
+      'teamColour': '003399',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/1col/image.png',
     },
     'sainz': {
       'teamName': 'Williams',
-      'teamColour': '64C4FF',
+      'teamColour': '003399',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/1col/image.png',
     },
-    // RB (Racing Bulls)
+    // RB (Racing Bulls - white with blue)
     'lawson': {
       'teamName': 'RB',
-      'teamColour': '6692FF',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/1col/image.png',
     },
     'lindblad': {
       'teamName': 'RB',
-      'teamColour': '6692FF',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ARVLIN01_Arvid_Lindblad/arvlin01.png.transform/1col/image.png',
     },
-    // Audi (formerly Sauber) - gray to red gradient
+    // Audi (silver)
     'hulkenberg': {
       'teamName': 'Audi',
-      'teamColour': '6E6E6E',
-      'teamColour2': 'E30613',
+      'teamColour': 'D9D9D9',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/1col/image.png',
     },
     'bortoleto': {
       'teamName': 'Audi',
-      'teamColour': '6E6E6E',
-      'teamColour2': 'E30613',
+      'teamColour': 'D9D9D9',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GABBOR01_Gabriel_Bortoleto/gabbor01.png.transform/1col/image.png',
     },
-    // Haas
+    // Haas (white, black and red)
     'ocon': {
       'teamName': 'Haas F1 Team',
-      'teamColour': 'B6BABD',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E1E1E',
+      'teamColour3': 'E10600',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCO01_Esteban_Ocon/estoco01.png.transform/1col/image.png',
     },
     'bearman': {
       'teamName': 'Haas F1 Team',
-      'teamColour': 'B6BABD',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E1E1E',
+      'teamColour3': 'E10600',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OLIBEA01_Oliver_Bearman/olibea01.png.transform/1col/image.png',
     },
-    // Cadillac
+    // Cadillac (black)
     'bottas': {
       'teamName': 'Cadillac',
-      'teamColour': 'D4AF37',
+      'teamColour': '1E1E1E',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/V/VALBOT01_Valtteri_Bottas/valbot01.png.transform/1col/image.png',
     },
     'perez': {
       'teamName': 'Cadillac',
-      'teamColour': 'D4AF37',
+      'teamColour': '1E1E1E',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/1col/image.png',
     },
     // Historical/Reserve drivers
     'tsunoda': {
       'teamName': 'RB',
-      'teamColour': '6692FF',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/1col/image.png',
     },
     'vettel': {
@@ -142,12 +147,15 @@ class DriverAssets {
     },
     'ricciardo': {
       'teamName': 'RB',
-      'teamColour': '6692FF',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E5BC6',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/D/DANRIC01_Daniel_Ricciardo/danric01.png.transform/1col/image.png',
     },
     'magnussen': {
       'teamName': 'Haas F1 Team',
-      'teamColour': 'B6BABD',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E1E1E',
+      'teamColour3': 'E10600',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/KEVMAG01_Kevin_Magnussen/kevmag01.png.transform/1col/image.png',
     },
     'zhou': {
@@ -157,7 +165,7 @@ class DriverAssets {
     },
     'sargeant': {
       'teamName': 'Williams',
-      'teamColour': '64C4FF',
+      'teamColour': '003399',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LOGSAR01_Logan_Sargeant/logsar01.png.transform/1col/image.png',
     },
     'de_vries': {
@@ -167,12 +175,14 @@ class DriverAssets {
     },
     'latifi': {
       'teamName': 'Williams',
-      'teamColour': '64C4FF',
+      'teamColour': '003399',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICLAF01_Nicholas_Latifi/niclaf01.png.transform/1col/image.png',
     },
     'schumacher': {
       'teamName': 'Haas F1 Team',
-      'teamColour': 'B6BABD',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E1E1E',
+      'teamColour3': 'E10600',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MICSCH02_Mick_Schumacher/micsch02.png.transform/1col/image.png',
     },
     'raikkonen': {
@@ -192,7 +202,9 @@ class DriverAssets {
     },
     'grosjean': {
       'teamName': 'Haas F1 Team',
-      'teamColour': 'B6BABD',
+      'teamColour': 'FFFFFF',
+      'teamColour2': '1E1E1E',
+      'teamColour3': 'E10600',
       'headshotUrl': 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/R/ROMGRO01_Romain_Grosjean/romgro01.png.transform/1col/image.png',
     },
     'kvyat': {
@@ -223,9 +235,20 @@ class DriverAssets {
     return drivers[driverId]?['teamColour2'];
   }
 
+  /// Get tertiary team color by driver ID (for 3-color teams like Haas)
+  /// Returns null if team doesn't have a third color
+  static String? getTeamColour3(String driverId) {
+    return drivers[driverId]?['teamColour3'];
+  }
+
   /// Check if team has gradient colors
   static bool hasGradient(String driverId) {
     return drivers[driverId]?['teamColour2'] != null;
+  }
+
+  /// Check if team has 3 colors
+  static bool hasThreeColors(String driverId) {
+    return drivers[driverId]?['teamColour3'] != null;
   }
 
   /// Get headshot URL by driver ID

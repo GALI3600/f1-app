@@ -181,13 +181,31 @@ class CurrentGPCard extends StatelessWidget {
     );
   }
 
+  /// Mapping from ISO 3166-1 alpha-3 to alpha-2 country codes
+  static const _countryCodeMap = {
+    'ARG': 'AR', 'AUS': 'AU', 'AUT': 'AT', 'BEL': 'BE', 'BRA': 'BR',
+    'CAN': 'CA', 'CHN': 'CN', 'COL': 'CO', 'DEN': 'DK', 'FIN': 'FI',
+    'FRA': 'FR', 'GBR': 'GB', 'GER': 'DE', 'HUN': 'HU', 'IND': 'IN',
+    'IRL': 'IE', 'ITA': 'IT', 'JPN': 'JP', 'MEX': 'MX', 'MON': 'MC',
+    'NED': 'NL', 'NZL': 'NZ', 'POL': 'PL', 'POR': 'PT', 'RSA': 'ZA',
+    'RUS': 'RU', 'ESP': 'ES', 'SUI': 'CH', 'SWE': 'SE', 'THA': 'TH',
+    'UAE': 'AE', 'USA': 'US', 'VEN': 'VE',
+  };
+
   /// Convert country code to flag emoji
   String _getFlagEmoji(String countryCode) {
     // Convert country code to flag emoji using Unicode regional indicator symbols
-    if (countryCode.length != 2) return '🏁';
+    var code = countryCode.toUpperCase();
 
-    final firstChar = countryCode.codeUnitAt(0) + 127397;
-    final secondChar = countryCode.codeUnitAt(1) + 127397;
+    // Convert 3-letter code to 2-letter code if needed
+    if (code.length == 3) {
+      code = _countryCodeMap[code] ?? code.substring(0, 2);
+    }
+
+    if (code.length != 2) return '🏁';
+
+    final firstChar = code.codeUnitAt(0) + 127397;
+    final secondChar = code.codeUnitAt(1) + 127397;
 
     return String.fromCharCodes([firstChar, secondChar]);
   }

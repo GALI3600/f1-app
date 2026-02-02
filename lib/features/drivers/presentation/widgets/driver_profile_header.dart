@@ -43,6 +43,50 @@ class DriverProfileHeader extends StatelessWidget {
     }
   }
 
+  Color? _getTeamColor3() {
+    if (driver.teamColour3 == null) return null;
+    try {
+      final hex = driver.teamColour3!.startsWith('#')
+          ? driver.teamColour3!
+          : '#${driver.teamColour3}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<Color> _buildGradientColors(Color teamColor, {bool withNavyEnd = true}) {
+    final teamColor2 = _getTeamColor2();
+    final teamColor3 = _getTeamColor3();
+
+    if (teamColor2 != null && teamColor3 != null) {
+      return withNavyEnd
+          ? [teamColor.withValues(alpha: 0.8), teamColor2.withValues(alpha: 0.7), teamColor3.withValues(alpha: 0.6), F1Colors.navyDeep]
+          : [teamColor, teamColor2, teamColor3];
+    }
+    if (teamColor2 != null) {
+      return withNavyEnd
+          ? [teamColor.withValues(alpha: 0.8), teamColor2.withValues(alpha: 0.6), F1Colors.navyDeep]
+          : [teamColor, teamColor2];
+    }
+    return withNavyEnd
+        ? [teamColor.withValues(alpha: 0.8), F1Colors.navyDeep]
+        : [teamColor, teamColor.withValues(alpha: 0.7)];
+  }
+
+  List<double> _buildGradientStops() {
+    final teamColor2 = _getTeamColor2();
+    final teamColor3 = _getTeamColor3();
+
+    if (teamColor2 != null && teamColor3 != null) {
+      return const [0.0, 0.33, 0.66, 1.0];
+    }
+    if (teamColor2 != null) {
+      return const [0.0, 0.5, 1.0];
+    }
+    return const [0.0, 1.0];
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
@@ -64,10 +108,8 @@ class DriverProfileHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: teamColor2 != null
-              ? [teamColor.withValues(alpha: 0.8), teamColor2.withValues(alpha: 0.6), F1Colors.navyDeep]
-              : [teamColor.withValues(alpha: 0.8), F1Colors.navyDeep],
-          stops: teamColor2 != null ? const [0.0, 0.5, 1.0] : const [0.0, 1.0],
+          colors: _buildGradientColors(teamColor),
+          stops: _buildGradientStops(),
         ),
       ),
       child: Stack(
@@ -534,15 +576,58 @@ class DriverProfileHeader extends StatelessWidget {
     );
   }
 
+  /// Mapping from ISO 3166-1 alpha-3 to alpha-2 country codes
+  static const _countryCodeMap = {
+    // F1 relevant countries
+    'ARG': 'AR', // Argentina
+    'AUS': 'AU', // Australia
+    'AUT': 'AT', // Austria
+    'BEL': 'BE', // Belgium
+    'BRA': 'BR', // Brazil
+    'CAN': 'CA', // Canada
+    'CHN': 'CN', // China
+    'COL': 'CO', // Colombia
+    'DEN': 'DK', // Denmark
+    'FIN': 'FI', // Finland
+    'FRA': 'FR', // France
+    'GBR': 'GB', // Great Britain
+    'GER': 'DE', // Germany
+    'HUN': 'HU', // Hungary
+    'IND': 'IN', // India
+    'IRL': 'IE', // Ireland
+    'ITA': 'IT', // Italy
+    'JPN': 'JP', // Japan
+    'MEX': 'MX', // Mexico
+    'MON': 'MC', // Monaco
+    'NED': 'NL', // Netherlands
+    'NZL': 'NZ', // New Zealand
+    'POL': 'PL', // Poland
+    'POR': 'PT', // Portugal
+    'RSA': 'ZA', // South Africa
+    'RUS': 'RU', // Russia
+    'ESP': 'ES', // Spain
+    'SUI': 'CH', // Switzerland
+    'SWE': 'SE', // Sweden
+    'THA': 'TH', // Thailand
+    'UAE': 'AE', // United Arab Emirates
+    'USA': 'US', // United States
+    'VEN': 'VE', // Venezuela
+  };
+
   /// Get country flag emoji from country code
   String _getCountryFlag(String countryCode) {
     // Convert country code to flag emoji
     // Each letter is converted to regional indicator symbol
-    final code = countryCode.toUpperCase();
-    if (code.length != 2 && code.length != 3) return '🏁';
+    var code = countryCode.toUpperCase();
+
+    // Convert 3-letter code to 2-letter code if needed
+    if (code.length == 3) {
+      code = _countryCodeMap[code] ?? code.substring(0, 2);
+    }
+
+    if (code.length != 2) return '🏁';
 
     try {
-      // Use first 2 letters for flag emoji
       final firstChar = code.codeUnitAt(0);
       final secondChar = code.codeUnitAt(1);
 

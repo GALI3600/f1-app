@@ -23,7 +23,7 @@ class JolpicaApiClient {
   final RateLimiter _rateLimiter;
 
   static const int maxRetries = 3;
-  static const Duration initialRetryDelay = Duration(seconds: 1);
+  static const Duration initialRetryDelay = Duration(seconds: 2);
 
   JolpicaApiClient(
     this._dio, {
@@ -549,7 +549,7 @@ class JolpicaApiClient {
     return switch (error) {
       NetworkException() => true,
       TimeoutException() => true,
-      ServerException(:final statusCode) => statusCode >= 500,
+      ServerException(:final statusCode) => statusCode >= 500 || statusCode == 429,
       ParseException() => false,
     };
   }

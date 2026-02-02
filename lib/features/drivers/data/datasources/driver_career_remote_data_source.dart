@@ -4,7 +4,7 @@ import '../../../../core/constants/jolpica_constants.dart';
 import '../models/driver_career.dart';
 
 /// Remote data source for driver career statistics from Jolpica API
-/// Optimized to use only 8 API requests instead of 20+
+/// Optimized: Only fetches data that can't be calculated from race history
 class DriverCareerRemoteDataSource {
   final Dio _dio;
   final Logger _logger = Logger();
@@ -12,13 +12,41 @@ class DriverCareerRemoteDataSource {
   DriverCareerRemoteDataSource(this._dio);
 
   /// Delay between API calls to avoid rate limiting
-  static const _requestDelay = Duration(milliseconds: 250);
+  static const _requestDelay = Duration(milliseconds: 500);
 
-  /// Fetch complete career stats for a driver (optimized: 8 requests)
-  Future<DriverCareer?> getDriverCareer(String driverId) async {
+  /// Max retries for 429 errors
+  static const _maxRetries = 3;
+
+  /// Make a request with retry logic for 429 errors
+  Future<Response<dynamic>> _requestWithRetry(String url, {Map<String, dynamic>? queryParameters}) async {
+    for (int attempt = 0; attempt < _maxRetries; attempt++) {
+      try {
+        return await _dio.get(url, queryParameters: queryParameters);
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 429 && attempt < _maxRetries - 1) {
+          final waitTime = Duration(seconds: 2 * (attempt + 1));
+          _logger.w('[RateLimit] 429 received, waiting ${waitTime.inSeconds}s before retry ${attempt + 1}/$_maxRetries');
+          await Future.delayed(waitTime);
+        } else {
+          rethrow;
+        }
+      }
+    }
+    throw Exception('Max retries exceeded');
+  }
+
+  /// Fetch career stats that can't be calculated from race history
+  /// Only fetches: driver info, poles, seasons, standings, championships
+  /// Wins, podiums, totalRaces should be passed from race history
+  Future<DriverCareer?> getDriverCareerOptimized({
+    required String driverId,
+    required int wins,
+    required int podiums,
+    required int totalRaces,
+  }) async {
     try {
-      _logger.i('=== CAREER STATS FETCH START (Optimized) ===');
-      _logger.i('Fetching career stats for driver: $driverId');
+      _logger.i('=== CAREER STATS FETCH (Optimized) ===');
+      _logger.i('Fetching for driver: $driverId (wins=$wins, podiums=$podiums, races=$totalRaces from history)');
 
       final stopwatch = Stopwatch()..start();
 
@@ -29,32 +57,25 @@ class DriverCareerRemoteDataSource {
         return null;
       }
 
-      // 2. Wins (1 request)
+      // 2. Seasons list (1 request) - needed for championships check
       await Future.delayed(_requestDelay);
-      final wins = await _fetchDriverWins(driverId);
+      final seasonsData = await _fetchSeasons(driverId);
+      final seasons = seasonsData['seasons'] as int;
+      final activeYears = seasonsData['activeYears'] as List<int>;
 
-      // 3. Total races + seasons (1 request - reuse data)
-      await Future.delayed(_requestDelay);
-      final racesData = await _fetchDriverRacesData(driverId);
-      final totalRaces = racesData['total'] as int;
-      final seasons = racesData['seasons'] as int;
-
-      // 4. Poles (1 request)
+      // 3. Poles (1 request) - can't get from race results
       await Future.delayed(_requestDelay);
       final poles = await _fetchDriverPoles(driverId);
 
-      // 5-7. Podiums P1+P2+P3 (3 requests)
-      await Future.delayed(_requestDelay);
-      final podiums = await _fetchDriverPodiums(driverId);
-
-      // 8. Current year standings only (1 request)
+      // 4. Current year standings (1 request)
       await Future.delayed(_requestDelay);
       final currentStanding = await _fetchCurrentYearStanding(driverId);
 
-      // Get championship data from constants (0 requests!)
-      final championshipYears = JolpicaConstants.getChampionshipYears(driverId);
+      // 5. Championship years (2-3 requests for recent years only)
+      await Future.delayed(_requestDelay);
+      final championshipYears = await _fetchChampionshipYears(driverId, activeYears);
 
-      _logger.d('Fetch completed in ${stopwatch.elapsedMilliseconds}ms (8 requests)');
+      _logger.d('Fetch completed in ${stopwatch.elapsedMilliseconds}ms (~5-7 requests)');
 
       final career = DriverCareer.fromJolpicaJson(
         driverInfo: driverInfo,
@@ -69,20 +90,35 @@ class DriverCareerRemoteDataSource {
       );
 
       stopwatch.stop();
-      _logger.i('=== CAREER STATS FETCH COMPLETE ===');
+      _logger.i('=== CAREER STATS COMPLETE ===');
       _logger.i('Driver: ${career.fullName}');
       _logger.i('Stats: ${career.wins} wins, ${career.poles} poles, ${career.podiums} podiums');
-      _logger.i('Championships: ${career.championships} (years: ${career.championshipYears?.join(", ") ?? "none"})');
-      _logger.i('Seasons: ${career.seasons}, Total races: ${career.totalRaces}');
-      _logger.i('Total fetch time: ${stopwatch.elapsedMilliseconds}ms');
+      _logger.i('Championships: ${career.championships}');
+      _logger.i('Total time: ${stopwatch.elapsedMilliseconds}ms');
 
       return career;
     } catch (e, stackTrace) {
-      _logger.e('=== CAREER STATS FETCH ERROR ===');
       _logger.e('Error fetching career stats for $driverId: $e');
       _logger.e('Stack trace: $stackTrace');
       return null;
     }
+  }
+
+  /// Legacy method - fetches everything (for backwards compatibility)
+  Future<DriverCareer?> getDriverCareer(String driverId) async {
+    // Fetch wins and podiums the old way if race history not available
+    final wins = await _fetchDriverWins(driverId);
+    await Future.delayed(_requestDelay);
+    final podiums = await _fetchDriverPodiums(driverId);
+    await Future.delayed(_requestDelay);
+    final totalRaces = await _fetchTotalRaces(driverId);
+
+    return getDriverCareerOptimized(
+      driverId: driverId,
+      wins: wins,
+      podiums: podiums,
+      totalRaces: totalRaces,
+    );
   }
 
   /// Fetch driver basic info
@@ -90,18 +126,13 @@ class DriverCareerRemoteDataSource {
     final url = JolpicaConstants.driverUrl(driverId);
     _logger.d('[DriverInfo] Fetching: $url');
     try {
-      final response = await _dio.get(url);
-      _logger.d('[DriverInfo] Response status: ${response.statusCode}');
-
+      final response = await _requestWithRetry(url);
       final data = response.data as Map<String, dynamic>;
       final drivers = data['MRData']?['DriverTable']?['Drivers'] as List?;
 
       if (drivers != null && drivers.isNotEmpty) {
-        final driver = drivers[0] as Map<String, dynamic>;
-        _logger.d('[DriverInfo] Found: ${driver['givenName']} ${driver['familyName']}');
-        return driver;
+        return drivers[0] as Map<String, dynamic>;
       }
-      _logger.w('[DriverInfo] No driver found in response');
       return null;
     } catch (e) {
       _logger.e('[DriverInfo] Failed: $e');
@@ -109,79 +140,48 @@ class DriverCareerRemoteDataSource {
     }
   }
 
-  /// Fetch driver wins count
-  Future<int> _fetchDriverWins(String driverId) async {
-    final url = JolpicaConstants.driverWinsUrl(driverId);
-    _logger.d('[Wins] Fetching: $url');
+  /// Fetch seasons data
+  Future<Map<String, dynamic>> _fetchSeasons(String driverId) async {
+    final url = '${JolpicaConstants.baseUrl}/drivers/$driverId/seasons.json';
+    _logger.d('[Seasons] Fetching: $url');
     try {
-      final response = await _dio.get(
-        url,
-        queryParameters: {'limit': 1},
-      );
-
+      final response = await _requestWithRetry(url, queryParameters: {'limit': 100});
       final data = response.data as Map<String, dynamic>;
-      final total = data['MRData']?['total'];
-      final wins = int.tryParse(total?.toString() ?? '0') ?? 0;
-      _logger.d('[Wins] Total wins: $wins');
-      return wins;
+      final seasonsList = data['MRData']?['SeasonTable']?['Seasons'] as List? ?? [];
+
+      final activeYears = <int>[];
+      for (final season in seasonsList) {
+        final year = int.tryParse(season['season']?.toString() ?? '');
+        if (year != null) activeYears.add(year);
+      }
+      activeYears.sort();
+
+      return {'seasons': activeYears.length, 'activeYears': activeYears};
     } catch (e) {
-      _logger.e('[Wins] Failed: $e');
-      return 0;
+      _logger.e('[Seasons] Failed: $e');
+      return {'seasons': 0, 'activeYears': <int>[]};
     }
   }
 
-  /// Fetch driver podiums count (positions 1, 2, 3)
-  Future<int> _fetchDriverPodiums(String driverId) async {
-    _logger.d('[Podiums] Fetching P1, P2, P3 counts sequentially...');
-    try {
-      // Fetch P1, P2, P3 sequentially to avoid rate limiting
-      final p1 = await _fetchPositionCount(driverId, 1);
-      await Future.delayed(_requestDelay);
-      final p2 = await _fetchPositionCount(driverId, 2);
-      await Future.delayed(_requestDelay);
-      final p3 = await _fetchPositionCount(driverId, 3);
-
-      final podiums = p1 + p2 + p3;
-      _logger.d('[Podiums] P1=$p1, P2=$p2, P3=$p3, Total=$podiums');
-      return podiums;
-    } catch (e) {
-      _logger.e('[Podiums] Failed: $e');
-      return 0;
-    }
-  }
-
-  /// Fetch count of finishes in a specific position
-  Future<int> _fetchPositionCount(String driverId, int position) async {
-    final url = '${JolpicaConstants.baseUrl}/drivers/$driverId/results/$position.json';
-    try {
-      final response = await _dio.get(
-        url,
-        queryParameters: {'limit': 1},
-      );
-
-      final data = response.data as Map<String, dynamic>;
-      final total = data['MRData']?['total'];
-      return int.tryParse(total?.toString() ?? '0') ?? 0;
-    } catch (e) {
-      _logger.w('[Position P$position] Failed: $e');
-      return 0;
-    }
-  }
-
-  /// Fetch driver pole positions count
+  /// Fetch driver pole positions (can't be calculated from race results)
   Future<int> _fetchDriverPoles(String driverId) async {
-    final url = JolpicaConstants.driverPolesUrl(driverId);
+    final url = '${JolpicaConstants.baseUrl}/drivers/$driverId/qualifying.json';
     _logger.d('[Poles] Fetching: $url');
     try {
-      final response = await _dio.get(
-        url,
-        queryParameters: {'limit': 1},
-      );
-
+      final response = await _requestWithRetry(url, queryParameters: {'limit': 500});
       final data = response.data as Map<String, dynamic>;
-      final total = data['MRData']?['total'];
-      final poles = int.tryParse(total?.toString() ?? '0') ?? 0;
-      _logger.d('[Poles] Total poles: $poles');
+      final races = data['MRData']?['RaceTable']?['Races'] as List? ?? [];
+
+      int poles = 0;
+      for (final race in races) {
+        final qualifyingResults = race['QualifyingResults'] as List? ?? [];
+        if (qualifyingResults.isNotEmpty) {
+          final position = qualifyingResults[0]['position']?.toString();
+          if (position == '1') poles++;
+        }
+      }
+
+      _logger.d('[Poles] Total: $poles');
       return poles;
     } catch (e) {
       _logger.e('[Poles] Failed: $e');
@@ -189,77 +189,123 @@ class DriverCareerRemoteDataSource {
     }
   }
 
-  /// Fetch total races and calculate seasons from first/last race years
-  Future<Map<String, dynamic>> _fetchDriverRacesData(String driverId) async {
-    final url = JolpicaConstants.driverResultsUrl(driverId);
-    _logger.d('[RacesData] Fetching: $url');
-    try {
-      // Get first race to find first season
-      final firstResponse = await _dio.get(
-        url,
-        queryParameters: {'limit': 1, 'offset': 0},
-      );
-
-      final data = firstResponse.data as Map<String, dynamic>;
-      final total = int.tryParse(data['MRData']?['total']?.toString() ?? '0') ?? 0;
-      final races = data['MRData']?['RaceTable']?['Races'] as List?;
-
-      int seasons = 0;
-      if (races != null && races.isNotEmpty) {
-        final firstYear = int.tryParse(races[0]['season']?.toString() ?? '') ?? DateTime.now().year;
-        final currentYear = DateTime.now().year;
-        seasons = currentYear - firstYear + 1;
-        _logger.d('[RacesData] First season: $firstYear, Seasons: $seasons');
-      }
-
-      _logger.d('[RacesData] Total races: $total, Seasons: $seasons');
-      return {'total': total, 'seasons': seasons};
-    } catch (e) {
-      _logger.e('[RacesData] Failed: $e');
-      return {'total': 0, 'seasons': 0};
-    }
-  }
-
-  /// Fetch current year standings only (1 request instead of N)
+  /// Fetch current year standings
   Future<Map<String, dynamic>?> _fetchCurrentYearStanding(String driverId) async {
     final currentYear = DateTime.now().year;
     final url = '${JolpicaConstants.baseUrl}/$currentYear/driverstandings.json';
-    _logger.d('[CurrentStanding] Fetching: $url');
+    _logger.d('[Standings] Fetching: $url');
 
     try {
-      final response = await _dio.get(url);
+      final response = await _requestWithRetry(url);
       final data = response.data as Map<String, dynamic>;
       final standingsLists = data['MRData']?['StandingsTable']?['StandingsLists'] as List?;
 
-      if (standingsLists == null || standingsLists.isEmpty) {
-        return null;
-      }
+      if (standingsLists == null || standingsLists.isEmpty) return null;
 
-      final standings = standingsLists[0] as Map<String, dynamic>;
-      final driverStandings = standings['DriverStandings'] as List?;
-
+      final driverStandings = standingsLists[0]['DriverStandings'] as List?;
       if (driverStandings == null) return null;
 
-      // Find this driver in the standings
       for (final ds in driverStandings) {
-        final driver = ds['Driver'] as Map<String, dynamic>?;
-        if (driver != null && driver['driverId'] == driverId) {
-          final position = int.tryParse(ds['position']?.toString() ?? '');
-          final points = double.tryParse(ds['points']?.toString() ?? '');
-          _logger.d('[CurrentStanding] P$position with $points pts');
-          return {'position': position, 'points': points};
+        if (ds['Driver']?['driverId'] == driverId) {
+          return {
+            'position': int.tryParse(ds['position']?.toString() ?? ''),
+            'points': double.tryParse(ds['points']?.toString() ?? ''),
+          };
         }
       }
-
       return null;
     } catch (e) {
-      _logger.w('[CurrentStanding] Failed: $e');
+      _logger.w('[Standings] Failed: $e');
       return null;
     }
   }
 
-  /// Get driver ID from driver number
-  String? getDriverIdFromNumber(int driverNumber) {
-    return JolpicaConstants.getDriverId(driverNumber);
+  /// Fetch championship years (hybrid: hardcoded + recent from API)
+  Future<List<int>> _fetchChampionshipYears(String driverId, List<int> activeYears) async {
+    final championshipYears = <int>[
+      ...?JolpicaConstants.getChampionshipYears(driverId),
+    ];
+
+    final currentYear = DateTime.now().year;
+    final recentYears = activeYears.where((y) => y >= currentYear - 2).toList();
+    final yearsToCheck = recentYears.where((y) => !championshipYears.contains(y)).toList();
+
+    if (yearsToCheck.isEmpty) {
+      return championshipYears..sort();
+    }
+
+    _logger.d('[Championships] Checking recent years: $yearsToCheck');
+
+    for (final year in yearsToCheck) {
+      try {
+        final url = '${JolpicaConstants.baseUrl}/$year/driverStandings/1.json';
+        final response = await _requestWithRetry(url);
+        final data = response.data as Map<String, dynamic>;
+        final standingsLists = data['MRData']?['StandingsTable']?['StandingsLists'] as List?;
+
+        if (standingsLists != null && standingsLists.isNotEmpty) {
+          final driverStandings = standingsLists[0]['DriverStandings'] as List?;
+          if (driverStandings != null && driverStandings.isNotEmpty) {
+            final championDriverId = driverStandings[0]['Driver']?['driverId'];
+            if (championDriverId == driverId) {
+              championshipYears.add(year);
+              _logger.d('[Championships] Found: $year');
+            }
+          }
+        }
+        await Future.delayed(_requestDelay);
+      } catch (e) {
+        _logger.w('[Championships] Error checking $year: $e');
+      }
+    }
+
+    return championshipYears..sort();
+  }
+
+  // Legacy methods for backwards compatibility
+  Future<int> _fetchDriverWins(String driverId) async {
+    final url = JolpicaConstants.driverWinsUrl(driverId);
+    try {
+      final response = await _requestWithRetry(url, queryParameters: {'limit': 1});
+      final total = response.data['MRData']?['total'];
+      return int.tryParse(total?.toString() ?? '0') ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<int> _fetchDriverPodiums(String driverId) async {
+    try {
+      final p1 = await _fetchPositionCount(driverId, 1);
+      await Future.delayed(_requestDelay);
+      final p2 = await _fetchPositionCount(driverId, 2);
+      await Future.delayed(_requestDelay);
+      final p3 = await _fetchPositionCount(driverId, 3);
+      return p1 + p2 + p3;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<int> _fetchPositionCount(String driverId, int position) async {
+    final url = '${JolpicaConstants.baseUrl}/drivers/$driverId/results/$position.json';
+    try {
+      final response = await _requestWithRetry(url, queryParameters: {'limit': 1});
+      final total = response.data['MRData']?['total'];
+      return int.tryParse(total?.toString() ?? '0') ?? 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Future<int> _fetchTotalRaces(String driverId) async {
+    final url = JolpicaConstants.driverResultsUrl(driverId);
+    try {
+      final response = await _requestWithRetry(url, queryParameters: {'limit': 1});
+      final total = response.data['MRData']?['total'];
+      return int.tryParse(total?.toString() ?? '0') ?? 0;
+    } catch (e) {
+      return 0;
+    }
   }
 }

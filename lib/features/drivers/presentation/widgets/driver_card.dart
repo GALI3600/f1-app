@@ -43,6 +43,18 @@ class DriverCard extends StatelessWidget {
     }
   }
 
+  Color? _getTeamColor3() {
+    if (driver.teamColour3 == null) return null;
+    try {
+      final hex = driver.teamColour3!.startsWith('#')
+          ? driver.teamColour3!
+          : '#${driver.teamColour3}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Get driver-specific identification bar color
   /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
   /// Yellow bar for everyone else
@@ -74,14 +86,34 @@ class DriverCard extends StatelessWidget {
     return '$first$last'.toUpperCase();
   }
 
+  /// Build gradient colors list for team
+  List<Color> _buildGradientColors() {
+    final teamColor = _getTeamColor();
+    final teamColor2 = _getTeamColor2();
+    final teamColor3 = _getTeamColor3();
+
+    // If we have 3 colors (like Haas: white, black, red)
+    if (teamColor2 != null && teamColor3 != null) {
+      return [teamColor, teamColor2, teamColor3];
+    }
+
+    // If we have 2 colors
+    if (teamColor2 != null) {
+      return [teamColor, teamColor2];
+    }
+
+    // Default: primary color to darker variant
+    final darkerColor = HSLColor.fromColor(teamColor)
+        .withLightness((HSLColor.fromColor(teamColor).lightness * 0.6).clamp(0.0, 1.0))
+        .toColor();
+    return [teamColor, darkerColor];
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
-    final teamColor2 = _getTeamColor2();
-    // Use secondary color if available (for gradient teams like Audi), otherwise use darker variant
-    final gradientEndColor = teamColor2 ?? HSLColor.fromColor(teamColor)
-        .withLightness((HSLColor.fromColor(teamColor).lightness * 0.6).clamp(0.0, 1.0))
-        .toColor();
+    final gradientColors = _buildGradientColors();
+    final gradientEndColor = gradientColors.last;
 
     // Use horizontal layout for landscape compact mode
     if (isLandscapeCompact) {
@@ -136,7 +168,7 @@ class DriverCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [teamColor, darkerTeamColor],
+                    colors: _buildGradientColors(),
                   ),
                 ),
               ),
@@ -302,10 +334,7 @@ class DriverCard extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      teamColor,
-                      darkerTeamColor,
-                    ],
+                    colors: _buildGradientColors(),
                   ),
                 ),
               ),
@@ -582,6 +611,47 @@ class DriverCardCompact extends StatelessWidget {
     }
   }
 
+  Color? _getTeamColor2() {
+    if (driver.teamColour2 == null) return null;
+    try {
+      final hex = driver.teamColour2!.startsWith('#')
+          ? driver.teamColour2!
+          : '#${driver.teamColour2}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Color? _getTeamColor3() {
+    if (driver.teamColour3 == null) return null;
+    try {
+      final hex = driver.teamColour3!.startsWith('#')
+          ? driver.teamColour3!
+          : '#${driver.teamColour3}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  List<Color> _buildGradientColors() {
+    final teamColor = _getTeamColor();
+    final teamColor2 = _getTeamColor2();
+    final teamColor3 = _getTeamColor3();
+
+    if (teamColor2 != null && teamColor3 != null) {
+      return [teamColor, teamColor2, teamColor3];
+    }
+    if (teamColor2 != null) {
+      return [teamColor, teamColor2];
+    }
+    final darkerColor = HSLColor.fromColor(teamColor)
+        .withLightness((HSLColor.fromColor(teamColor).lightness * 0.6).clamp(0.0, 1.0))
+        .toColor();
+    return [teamColor, darkerColor];
+  }
+
   /// Get driver-specific identification bar color
   /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
   /// Yellow bar for everyone else
@@ -615,9 +685,8 @@ class DriverCardCompact extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
-    final darkerTeamColor = HSLColor.fromColor(teamColor)
-        .withLightness((HSLColor.fromColor(teamColor).lightness * 0.6).clamp(0.0, 1.0))
-        .toColor();
+    final gradientColors = _buildGradientColors();
+    final darkerTeamColor = gradientColors.last;
 
     return GestureDetector(
       onTap: onTap,
@@ -651,10 +720,7 @@ class DriverCardCompact extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [
-                      teamColor,
-                      darkerTeamColor,
-                    ],
+                    colors: _buildGradientColors(),
                   ),
                 ),
               ),

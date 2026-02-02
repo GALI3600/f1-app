@@ -150,6 +150,7 @@ class JolpicaConstants {
   static const Map<String, List<int>> championshipYears = {
     'hamilton': [2008, 2014, 2015, 2017, 2018, 2019, 2020],
     'max_verstappen': [2021, 2022, 2023, 2024],
+    'norris': [2025],
     'vettel': [2010, 2011, 2012, 2013],
     'alonso': [2005, 2006],
     'raikkonen': [2007],

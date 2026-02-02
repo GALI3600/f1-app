@@ -19,6 +19,7 @@ class Driver with _$Driver {
     @JsonKey(name: 'team_name') required String teamName,
     @JsonKey(name: 'team_colour') required String teamColour,
     @JsonKey(name: 'team_colour_2') String? teamColour2, // Secondary color for gradient
+    @JsonKey(name: 'team_colour_3') String? teamColour3, // Tertiary color (e.g., Haas)
     @JsonKey(name: 'country_code') String? countryCode,
     @JsonKey(name: 'headshot_url') String? headshotUrl,
     // Session/Meeting keys (optional - not available from Jolpica)
@@ -43,6 +44,7 @@ class Driver with _$Driver {
       teamName: json['team_name'] as String? ?? '',
       teamColour: json['team_colour'] as String? ?? '000000',
       teamColour2: json['team_colour_2'] as String?,
+      teamColour3: json['team_colour_3'] as String?,
       countryCode: json['country_code'] as String?,
       headshotUrl: json['headshot_url'] as String?,
       sessionKey: (json['session_key'] as num?)?.toInt() ?? 0,
@@ -78,6 +80,7 @@ class Driver with _$Driver {
     final teamName = DriverAssets.getTeamName(driverId);
     final teamColour = DriverAssets.getTeamColour(driverId);
     final teamColour2 = DriverAssets.getTeamColour2(driverId);
+    final teamColour3 = DriverAssets.getTeamColour3(driverId);
     final headshotUrl = DriverAssets.getHeadshotUrl(driverId) ??
         DriverAssets.fallbackHeadshotUrl;
 
@@ -91,6 +94,7 @@ class Driver with _$Driver {
       teamName: teamName,
       teamColour: teamColour,
       teamColour2: teamColour2,
+      teamColour3: teamColour3,
       countryCode: _nationalityToCode(nationality),
       headshotUrl: headshotUrl,
       sessionKey: 0, // Not available from Jolpica
@@ -109,6 +113,7 @@ class Driver with _$Driver {
     final teamName = DriverAssets.getTeamName(driverId);
     final teamColour = DriverAssets.getTeamColour(driverId);
     final teamColour2 = DriverAssets.getTeamColour2(driverId);
+    final teamColour3 = DriverAssets.getTeamColour3(driverId);
     final headshotUrl = DriverAssets.getHeadshotUrl(driverId) ??
         DriverAssets.fallbackHeadshotUrl;
 
@@ -134,6 +139,7 @@ class Driver with _$Driver {
       teamName: teamName,
       teamColour: teamColour,
       teamColour2: teamColour2,
+      teamColour3: teamColour3,
       countryCode: null,
       headshotUrl: headshotUrl,
       sessionKey: 0,
