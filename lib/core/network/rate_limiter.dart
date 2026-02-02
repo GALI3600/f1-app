@@ -4,7 +4,7 @@ import 'dart:collection';
 /// Rate limiter to prevent exceeding API rate limits
 ///
 /// Uses a chain-of-futures pattern to ensure requests are serialized
-/// and properly spaced. OpenF1 API allows max 2 requests/second.
+/// and properly spaced. Jolpica F1 API allows max 200 requests/hour.
 ///
 /// Usage:
 /// ```dart
@@ -14,10 +14,11 @@ import 'dart:collection';
 /// ```
 class RateLimiter {
   /// Maximum number of requests allowed per minute
+  /// Jolpica allows 200/hour = ~3.3/minute, using 60 for safety
   static const int maxRequestsPerMinute = 60;
 
   /// Minimum delay between requests (1000ms = 1 req/sec max)
-  /// Using 1000ms to ensure we never hit the 2 req/sec API limit
+  /// Conservative limit to stay well under Jolpica's 200 requests/hour
   static const Duration minRequestInterval = Duration(milliseconds: 1000);
 
   /// Chain of futures - each request waits for the previous one

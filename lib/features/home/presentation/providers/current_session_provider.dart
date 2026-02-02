@@ -6,7 +6,7 @@ part 'current_session_provider.g.dart';
 
 /// Provider for the current/latest Session
 ///
-/// Fetches the latest session using the 'latest' key from the OpenF1 API.
+/// Fetches the latest session from the Jolpica API.
 /// Returns null if there is no active session.
 ///
 /// Cache: 1 hour (handled by repository layer with CacheTTL.medium)

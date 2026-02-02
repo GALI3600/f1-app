@@ -126,7 +126,16 @@ class SessionResultCard extends StatelessWidget {
                           fontFamily: 'RobotoMono',
                         ),
                   )
-                else
+                else if (result.dnf || result.dns || result.dsq)
+                  Text(
+                    result.status ?? 'DNF',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoMono',
+                          color: F1Colors.vermelho,
+                        ),
+                  )
+                else if (result.gapToLeader > 0)
                   Text(
                     '+${_formatGap(result.gapToLeader)}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -134,12 +143,33 @@ class SessionResultCard extends StatelessWidget {
                           fontFamily: 'RobotoMono',
                           color: F1Colors.textSecondary,
                         ),
+                  )
+                else if (result.status != null && result.status!.startsWith('+'))
+                  // Lapped cars: "+1 Lap", "+2 Laps"
+                  Text(
+                    result.status!,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoMono',
+                          color: F1Colors.textSecondary,
+                        ),
+                  )
+                else
+                  Text(
+                    '-',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'RobotoMono',
+                          color: F1Colors.textSecondary,
+                        ),
                   ),
-                const SizedBox(height: 4),
-                Text(
-                  '${result.numberOfLaps} laps',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                if (result.numberOfLaps > 0) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    '${result.numberOfLaps} laps',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               ],
             ),
             // Positions gained/lost indicator

@@ -7,6 +7,7 @@ import 'package:f1sync/features/meetings/presentation/screens/meeting_detail_scr
 import 'package:f1sync/features/drivers/presentation/screens/drivers_list_screen.dart';
 import 'package:f1sync/features/drivers/presentation/screens/driver_detail_screen.dart';
 import 'package:f1sync/features/sessions/presentation/screens/session_detail_screen.dart';
+import 'package:f1sync/features/settings/presentation/screens/settings_screen.dart';
 import 'package:f1sync/shared/widgets/error_widget.dart' as custom;
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -86,18 +87,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: '/drivers/:driverNumber',
+        path: '/drivers/:driverId',
         name: 'driver-detail',
         pageBuilder: (context, state) {
-          final driverNumber = int.tryParse(state.pathParameters['driverNumber'] ?? '');
-          if (driverNumber == null) {
+          final driverId = state.pathParameters['driverId'];
+          if (driverId == null || driverId.isEmpty) {
             return _buildPageWithFadeTransition(
               context: context,
               state: state,
               child: Scaffold(
                 body: custom.F1ErrorWidget(
                   title: 'Invalid Driver',
-                  message: 'Invalid driver number',
+                  message: 'Invalid driver ID',
                   onRetry: () => context.go('/drivers'),
                 ),
               ),
@@ -106,7 +107,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           return _buildPageWithSlideTransition(
             context: context,
             state: state,
-            child: DriverDetailScreen(driverNumber: driverNumber),
+            child: DriverDetailScreen(driverId: driverId),
           );
         },
       ),
@@ -148,6 +149,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           // In a real implementation, you'd fetch the latest session key here
           return '/';
         },
+      ),
+
+      // Settings route
+      GoRoute(
+        path: '/settings',
+        name: 'settings',
+        pageBuilder: (context, state) => _buildPageWithSlideTransition(
+          context: context,
+          state: state,
+          child: const SettingsScreen(),
+        ),
       ),
     ],
   );

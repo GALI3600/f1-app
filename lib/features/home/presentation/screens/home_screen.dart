@@ -7,7 +7,7 @@ import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:f1sync/core/constants/app_constants.dart';
 import 'package:f1sync/features/home/presentation/providers/current_gp_provider.dart';
 import 'package:f1sync/features/home/presentation/providers/current_session_provider.dart';
-import 'package:f1sync/features/home/presentation/providers/current_drivers_provider.dart';
+import 'package:f1sync/features/home/presentation/providers/standings_provider.dart';
 import 'package:f1sync/features/home/presentation/widgets/current_gp_card.dart';
 import 'package:f1sync/features/home/presentation/widgets/quick_stats_card.dart';
 import 'package:f1sync/features/home/presentation/widgets/navigation_card.dart';
@@ -31,7 +31,7 @@ class HomeScreen extends ConsumerWidget {
     // Watch all providers
     final gpAsync = ref.watch(currentGPProvider);
     final sessionAsync = ref.watch(currentSessionProvider);
-    final driversAsync = ref.watch(currentDriversProvider);
+    final standingsAsync = ref.watch(currentStandingsProvider);
 
     return Scaffold(
       // Gradient AppBar using F1 colors
@@ -73,6 +73,12 @@ class HomeScreen extends ConsumerWidget {
                   )
                 : null,
           ) ?? const SizedBox.shrink(),
+          // Settings button
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () => context.go('/settings'),
+            tooltip: 'Configurações',
+          ),
         ],
       ),
 
@@ -83,7 +89,7 @@ class HomeScreen extends ConsumerWidget {
           await Future.wait([
             ref.refresh(currentGPProvider.future),
             ref.refresh(currentSessionProvider.future),
-            ref.refresh(currentDriversProvider.future),
+            ref.refresh(currentStandingsProvider.future),
           ]);
         },
         color: F1Colors.ciano,
@@ -96,7 +102,7 @@ class HomeScreen extends ConsumerWidget {
               return _buildLandscapeLayout(
                 context,
                 gpAsync,
-                driversAsync,
+                standingsAsync,
                 sessionAsync,
               );
             }
@@ -104,7 +110,7 @@ class HomeScreen extends ConsumerWidget {
             return _buildPortraitLayout(
               context,
               gpAsync,
-              driversAsync,
+              standingsAsync,
               sessionAsync,
             );
           },
@@ -117,7 +123,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildPortraitLayout(
     BuildContext context,
     AsyncValue gpAsync,
-    AsyncValue driversAsync,
+    AsyncValue standingsAsync,
     AsyncValue sessionAsync,
   ) {
     return SingleChildScrollView(
@@ -147,7 +153,7 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 24),
 
           // Quick Stats Section
-          _buildQuickStatsSection(driversAsync, sessionAsync),
+          _buildQuickStatsSection(standingsAsync, sessionAsync),
           const SizedBox(height: 24),
 
           // Navigation Grid
@@ -166,7 +172,7 @@ class HomeScreen extends ConsumerWidget {
   Widget _buildLandscapeLayout(
     BuildContext context,
     AsyncValue gpAsync,
-    AsyncValue driversAsync,
+    AsyncValue standingsAsync,
     AsyncValue sessionAsync,
   ) {
     return Row(
@@ -212,7 +218,7 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Quick Stats Section
-                _buildQuickStatsSection(driversAsync, sessionAsync),
+                _buildQuickStatsSection(standingsAsync, sessionAsync),
               ],
             ),
           ),
@@ -275,19 +281,19 @@ class HomeScreen extends ConsumerWidget {
 
   /// Build the Quick Stats section with loading/error/data states
   Widget _buildQuickStatsSection(
-    AsyncValue driversAsync,
+    AsyncValue standingsAsync,
     AsyncValue sessionAsync,
   ) {
     // Combine both async values to show stats
-    return driversAsync.when(
-      data: (drivers) {
+    return standingsAsync.when(
+      data: (standings) {
         // Get session name if available
         final sessionName = sessionAsync.whenOrNull(
           data: (session) => session?.sessionName as String?,
         );
 
         return QuickStatsCard(
-          drivers: drivers,
+          standings: standings,
           sessionName: sessionName,
           onStatTap: (statType) {
             // TODO: Navigate to appropriate screen based on stat type

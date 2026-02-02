@@ -9,77 +9,59 @@ import 'package:f1sync/features/laps/domain/repositories/laps_repository.dart';
 import 'package:f1sync/features/meetings/data/datasources/meetings_remote_data_source.dart';
 import 'package:f1sync/features/meetings/data/repositories/meetings_repository_impl.dart';
 import 'package:f1sync/features/meetings/domain/repositories/meetings_repository.dart';
-import 'package:f1sync/features/positions/data/datasources/positions_remote_data_source.dart';
-import 'package:f1sync/features/positions/data/repositories/positions_repository_impl.dart';
-import 'package:f1sync/features/positions/domain/repositories/positions_repository.dart';
-import 'package:f1sync/features/race_control/data/datasources/race_control_remote_data_source.dart';
-import 'package:f1sync/features/race_control/data/repositories/race_control_repository_impl.dart';
-import 'package:f1sync/features/race_control/domain/repositories/race_control_repository.dart';
 import 'package:f1sync/features/sessions/data/datasources/sessions_remote_data_source.dart';
 import 'package:f1sync/features/sessions/data/repositories/sessions_repository_impl.dart';
 import 'package:f1sync/features/sessions/domain/repositories/sessions_repository.dart';
-import 'package:f1sync/features/stints/data/datasources/stints_remote_data_source.dart';
-import 'package:f1sync/features/stints/data/repositories/stints_repository_impl.dart';
-import 'package:f1sync/features/stints/domain/repositories/stints_repository.dart';
-import 'package:f1sync/features/weather/data/datasources/weather_remote_data_source.dart';
-import 'package:f1sync/features/weather/data/repositories/weather_repository_impl.dart';
-import 'package:f1sync/features/weather/domain/repositories/weather_repository.dart';
+import 'package:f1sync/features/session_results/data/datasources/session_results_remote_data_source.dart';
+import 'package:f1sync/features/session_results/data/repositories/session_results_repository_impl.dart';
+import 'package:f1sync/features/session_results/domain/repositories/session_results_repository.dart';
+import 'package:f1sync/features/standings/data/datasources/standings_remote_data_source.dart';
+import 'package:f1sync/features/standings/data/repositories/standings_repository_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'providers.g.dart';
 
 // ========== Data Sources ==========
+// All data sources now use Jolpica API
 
 @riverpod
 MeetingsRemoteDataSource meetingsRemoteDataSource(
   MeetingsRemoteDataSourceRef ref,
 ) {
-  return MeetingsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return MeetingsRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 @riverpod
 SessionsRemoteDataSource sessionsRemoteDataSource(
   SessionsRemoteDataSourceRef ref,
 ) {
-  return SessionsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return SessionsRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 @riverpod
 DriversRemoteDataSource driversRemoteDataSource(
   DriversRemoteDataSourceRef ref,
 ) {
-  return DriversRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return DriversRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 @riverpod
 LapsRemoteDataSource lapsRemoteDataSource(LapsRemoteDataSourceRef ref) {
-  return LapsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return LapsRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 @riverpod
-PositionsRemoteDataSource positionsRemoteDataSource(
-  PositionsRemoteDataSourceRef ref,
+SessionResultsRemoteDataSource sessionResultsRemoteDataSource(
+  SessionResultsRemoteDataSourceRef ref,
 ) {
-  return PositionsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return SessionResultsRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 @riverpod
-WeatherRemoteDataSource weatherRemoteDataSource(
-  WeatherRemoteDataSourceRef ref,
+StandingsRemoteDataSource standingsRemoteDataSource(
+  StandingsRemoteDataSourceRef ref,
 ) {
-  return WeatherRemoteDataSource(ref.watch(network_providers.apiClientProvider));
-}
-
-@riverpod
-RaceControlRemoteDataSource raceControlRemoteDataSource(
-  RaceControlRemoteDataSourceRef ref,
-) {
-  return RaceControlRemoteDataSource(ref.watch(network_providers.apiClientProvider));
-}
-
-@riverpod
-StintsRemoteDataSource stintsRemoteDataSource(StintsRemoteDataSourceRef ref) {
-  return StintsRemoteDataSource(ref.watch(network_providers.apiClientProvider));
+  return StandingsRemoteDataSource(ref.watch(network_providers.jolpicaApiClientProvider));
 }
 
 // ========== Repositories ==========
@@ -117,33 +99,16 @@ LapsRepository lapsRepository(LapsRepositoryRef ref) {
 }
 
 @riverpod
-PositionsRepository positionsRepository(PositionsRepositoryRef ref) {
-  return PositionsRepositoryImpl(
-    ref.watch(positionsRemoteDataSourceProvider),
-    ref.watch(cacheServiceProvider),
+SessionResultsRepository sessionResultsRepository(SessionResultsRepositoryRef ref) {
+  return SessionResultsRepositoryImpl(
+    ref.watch(sessionResultsRemoteDataSourceProvider),
   );
 }
 
 @riverpod
-WeatherRepository weatherRepository(WeatherRepositoryRef ref) {
-  return WeatherRepositoryImpl(
-    ref.watch(weatherRemoteDataSourceProvider),
-    ref.watch(cacheServiceProvider),
-  );
-}
-
-@riverpod
-RaceControlRepository raceControlRepository(RaceControlRepositoryRef ref) {
-  return RaceControlRepositoryImpl(
-    ref.watch(raceControlRemoteDataSourceProvider),
-    ref.watch(cacheServiceProvider),
-  );
-}
-
-@riverpod
-StintsRepository stintsRepository(StintsRepositoryRef ref) {
-  return StintsRepositoryImpl(
-    ref.watch(stintsRemoteDataSourceProvider),
+StandingsRepository standingsRepository(StandingsRepositoryRef ref) {
+  return StandingsRepository(
+    ref.watch(standingsRemoteDataSourceProvider),
     ref.watch(cacheServiceProvider),
   );
 }

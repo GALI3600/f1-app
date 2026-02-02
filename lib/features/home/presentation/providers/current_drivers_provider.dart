@@ -6,10 +6,10 @@ part 'current_drivers_provider.g.dart';
 
 /// Provider for the current season drivers
 ///
-/// Fetches all drivers for the latest session using the 'latest' key.
+/// Fetches all drivers for the current season from Jolpica API.
 /// Returns a sorted list of drivers (by team name, then driver number).
 ///
-/// Cache: 1 hour (handled by repository layer with CacheTTL.medium)
+/// Cache: 7 days (handled by repository layer with CacheTTL.long)
 /// Auto-refresh: Can be triggered manually via refresh()
 @riverpod
 class CurrentDrivers extends _$CurrentDrivers {
@@ -17,8 +17,8 @@ class CurrentDrivers extends _$CurrentDrivers {
   Future<List<Driver>> build() async {
     final repo = ref.watch(driversRepositoryProvider);
 
-    // Fetch all drivers for the latest session
-    final drivers = await repo.getDrivers(sessionKey: 'latest');
+    // Fetch all drivers for the current season
+    final drivers = await repo.getDrivers(season: 'current');
 
     // Sort by team name, then by driver number
     drivers.sort((a, b) {

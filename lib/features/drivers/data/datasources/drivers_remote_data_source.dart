@@ -1,63 +1,80 @@
-import 'package:f1sync/core/constants/api_constants.dart';
-import 'package:f1sync/core/network/api_client.dart';
+import 'package:f1sync/core/network/jolpica_api_client.dart';
 import 'package:f1sync/features/drivers/data/models/driver.dart';
 import 'package:logger/logger.dart';
 
-/// Remote data source for drivers
+/// Remote data source for drivers using Jolpica API
 class DriversRemoteDataSource {
-  final OpenF1ApiClient _apiClient;
+  final JolpicaApiClient _jolpicaClient;
   final Logger _logger = Logger();
 
-  DriversRemoteDataSource(this._apiClient);
+  DriversRemoteDataSource(this._jolpicaClient);
 
-  /// Get drivers from API with optional filters
+  /// Get drivers from Jolpica API for current season
   Future<List<Driver>> getDrivers({
-    dynamic sessionKey, // Can be int or 'latest'
+    dynamic sessionKey, // Ignored - Jolpica uses season
     int? driverNumber,
+    dynamic season = 'current',
   }) async {
-    final queryParams = <String, dynamic>{};
+    _logger.i('Fetching drivers from Jolpica for season: $season');
 
-    if (sessionKey != null) queryParams['session_key'] = sessionKey;
-    if (driverNumber != null) queryParams['driver_number'] = driverNumber;
-
-    _logger.i('Fetching drivers with params: $queryParams');
-
-    final drivers = await _apiClient.getList<Driver>(
-      endpoint: ApiConstants.drivers,
-      fromJson: Driver.fromJson,
-      queryParams: queryParams.isNotEmpty ? queryParams : null,
+    // Use the simple getDrivers method (single API call)
+    final drivers = await _jolpicaClient.getDrivers<Driver>(
+      fromJson: Driver.fromJolpica,
+      season: season,
     );
 
-    _logger.i('Fetched ${drivers.length} drivers');
-    for (final driver in drivers) {
+    // Filter by driver number if specified
+    final filteredDrivers = driverNumber != null
+        ? drivers.where((d) => d.driverNumber == driverNumber).toList()
+        : drivers;
+
+    _logger.i('Fetched ${filteredDrivers.length} drivers from Jolpica');
+    for (final driver in filteredDrivers) {
       _logger.d('Driver: #${driver.driverNumber} ${driver.fullName} (${driver.teamName})');
     }
 
-    return drivers;
+    return filteredDrivers;
   }
 
   /// Get a single driver by number
   Future<Driver?> getDriverByNumber({
     required int driverNumber,
-    dynamic sessionKey, // Can be int or 'latest'
+    dynamic sessionKey, // Ignored - using Jolpica
+    dynamic season = 'current',
   }) async {
-    _logger.i('Fetching driver #$driverNumber with sessionKey: ${sessionKey ?? ApiConstants.latest}');
+    _logger.i('Fetching driver #$driverNumber from Jolpica');
 
-    final driver = await _apiClient.getSingle<Driver>(
-      endpoint: ApiConstants.drivers,
-      fromJson: Driver.fromJson,
-      queryParams: {
-        'driver_number': driverNumber,
-        'session_key': sessionKey ?? ApiConstants.latest,
-      },
+    // Fetch all drivers with constructor info and filter
+    final drivers = await getDrivers(
+      driverNumber: driverNumber,
+      season: season,
+    );
+
+    final driver = drivers.isNotEmpty ? drivers.first : null;
+
+    if (driver != null) {
+      _logger.i('Driver found: #${driver.driverNumber} ${driver.fullName} (${driver.teamName})');
+    } else {
+      _logger.w('Driver #$driverNumber not found');
+    }
+
+    return driver;
+  }
+
+  /// Get driver by Jolpica driver ID
+  Future<Driver?> getDriverById(String driverId, {dynamic season = 'current'}) async {
+    _logger.i('Fetching driver by ID: $driverId');
+
+    // Use the single driver endpoint
+    final driver = await _jolpicaClient.getDriver<Driver>(
+      driverId: driverId,
+      fromJson: Driver.fromJolpica,
     );
 
     if (driver != null) {
-      _logger.i('Driver found: #${driver.driverNumber} ${driver.fullName}');
-      _logger.d('Driver details: team=${driver.teamName}, teamColour=${driver.teamColour}, '
-          'sessionKey=${driver.sessionKey}, meetingKey=${driver.meetingKey}');
+      _logger.i('Driver found: ${driver.fullName} (${driver.teamName})');
     } else {
-      _logger.w('Driver #$driverNumber not found');
+      _logger.w('Driver $driverId not found');
     }
 
     return driver;

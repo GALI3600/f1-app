@@ -189,11 +189,8 @@ class AppConstants {
 
   // ========== External Links ==========
 
-  /// OpenF1 API documentation
-  static const String openF1DocsUrl = 'https://openf1.org';
-
-  /// OpenF1 API GitHub
-  static const String openF1GitHubUrl = 'https://github.com/br-g/openf1';
+  /// Jolpica F1 API documentation (Ergast successor)
+  static const String jolpicaDocsUrl = 'https://github.com/jolpica/jolpica-f1';
 
   /// Official F1 website
   static const String officialF1Url = 'https://www.formula1.com';

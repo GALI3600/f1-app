@@ -9,11 +9,11 @@ part 'drivers_list_provider.g.dart';
 @riverpod
 class DriversListNotifier extends _$DriversListNotifier {
   @override
-  Future<List<Driver>> build({String sessionKey = 'latest'}) async {
+  Future<List<Driver>> build({dynamic season = 'current'}) async {
     final repository = ref.watch(driversRepositoryProvider);
 
     try {
-      final drivers = await repository.getDrivers(sessionKey: sessionKey);
+      final drivers = await repository.getDrivers(season: season);
       return drivers;
     } catch (e) {
       rethrow;
@@ -25,7 +25,7 @@ class DriversListNotifier extends _$DriversListNotifier {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final repository = ref.read(driversRepositoryProvider);
-      return await repository.getDrivers(sessionKey: 'latest');
+      return await repository.getDrivers(season: 'current');
     });
   }
 }

@@ -51,30 +51,29 @@ Future<List<Meeting>> meetingsList(
 
 /// Meeting detail provider (family by meeting key)
 /// Returns tuple of (Meeting, List<Session>)
-/// Fetches both meeting details and all sessions for the meeting
+/// Uses the meeting's embedded sessions (parsed from Jolpica API)
 @riverpod
 Future<MeetingDetail> meetingDetail(
   MeetingDetailRef ref,
   int meetingKey,
 ) async {
   final meetingsRepo = ref.watch(meetingsRepositoryProvider);
-  final sessionsRepo = ref.watch(sessionsRepositoryProvider);
+  final selectedYear = ref.watch(selectedYearProvider);
 
-  // Fetch meeting and sessions in parallel
-  final results = await Future.wait([
-    meetingsRepo.getMeetingByKey(meetingKey),
-    sessionsRepo.getSessions(meetingKey: meetingKey),
-  ]);
-
-  final meeting = results[0] as Meeting?;
-  final sessions = results[1] as List<Session>;
+  // Fetch meeting with its embedded sessions
+  final meeting = await meetingsRepo.getMeetingByKey(meetingKey, year: selectedYear);
 
   if (meeting == null) {
-    throw Exception('Meeting not found: $meetingKey');
+    throw Exception('Meeting not found: Round $meetingKey, Year $selectedYear');
   }
 
-  // Sort sessions by date (chronological order)
-  sessions.sort((a, b) => a.dateStart.compareTo(b.dateStart));
+  // Use embedded sessions (already parsed with correct dates)
+  // Filter out practice sessions (no results available in Jolpica)
+  // Sort by date (chronological order)
+  final sessions = meeting.sessions
+      .where((s) => s.sessionType.toLowerCase() != 'practice')
+      .toList()
+    ..sort((a, b) => a.dateStart.compareTo(b.dateStart));
 
   return MeetingDetail(meeting: meeting, sessions: sessions);
 }

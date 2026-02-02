@@ -42,29 +42,29 @@ DriverCareerRepository driverCareerRepository(DriverCareerRepositoryRef ref) {
   );
 }
 
-/// Provider for driver career stats by driver number
+/// Provider for driver career stats by driver ID
 @riverpod
 class DriverCareerNotifier extends _$DriverCareerNotifier {
   @override
-  Future<DriverCareer?> build({required int driverNumber}) async {
-    _logger.i('[CareerProvider] Starting fetch for driver #$driverNumber');
+  Future<DriverCareer?> build({required String driverId}) async {
+    _logger.i('[CareerProvider] Starting fetch for driver $driverId');
 
     try {
       final repository = ref.watch(driverCareerRepositoryProvider);
-      _logger.i('[CareerProvider] Got repository, calling getDriverCareerByNumber');
+      _logger.i('[CareerProvider] Got repository, calling getDriverCareer');
 
-      final career = await repository.getDriverCareerByNumber(driverNumber);
+      final career = await repository.getDriverCareer(driverId);
 
       if (career != null) {
         _logger.i('[CareerProvider] Career loaded: ${career.fullName} - '
             '${career.wins} wins, ${career.championships} titles');
       } else {
-        _logger.w('[CareerProvider] No career data found for driver #$driverNumber');
+        _logger.w('[CareerProvider] No career data found for driver $driverId');
       }
 
       return career;
     } catch (e, stack) {
-      _logger.e('[CareerProvider] Error fetching career for #$driverNumber: $e');
+      _logger.e('[CareerProvider] Error fetching career for $driverId: $e');
       _logger.e('[CareerProvider] Stack: $stack');
       return null;
     }
@@ -73,6 +73,6 @@ class DriverCareerNotifier extends _$DriverCareerNotifier {
   /// Refresh career data
   Future<void> refresh() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => build(driverNumber: driverNumber));
+    state = await AsyncValue.guard(() => build(driverId: driverId));
   }
 }

@@ -4,15 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/session_detail_provider.dart';
 import '../../../session_results/presentation/providers/session_results_provider.dart';
 import '../widgets/session_result_card.dart';
-import '../widgets/weather_widget.dart';
-import '../widgets/race_control_feed.dart';
 import '../../../../shared/widgets/live_indicator.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
 import '../../../../shared/widgets/f1_loading.dart';
 import '../../../../shared/widgets/error_widget.dart' as custom;
 import '../../../../core/theme/f1_colors.dart';
 
-/// Session Detail Screen with tabbed view of session data
+/// Session Detail Screen showing session results
+///
+/// Note: Weather and Race Control tabs have been removed as they are not
+/// available in the Jolpica API (historical data only).
 class SessionDetailScreen extends ConsumerStatefulWidget {
   final int sessionKey;
 
@@ -26,15 +27,10 @@ class SessionDetailScreen extends ConsumerStatefulWidget {
       _SessionDetailScreenState();
 }
 
-class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  RaceControlFilter _raceControlFilter = RaceControlFilter.all;
-
+class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
 
     // Load session detail when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -42,12 +38,6 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
           .read(sessionDetailProvider.notifier)
           .loadSessionDetail(widget.sessionKey);
     });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   @override
@@ -68,18 +58,9 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
             children: [
               // Session header info
               _buildSessionHeader(state),
-              // Tab bar
-              _buildTabBar(),
-              // Tab views
+              // Results list
               Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildResultsTab(state),
-                    _buildWeatherTab(state),
-                    _buildRaceControlTab(state),
-                  ],
-                ),
+                child: _buildResultsSection(state),
               ),
             ],
           );
@@ -185,46 +166,47 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
     );
   }
 
-  Widget _buildTabBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: F1Colors.navyDeep,
-        border: Border(
-          bottom: BorderSide(
-            color: F1Colors.ciano.withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
-      ),
-      child: TabBar(
-        controller: _tabController,
-        indicatorColor: F1Colors.ciano,
-        labelColor: F1Colors.ciano,
-        unselectedLabelColor: F1Colors.textSecondary,
-        tabs: const [
-          Tab(text: 'Results', icon: Icon(Icons.emoji_events)),
-          Tab(text: 'Weather', icon: Icon(Icons.wb_sunny)),
-          Tab(text: 'Race Control', icon: Icon(Icons.message)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultsTab(SessionDetailState state) {
-    final resultsAsync = ref.watch(sessionResultsProvider(widget.sessionKey));
+  Widget _buildResultsSection(SessionDetailState state) {
+    final session = state.session!;
+    final resultsAsync = ref.watch(sessionResultsProvider((
+      sessionKey: widget.sessionKey,
+      sessionType: session.sessionType,
+    )));
 
     return RefreshIndicator(
       onRefresh: () async {
-        await ref
-            .read(sessionDetailProvider.notifier)
-            .refresh();
-        ref.invalidate(sessionResultsProvider(widget.sessionKey));
+        await ref.read(sessionDetailProvider.notifier).refresh();
+        ref.invalidate(sessionResultsProvider((
+          sessionKey: widget.sessionKey,
+          sessionType: session.sessionType,
+        )));
       },
       child: resultsAsync.when(
         data: (results) {
           if (results.isEmpty) {
-            return const Center(
-              child: Text('No results available yet'),
+            final isPractice = session.sessionType.toLowerCase() == 'practice';
+            return ListView(
+              children: [
+                const SizedBox(height: 100),
+                Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        isPractice ? Icons.info_outline : Icons.hourglass_empty,
+                        size: 48,
+                        color: F1Colors.textSecondary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        isPractice
+                            ? 'Practice sessions don\'t have official results'
+                            : 'No results available yet',
+                        style: const TextStyle(color: F1Colors.textSecondary),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             );
           }
 
@@ -233,21 +215,25 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
             itemCount: results.length,
             itemBuilder: (context, index) {
               final result = results[index];
-              final driver = state.drivers?.firstWhere(
-                (d) => d.driverNumber == result.driverNumber,
-                orElse: () => null as dynamic,
+              // Match by driverId first (more reliable), then by driverNumber
+              final driver = state.drivers?.cast<dynamic>().firstWhere(
+                (d) => d.driverId == result.driverId ||
+                    (result.driverNumber > 0 && d.driverNumber == result.driverNumber),
+                orElse: () => null,
               );
 
-              // Find fastest lap
-              final fastestLap = results.reduce((a, b) =>
-                  a.duration < b.duration && !a.dnf && !a.dns && !a.dsq
-                      ? a
-                      : b);
+              // Find fastest lap (only for finished drivers)
+              final finishedResults = results.where((r) => r.finished && r.duration > 0).toList();
+              final hasFastestLap = finishedResults.isNotEmpty &&
+                  result.finished &&
+                  result.duration > 0 &&
+                  (result.fastestLapRank == 1 ||
+                      finishedResults.every((r) => result.duration <= r.duration));
 
               return SessionResultCard(
                 result: result,
                 driver: driver,
-                isFastestLap: result.driverNumber == fastestLap.driverNumber,
+                isFastestLap: hasFastestLap,
               );
             },
           );
@@ -263,57 +249,13 @@ class _SessionDetailScreenState extends ConsumerState<SessionDetailScreen>
           title: 'Failed to Load Results',
           message: error.toString(),
           onRetry: () {
-            ref.invalidate(sessionResultsProvider(widget.sessionKey));
+            ref.invalidate(sessionResultsProvider((
+              sessionKey: widget.sessionKey,
+              sessionType: session.sessionType,
+            )));
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildWeatherTab(SessionDetailState state) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(sessionDetailProvider.notifier).refresh();
-      },
-      child: state.weather == null || state.weather!.isEmpty
-          ? const Center(
-              child: Text('No weather data available'),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: state.weather!.length,
-              itemBuilder: (context, index) {
-                // Reverse to show latest first
-                final weather =
-                    state.weather![state.weather!.length - 1 - index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: WeatherWidget(weather: weather),
-                );
-              },
-            ),
-    );
-  }
-
-  Widget _buildRaceControlTab(SessionDetailState state) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(sessionDetailProvider.notifier).refresh();
-      },
-      child: state.raceControl == null || state.raceControl!.isEmpty
-          ? const Center(
-              child: Text('No race control messages'),
-            )
-          : RaceControlFeed(
-              messages: state.raceControl!,
-              drivers: state.drivers,
-              filter: _raceControlFilter,
-              onFilterChanged: (filter) {
-                setState(() {
-                  _raceControlFilter = filter;
-                });
-              },
-            ),
     );
   }
 

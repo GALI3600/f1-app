@@ -11,14 +11,18 @@ class SessionResultsRepositoryImpl implements SessionResultsRepository {
   @override
   Future<List<SessionResult>> getSessionResults({
     required int sessionKey,
+    String? sessionType,
     int? driverNumber,
     int? position,
+    int? year,
   }) async {
     try {
       final results = await _remoteDataSource.getSessionResults(
         sessionKey: sessionKey,
+        sessionType: sessionType,
         driverNumber: driverNumber,
         position: position,
+        year: year,
       );
 
       // Sort by position

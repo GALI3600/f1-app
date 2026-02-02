@@ -31,14 +31,35 @@ class DriverCard extends StatelessWidget {
     }
   }
 
-  /// Get driver-specific identification bar color
-  Color _getDriverBarColor() {
-    switch (driver.driverNumber) {
-      case 16: // Leclerc
-        return Colors.black;
-      default:
-        return F1Colors.warning; // Yellow for most drivers
+  Color? _getTeamColor2() {
+    if (driver.teamColour2 == null) return null;
+    try {
+      final hex = driver.teamColour2!.startsWith('#')
+          ? driver.teamColour2!
+          : '#${driver.teamColour2}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
     }
+  }
+
+  /// Get driver-specific identification bar color
+  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
+  /// Yellow bar for everyone else
+  Color _getDriverBarColor() {
+    // Use driverId for reliable identification
+    const blackBarDrivers = {
+      'leclerc',        // Ferrari
+      'russell',        // Mercedes
+      'max_verstappen', // Red Bull
+      'lindblad',       // Racing Bulls
+    };
+
+    if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {
+      return Colors.black;
+    }
+
+    return F1Colors.warning; // Yellow for most drivers
   }
 
   /// Get driver initials from full name
@@ -56,16 +77,18 @@ class DriverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
-    final darkerTeamColor = HSLColor.fromColor(teamColor)
+    final teamColor2 = _getTeamColor2();
+    // Use secondary color if available (for gradient teams like Audi), otherwise use darker variant
+    final gradientEndColor = teamColor2 ?? HSLColor.fromColor(teamColor)
         .withLightness((HSLColor.fromColor(teamColor).lightness * 0.6).clamp(0.0, 1.0))
         .toColor();
 
     // Use horizontal layout for landscape compact mode
     if (isLandscapeCompact) {
-      return _buildLandscapeCompactCard(teamColor, darkerTeamColor);
+      return _buildLandscapeCompactCard(teamColor, gradientEndColor);
     }
 
-    return _buildStandardCard(teamColor, darkerTeamColor);
+    return _buildStandardCard(teamColor, gradientEndColor);
   }
 
   /// Horizontal layout for landscape compact mode - photo on left, info on right
@@ -560,13 +583,21 @@ class DriverCardCompact extends StatelessWidget {
   }
 
   /// Get driver-specific identification bar color
+  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
+  /// Yellow bar for everyone else
   Color _getDriverBarColor() {
-    switch (driver.driverNumber) {
-      case 16: // Leclerc
-        return Colors.black;
-      default:
-        return F1Colors.warning; // Yellow for most drivers
+    const blackBarDrivers = {
+      'leclerc',        // Ferrari
+      'russell',        // Mercedes
+      'max_verstappen', // Red Bull
+      'lindblad',       // Racing Bulls
+    };
+
+    if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {
+      return Colors.black;
     }
+
+    return F1Colors.warning; // Yellow for most drivers
   }
 
   /// Get driver initials from full name

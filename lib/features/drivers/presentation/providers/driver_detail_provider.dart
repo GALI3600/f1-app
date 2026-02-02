@@ -3,25 +3,22 @@ import 'package:logger/logger.dart';
 import '../../../../core/providers.dart';
 import '../../data/models/driver.dart';
 import '../../../laps/data/models/lap.dart';
-import '../../../stints/data/models/stint.dart';
-import '../../../positions/data/models/position.dart';
 
 part 'driver_detail_provider.g.dart';
 
 final _logger = Logger();
 
 /// Aggregated driver detail data
+///
+/// Note: Stints and Positions have been removed as they are not available
+/// in the Jolpica API (historical data only).
 class DriverDetailData {
   final Driver driver;
   final List<Lap> laps;
-  final List<Stint> stints;
-  final List<Position> positions;
 
   const DriverDetailData({
     required this.driver,
     required this.laps,
-    required this.stints,
-    required this.positions,
   });
 
   /// Get fastest lap (excludes laps with 0 or invalid duration)
@@ -49,21 +46,20 @@ class DriverDetailData {
   /// Get total laps completed
   int get totalLaps => laps.length;
 
-  /// Get number of pit stops (minimum 0)
-  int get pitStops => stints.length > 1 ? stints.length - 1 : 0;
-
-  /// Get current position (latest)
-  int? get currentPosition {
+  /// Get best position during the race (from lap position data)
+  int? get bestPosition {
+    if (laps.isEmpty) return null;
+    final positions = laps.where((l) => l.position != null).map((l) => l.position!).toList();
     if (positions.isEmpty) return null;
-    return positions.last.position;
+    return positions.reduce((a, b) => a < b ? a : b);
   }
 
-  /// Get position changes
-  int get positionChanges {
-    if (positions.length < 2) return 0;
-    final startPos = positions.first.position;
-    final endPos = positions.last.position;
-    return startPos - endPos; // Positive = gained positions
+  /// Get final position (from last lap)
+  int? get finalPosition {
+    if (laps.isEmpty) return null;
+    final sortedLaps = List<Lap>.from(laps)
+      ..sort((a, b) => b.lapNumber.compareTo(a.lapNumber));
+    return sortedLaps.first.position;
   }
 }
 
@@ -72,69 +68,42 @@ class DriverDetailData {
 class DriverDetailNotifier extends _$DriverDetailNotifier {
   @override
   Future<DriverDetailData> build({
-    required int driverNumber,
-    String sessionKey = 'latest',
+    required String driverId,
+    int? round,
   }) async {
-    _logger.i('DriverDetailNotifier.build() called for driver #$driverNumber, sessionKey: $sessionKey');
+    _logger.i('DriverDetailNotifier.build() called for driver $driverId, round: $round');
 
     final driversRepo = ref.watch(driversRepositoryProvider);
     final lapsRepo = ref.watch(lapsRepositoryProvider);
-    final stintsRepo = ref.watch(stintsRepositoryProvider);
-    final positionsRepo = ref.watch(positionsRepositoryProvider);
 
     try {
-      // First, try to get all data in parallel (works great with cache)
-      // If we get rate limited, the repositories handle retries internally
-      _logger.d('Fetching all data in parallel (cache-optimized)...');
+      _logger.d('Fetching driver and laps data...');
 
-      final results = await Future.wait([
-        driversRepo.getDriverByNumber(
-          driverNumber: driverNumber,
-          sessionKey: sessionKey,
-        ),
-        lapsRepo.getLaps(
-          sessionKey: sessionKey,
-          driverNumber: driverNumber,
-        ),
-        stintsRepo.getStints(
-          sessionKey: sessionKey,
-          driverNumber: driverNumber,
-        ),
-        positionsRepo.getPositions(
-          sessionKey: sessionKey,
-          driverNumber: driverNumber,
-        ),
-      ]);
+      // Fetch driver by ID
+      final driver = await driversRepo.getDriverById(driverId: driverId);
 
-      final driver = results[0] as Driver?;
-      final laps = results[1] as List<Lap>;
-      final stints = results[2] as List<Stint>;
-      final positions = results[3] as List<Position>;
-
-      _logger.d('All data fetched successfully');
-      _logger.d('driver: $driver');
-      _logger.d('laps: ${laps.length} items');
-      _logger.d('stints: ${stints.length} items');
-      _logger.d('positions: ${positions.length} items');
-
-      if (driver == null) {
-        _logger.e('Driver #$driverNumber not found!');
-        throw Exception('Driver not found');
+      // Fetch laps if round is specified and driver has a valid number
+      List<Lap> laps = [];
+      if (round != null && driver != null && driver.driverNumber > 0) {
+        laps = await lapsRepo.getDriverLaps(driverNumber: driver.driverNumber, round: round);
       }
 
-      _logger.i('Creating DriverDetailData for ${driver.fullName}');
+      _logger.d('Data fetched successfully');
+      _logger.d('driver: $driver');
+      _logger.d('laps: ${laps.length} items');
+
+      // If driver not found, create empty driver with data from assets
+      final resolvedDriver = driver ?? Driver.empty(driverId);
+
+      _logger.i('Creating DriverDetailData for ${resolvedDriver.fullName}');
 
       final detailData = DriverDetailData(
-        driver: driver,
+        driver: resolvedDriver,
         laps: laps,
-        stints: stints,
-        positions: positions,
       );
 
       _logger.i('DriverDetailData created successfully: '
           'laps=${detailData.laps.length}, '
-          'stints=${detailData.stints.length}, '
-          'positions=${detailData.positions.length}, '
           'fastestLap=${detailData.fastestLap?.lapDuration}, '
           'avgLapTime=${detailData.averageLapTime}');
 
@@ -150,17 +119,18 @@ class DriverDetailNotifier extends _$DriverDetailNotifier {
   Future<void> refresh() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => build(
-          driverNumber: driverNumber,
-          sessionKey: sessionKey,
+          driverId: driverId,
+          round: round,
         ));
   }
 }
 
 /// Provider for driver's lap times (sorted by lap number)
 @riverpod
-List<Lap> sortedLaps(SortedLapsRef ref, int driverNumber) {
+List<Lap> sortedLaps(SortedLapsRef ref, String driverId, {int? round}) {
   final detailAsync = ref.watch(driverDetailNotifierProvider(
-    driverNumber: driverNumber,
+    driverId: driverId,
+    round: round,
   ));
 
   return detailAsync.when(
@@ -176,9 +146,10 @@ List<Lap> sortedLaps(SortedLapsRef ref, int driverNumber) {
 
 /// Provider for fastest lap in session
 @riverpod
-Lap? fastestLap(FastestLapRef ref, int driverNumber) {
+Lap? fastestLap(FastestLapRef ref, String driverId, {int? round}) {
   final detailAsync = ref.watch(driverDetailNotifierProvider(
-    driverNumber: driverNumber,
+    driverId: driverId,
+    round: round,
   ));
 
   return detailAsync.when(

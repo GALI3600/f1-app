@@ -6,7 +6,7 @@ part 'current_gp_provider.g.dart';
 
 /// Provider for the current/latest Grand Prix
 ///
-/// Fetches the latest meeting using the 'latest' key from the OpenF1 API.
+/// Fetches the latest meeting from the Jolpica API.
 /// This provider uses AsyncNotifierProvider to handle loading, error, and data states.
 ///
 /// Cache: 7 days (handled by repository layer with CacheTTL.long)

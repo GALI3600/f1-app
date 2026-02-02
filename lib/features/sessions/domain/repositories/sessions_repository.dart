@@ -1,21 +1,28 @@
 import 'package:f1sync/features/sessions/data/models/session.dart';
 
 /// Repository interface for sessions (FP, Qualifying, Race, etc.)
+///
+/// Sessions are extracted from Jolpica race schedule data.
+/// Session keys are computed as: round * 100 + sessionIndex
 abstract class SessionsRepository {
   /// Get list of sessions with optional filters
   ///
-  /// [meetingKey] - Filter by meeting key or 'latest'
-  /// [sessionKey] - Specific session key or 'latest'
-  /// [sessionType] - Filter by session type (Practice, Qualifying, Race)
+  /// [round] - Filter by round number
+  /// [sessionKey] - Specific session key (round * 100 + sessionIndex)
+  /// [sessionType] - Filter by session type (Practice, Qualifying, Race, Sprint)
+  /// [year] - Season year (defaults to current year)
   Future<List<Session>> getSessions({
-    dynamic meetingKey, // Can be int or 'latest'
-    dynamic sessionKey, // Can be int or 'latest'
+    int? round,
+    dynamic sessionKey,
     String? sessionType,
+    int? year,
   });
 
   /// Get a single session by key
-  Future<Session?> getSessionByKey(int sessionKey);
+  /// [year] - Season year (defaults to current year)
+  Future<Session?> getSessionByKey(int sessionKey, {int? year});
 
-  /// Get the latest/current session
-  Future<Session?> getLatestSession();
+  /// Get the latest/upcoming session
+  /// [year] - Season year (defaults to current year)
+  Future<Session?> getLatestSession({int? year});
 }

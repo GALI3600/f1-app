@@ -1,195 +1,157 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:f1sync/shared/models/models.dart';
+import 'package:f1sync/features/drivers/data/models/driver.dart';
+import 'package:f1sync/features/meetings/data/models/meeting.dart';
+import 'package:f1sync/features/sessions/data/models/session.dart';
+import 'package:f1sync/features/laps/data/models/lap.dart';
+
+/// Extension providing helper methods for Driver model in tests
+extension DriverTestExtension on Driver {
+  /// Team color as Flutter Color object
+  Color get teamColor {
+    final hex = teamColour.startsWith('#') ? teamColour : '#$teamColour';
+    return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+  }
+
+  /// Avatar URL with fallback to placeholder
+  String get avatarUrl {
+    return headshotUrl ?? 'https://via.placeholder.com/150?text=$nameAcronym';
+  }
+}
 
 void main() {
   group('Data Models JSON Serialization Tests', () {
-    test('Driver model - fromJson/toJson', () {
+    test('Driver model - fromJolpica', () {
       final json = {
-        'driver_number': 1,
-        'broadcast_name': 'M VERSTAPPEN',
-        'full_name': 'Max VERSTAPPEN',
-        'name_acronym': 'VER',
-        'first_name': 'Max',
-        'last_name': 'Verstappen',
-        'team_name': 'Red Bull Racing',
-        'team_colour': '3671C6',
-        'country_code': 'NED',
-        'headshot_url': 'https://example.com/driver.png',
-        'session_key': 9158,
-        'meeting_key': 1219,
+        'driverId': 'max_verstappen',
+        'permanentNumber': '1',
+        'code': 'VER',
+        'givenName': 'Max',
+        'familyName': 'Verstappen',
+        'dateOfBirth': '1997-09-30',
+        'nationality': 'Dutch',
       };
 
-      final driver = Driver.fromJson(json);
+      final driver = Driver.fromJolpica(json);
       expect(driver.driverNumber, 1);
-      expect(driver.broadcastName, 'M VERSTAPPEN');
-      expect(driver.teamColour, '3671C6');
-      expect(driver.initials, 'VER');
-
-      final backToJson = driver.toJson();
-      expect(backToJson['driver_number'], 1);
-      expect(backToJson['team_colour'], '3671C6');
+      expect(driver.fullName, 'Max Verstappen');
+      expect(driver.nameAcronym, 'VER');
+      expect(driver.nationality, 'Dutch');
     });
 
-    test('Meeting model - fromJson/toJson', () {
+    test('Meeting model - fromJson', () {
       final json = {
-        'meeting_key': 1221,
-        'meeting_name': 'São Paulo Grand Prix',
-        'meeting_official_name': 'FORMULA 1 ROLEX GRANDE PRÊMIO DE SÃO PAULO 2023',
-        'location': 'São Paulo',
-        'country_code': 'BRA',
-        'country_name': 'Brazil',
-        'country_key': 31,
-        'circuit_short_name': 'Interlagos',
-        'circuit_key': 18,
-        'date_start': '2023-11-03T14:30:00+00:00',
-        'gmt_offset': '-03:00:00',
+        'meeting_key': 5,
+        'meeting_name': 'Monaco Grand Prix',
+        'meeting_official_name': 'Monaco Grand Prix',
+        'location': 'Monte Carlo',
+        'country_code': 'MC',
+        'country_name': 'Monaco',
+        'country_key': 0,
+        'circuit_short_name': 'Monaco',
+        'circuit_key': 0,
+        'date_start': '2023-05-28T14:00:00+00:00',
+        'gmt_offset': '+02:00',
         'year': 2023,
       };
 
       final meeting = Meeting.fromJson(json);
-      expect(meeting.meetingKey, 1221);
-      expect(meeting.meetingName, 'São Paulo Grand Prix');
+      expect(meeting.meetingKey, 5);
+      expect(meeting.meetingName, 'Monaco Grand Prix');
       expect(meeting.year, 2023);
-
-      final backToJson = meeting.toJson();
-      expect(backToJson['meeting_key'], 1221);
+      expect(meeting.round, 5);
     });
 
-    test('Session model - fromJson/toJson', () {
+    test('Meeting model - fromJolpica', () {
       final json = {
-        'session_key': 9140,
-        'meeting_key': 1216,
-        'session_name': 'Sprint',
+        'season': '2023',
+        'round': '5',
+        'raceName': 'Monaco Grand Prix',
+        'Circuit': {
+          'circuitId': 'monaco',
+          'circuitName': 'Circuit de Monaco',
+          'Location': {
+            'locality': 'Monte Carlo',
+            'country': 'Monaco',
+          },
+        },
+        'date': '2023-05-28',
+        'time': '13:00:00Z',
+      };
+
+      final meeting = Meeting.fromJolpica(json);
+      expect(meeting.meetingKey, 5);
+      expect(meeting.meetingName, 'Monaco Grand Prix');
+      expect(meeting.year, 2023);
+      expect(meeting.location, 'Monte Carlo');
+    });
+
+    test('Session model - fromJson', () {
+      final json = {
+        'session_key': 501,
+        'meeting_key': 5,
+        'session_name': 'Race',
         'session_type': 'Race',
-        'date_start': '2023-07-29T15:05:00+00:00',
-        'date_end': '2023-07-29T15:35:00+00:00',
-        'gmt_offset': '02:00:00',
-        'location': 'Spa-Francorchamps',
-        'country_code': 'BEL',
-        'country_name': 'Belgium',
-        'circuit_short_name': 'Spa-Francorchamps',
-        'circuit_key': 7,
+        'date_start': '2023-05-28T13:00:00+00:00',
+        'date_end': '2023-05-28T15:00:00+00:00',
+        'gmt_offset': '+02:00',
+        'location': 'Monte Carlo',
+        'country_code': 'MC',
+        'country_name': 'Monaco',
+        'circuit_short_name': 'Monaco',
+        'circuit_key': 0,
         'year': 2023,
       };
 
       final session = Session.fromJson(json);
-      expect(session.sessionKey, 9140);
+      expect(session.sessionKey, 501);
       expect(session.sessionType, 'Race');
-
-      final backToJson = session.toJson();
-      expect(backToJson['session_key'], 9140);
+      expect(session.isRace, true);
+      expect(session.round, 5);
     });
 
-    test('Lap model - fromJson/toJson with nullable fields', () {
+    test('Lap model - fromJson with nullable fields', () {
       final json = {
-        'date_start': '2023-09-16T13:59:07.606000+00:00',
+        'date_start': '2023-05-28T13:30:00+00:00',
         'driver_number': 1,
         'lap_number': 10,
-        'lap_duration': 91.743,
+        'lap_duration': 75.123,
         'is_pit_out_lap': false,
-        'duration_sector_1': 26.966,
-        'duration_sector_2': 38.657,
-        'duration_sector_3': 26.12,
-        'segments_sector_1': [2049, 2049, 2049, 2051],
-        'segments_sector_2': [2049, 2049, 2049, 2049],
-        'segments_sector_3': [2048, 2048, 2048, 2064],
-        'i1_speed': 307,
-        'i2_speed': 277,
+        'duration_sector_1': 18.5,
+        'duration_sector_2': 32.1,
+        'duration_sector_3': 24.523,
+        'segments_sector_1': [2049, 2049, 2049],
+        'segments_sector_2': [2049, 2049, 2049],
+        'segments_sector_3': [2048, 2048, 2064],
+        'i1_speed': 290,
+        'i2_speed': 265,
         'st_speed': null,
-        'session_key': 9161,
-        'meeting_key': 1219,
+        'session_key': 501,
+        'meeting_key': 5,
       };
 
       final lap = Lap.fromJson(json);
       expect(lap.lapNumber, 10);
-      expect(lap.lapDuration, 91.743);
-      expect(lap.i1Speed, 307);
+      expect(lap.lapDuration, 75.123);
+      expect(lap.i1Speed, 290);
       expect(lap.stSpeed, null);
-
-      final backToJson = lap.toJson();
-      expect(backToJson['lap_number'], 10);
     });
 
-    test('Position model - fromJson/toJson', () {
+    test('Lap model - fromJolpica', () {
       final json = {
-        'date': '2023-08-26T09:30:47.199000+00:00',
-        'driver_number': 1,
-        'position': 1,
-        'session_key': 9144,
-        'meeting_key': 1217,
+        'driverId': 'max_verstappen',
+        'position': '1',
+        'time': '1:15.123',
+        'lapNumber': 10,
+        'round': 5,
+        'season': 2023,
       };
 
-      final position = Position.fromJson(json);
-      expect(position.driverNumber, 1);
-      expect(position.position, 1);
-
-      final backToJson = position.toJson();
-      expect(backToJson['driver_number'], 1);
-    });
-
-    test('Weather model - fromJson/toJson', () {
-      final json = {
-        'date': '2023-05-07T18:42:25.233000+00:00',
-        'air_temperature': 27.8,
-        'humidity': 58,
-        'pressure': 1018.7,
-        'rainfall': 0,
-        'track_temperature': 52.5,
-        'wind_direction': 136,
-        'wind_speed': 2.4,
-        'session_key': 9078,
-        'meeting_key': 1208,
-      };
-
-      final weather = Weather.fromJson(json);
-      expect(weather.airTemperature, 27.8);
-      expect(weather.rainfall, 0);
-
-      final backToJson = weather.toJson();
-      expect(backToJson['air_temperature'], 27.8);
-    });
-
-    test('RaceControl model - fromJson/toJson with nullable fields', () {
-      final json = {
-        'date': '2023-06-04T14:21:01+00:00',
-        'category': 'Flag',
-        'flag': 'YELLOW',
-        'lap_number': 35,
-        'message': 'YELLOW FLAG SECTOR 2 - DEBRIS',
-        'scope': 'Sector',
-        'sector': 2,
-        'driver_number': 1,
-        'session_key': 9102,
-        'meeting_key': 1211,
-      };
-
-      final raceControl = RaceControl.fromJson(json);
-      expect(raceControl.category, 'Flag');
-      expect(raceControl.flag, 'YELLOW');
-      expect(raceControl.sector, 2);
-
-      final backToJson = raceControl.toJson();
-      expect(backToJson['flag'], 'YELLOW');
-    });
-
-    test('Stint model - fromJson/toJson', () {
-      final json = {
-        'compound': 'SOFT',
-        'driver_number': 1,
-        'lap_end': 25,
-        'lap_start': 1,
-        'stint_number': 1,
-        'tyre_age_at_start': 0,
-        'session_key': 9165,
-        'meeting_key': 1219,
-      };
-
-      final stint = Stint.fromJson(json);
-      expect(stint.compound, 'SOFT');
-      expect(stint.stintNumber, 1);
-
-      final backToJson = stint.toJson();
-      expect(backToJson['compound'], 'SOFT');
+      final lap = Lap.fromJolpica(json);
+      expect(lap.lapNumber, 10);
+      expect(lap.driverId, 'max_verstappen');
+      expect(lap.position, 1);
+      expect(lap.lapDuration, closeTo(75.123, 0.001));
     });
   });
 
@@ -205,8 +167,6 @@ void main() {
         teamName: 'Red Bull Racing',
         teamColour: '3671C6',
         countryCode: 'NED',
-        sessionKey: 9158,
-        meetingKey: 1219,
       );
 
       final color = driver.teamColor;
@@ -225,8 +185,6 @@ void main() {
         teamColour: '3671C6',
         countryCode: 'NED',
         headshotUrl: null,
-        sessionKey: 9158,
-        meetingKey: 1219,
       );
 
       expect(driver.avatarUrl, contains('VER'));

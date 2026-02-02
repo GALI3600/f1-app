@@ -23,8 +23,7 @@ class DriversListScreen extends ConsumerStatefulWidget {
 }
 
 class _DriversListScreenState extends ConsumerState<DriversListScreen> {
-  bool _isGridView = true;
-  int? _selectedDriverNumber;
+  String? _selectedDriverId;
 
   Color _getTeamColor(String? teamColour) {
     if (teamColour == null) return F1Colors.navy;
@@ -45,9 +44,9 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
 
     // Get selected driver's team color for AppBar corner (only after data loads)
     Color? appBarCornerColorLeft;
-    if (_selectedDriverNumber != null) {
+    if (_selectedDriverId != null) {
       final detailAsync = ref.watch(driverDetailNotifierProvider(
-        driverNumber: _selectedDriverNumber!,
+        driverId: _selectedDriverId!,
       ));
       appBarCornerColorLeft = detailAsync.whenOrNull(
         data: (detail) => _getTeamColor(detail.driver.teamColour),
@@ -65,17 +64,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
           onPressed: () => context.go('/'),
         ),
         actions: [
-          // View toggle button
-          IconButton(
-            icon: Icon(_isGridView ? Icons.view_list : Icons.grid_view),
-            onPressed: () {
-              setState(() {
-                _isGridView = !_isGridView;
-              });
-            },
-          ),
-
-          // Filter menu button
+          // Sort menu button
           PopupMenuButton<DriverSort>(
             icon: const Icon(Icons.sort),
             tooltip: 'Sort',
@@ -112,18 +101,18 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     // Master-detail layout for landscape tablets
-    if (isLandscape && _selectedDriverNumber != null) {
+    if (isLandscape && _selectedDriverId != null) {
       return Row(
         children: [
           // Detail panel on the left
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.35,
             child: DriverDetailPanel(
-              key: ValueKey(_selectedDriverNumber),
-              driverNumber: _selectedDriverNumber!,
+              key: ValueKey(_selectedDriverId),
+              driverId: _selectedDriverId!,
               onClose: () {
                 setState(() {
-                  _selectedDriverNumber = null;
+                  _selectedDriverId = null;
                 });
               },
             ),
@@ -201,13 +190,11 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                 .read(driversListNotifierProvider().notifier)
                 .refresh();
           },
-          child: _isGridView
-              ? _buildGridView(
-                  filteredDrivers,
-                  hasActiveFilters: filterState.hasActiveFilters,
-                  isLandscapeWithPanel: isLandscapeWithPanel,
-                )
-              : _buildListView(filteredDrivers),
+          child: _buildGridView(
+            filteredDrivers,
+            hasActiveFilters: filterState.hasActiveFilters,
+            isLandscapeWithPanel: isLandscapeWithPanel,
+          ),
         );
       },
       loading: () => const Center(
@@ -516,7 +503,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
         }
 
         final driver = drivers[index];
-        final isSelected = _selectedDriverNumber == driver.driverNumber;
+        final isSelected = _selectedDriverId == driver.driverId;
 
         return DriverCard(
           driver: driver,
@@ -526,11 +513,11 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
             if (isLandscape) {
               // In landscape, open detail panel
               setState(() {
-                _selectedDriverNumber = driver.driverNumber;
+                _selectedDriverId = driver.driverId;
               });
             } else {
               // In portrait, navigate to detail screen
-              context.push('/drivers/${driver.driverNumber}');
+              context.push('/drivers/${driver.driverId}');
             }
           },
         );
@@ -570,22 +557,6 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildListView(List drivers) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: drivers.length,
-      itemBuilder: (context, index) {
-        final driver = drivers[index];
-        return DriverCardCompact(
-          driver: driver,
-          onTap: () {
-            context.push('/drivers/${driver.driverNumber}');
-          },
-        );
-      },
     );
   }
 

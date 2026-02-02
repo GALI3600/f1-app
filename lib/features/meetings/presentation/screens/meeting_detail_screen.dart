@@ -89,16 +89,7 @@ class MeetingDetailScreen extends ConsumerWidget {
               child: SessionScheduleList(
                 sessions: meetingDetail.sessions,
                 onSessionTap: (session) {
-                  // Navigate to session detail (future implementation)
-                  // context.push('/sessions/${session.sessionKey}');
-
-                  // For now, show a snackbar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Session detail for ${session.sessionName}'),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
+                  context.push('/sessions/${session.sessionKey}');
                 },
               ),
             ),

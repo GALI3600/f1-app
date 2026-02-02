@@ -4,41 +4,35 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../data/models/session.dart';
 import '../../../drivers/data/models/driver.dart';
-import '../../../weather/data/models/weather.dart';
-import '../../../race_control/data/models/race_control.dart';
-import '../../domain/repositories/sessions_repository.dart';
-import '../../../drivers/domain/repositories/drivers_repository.dart';
-import '../../../weather/domain/repositories/weather_repository.dart';
-import '../../../race_control/domain/repositories/race_control_repository.dart';
+import '../../../meetings/presentation/providers/meetings_providers.dart';
+import '../../../../core/providers.dart' as core_providers;
 
 part 'session_detail_provider.freezed.dart';
 
 /// Combined state for session detail screen
+///
+/// Note: Weather and RaceControl have been removed as they are not available
+/// in the Jolpica API.
 @freezed
 class SessionDetailState with _$SessionDetailState {
   const factory SessionDetailState({
     Session? session,
     List<Driver>? drivers,
-    List<Weather>? weather,
-    List<RaceControl>? raceControl,
     @Default(false) bool isLoading,
     @Default(false) bool isRefreshing,
     String? error,
   }) = _SessionDetailState;
 }
 
-/// Provider for session detail data with auto-refresh
+/// Provider for session detail data
+///
+/// Fetches session and driver information from Jolpica API.
+/// Auto-refresh is no longer needed as Jolpica provides historical data only.
 class SessionDetailNotifier extends AutoDisposeAsyncNotifier<SessionDetailState> {
-  Timer? _refreshTimer;
   int? _currentSessionKey;
 
   @override
   Future<SessionDetailState> build() async {
-    // Cancel timer on dispose
-    ref.onDispose(() {
-      _refreshTimer?.cancel();
-    });
-
     return const SessionDetailState();
   }
 
@@ -50,11 +44,6 @@ class SessionDetailNotifier extends AutoDisposeAsyncNotifier<SessionDetailState>
     try {
       final sessionData = await _fetchSessionData(sessionKey);
       state = AsyncValue.data(sessionData);
-
-      // Start auto-refresh if session is live
-      if (_isSessionLive(sessionData.session)) {
-        _startAutoRefresh(sessionKey);
-      }
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -77,58 +66,24 @@ class SessionDetailNotifier extends AutoDisposeAsyncNotifier<SessionDetailState>
     }
   }
 
-  /// Fetch all session data in parallel
+  /// Fetch session data
   Future<SessionDetailState> _fetchSessionData(int sessionKey) async {
-    final sessionsRepo = ref.read(sessionsRepositoryProvider);
-    final driversRepo = ref.read(driversRepositoryProvider);
-    final weatherRepo = ref.read(weatherRepositoryProvider);
-    final raceControlRepo = ref.read(raceControlRepositoryProvider);
+    final sessionsRepo = ref.read(core_providers.sessionsRepositoryProvider);
+    final driversRepo = ref.read(core_providers.driversRepositoryProvider);
+    final selectedYear = ref.read(selectedYearProvider);
 
-    // Fetch all data in parallel
+    // Fetch session and drivers in parallel
     final results = await Future.wait([
-      sessionsRepo.getSessions(sessionKey: sessionKey),
-      driversRepo.getDrivers(sessionKey: sessionKey),
-      weatherRepo.getWeather(sessionKey: sessionKey),
-      raceControlRepo.getRaceControlMessages(sessionKey: sessionKey),
+      sessionsRepo.getSessions(sessionKey: sessionKey, year: selectedYear),
+      driversRepo.getDrivers(season: selectedYear),
     ]);
 
     final sessions = results[0] as List<Session>;
     final drivers = results[1] as List<Driver>;
-    final weather = results[2] as List<Weather>;
-    final raceControl = results[3] as List<RaceControl>;
 
     return SessionDetailState(
       session: sessions.isNotEmpty ? sessions.first : null,
       drivers: drivers,
-      weather: weather,
-      raceControl: raceControl,
-    );
-  }
-
-  /// Check if session is currently live
-  bool _isSessionLive(Session? session) {
-    if (session == null) return false;
-
-    final now = DateTime.now();
-    return now.isAfter(session.dateStart) && now.isBefore(session.dateEnd);
-  }
-
-  /// Start auto-refresh timer (every 10 seconds for live sessions)
-  void _startAutoRefresh(int sessionKey) {
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(
-      const Duration(seconds: 10),
-      (timer) async {
-        final currentSession = state.valueOrNull?.session;
-
-        // Stop refresh if session ended
-        if (!_isSessionLive(currentSession)) {
-          timer.cancel();
-          return;
-        }
-
-        await refresh();
-      },
     );
   }
 }
@@ -138,20 +93,3 @@ final sessionDetailProvider =
     AutoDisposeAsyncNotifierProvider<SessionDetailNotifier, SessionDetailState>(
   SessionDetailNotifier.new,
 );
-
-// Repository providers (these should be defined in their respective features)
-final sessionsRepositoryProvider = Provider<SessionsRepository>((ref) {
-  throw UnimplementedError('SessionsRepository provider not implemented');
-});
-
-final driversRepositoryProvider = Provider<DriversRepository>((ref) {
-  throw UnimplementedError('DriversRepository provider not implemented');
-});
-
-final weatherRepositoryProvider = Provider<WeatherRepository>((ref) {
-  throw UnimplementedError('WeatherRepository provider not implemented');
-});
-
-final raceControlRepositoryProvider = Provider<RaceControlRepository>((ref) {
-  throw UnimplementedError('RaceControlRepository provider not implemented');
-});

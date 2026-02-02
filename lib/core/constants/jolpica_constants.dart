@@ -58,6 +58,15 @@ class JolpicaConstants {
   /// Long cache for historical data (7 days)
   static const Duration cacheTTL = Duration(days: 7);
 
+  /// Short cache TTL for current season data (1 hour)
+  static const Duration shortCacheTTL = Duration(hours: 1);
+
+  /// Medium cache TTL for race data (1 day)
+  static const Duration mediumCacheTTL = Duration(days: 1);
+
+  /// Permanent cache for completed races (365 days)
+  static const Duration permanentCacheTTL = Duration(days: 365);
+
   // ========== Helper Methods ==========
 
   /// Build URL for driver info
@@ -93,34 +102,42 @@ class JolpicaConstants {
     return fullName.toLowerCase().replaceAll(' ', '_');
   }
 
-  /// Common driver ID mappings (OpenF1 number -> Jolpica/Ergast ID)
-  /// Note: Jolpica uses last name format, not full_name format
+  /// Common driver ID mappings (driver number -> Jolpica/Ergast ID)
+  /// Updated for 2026 season
   static const Map<int, String> driverIdMap = {
-    1: 'max_verstappen',
-    4: 'norris',
-    10: 'gasly',
-    11: 'perez',
-    14: 'alonso',
-    16: 'leclerc',
-    18: 'stroll',
-    20: 'kevin_magnussen',
-    22: 'tsunoda',
-    23: 'albon',
-    24: 'zhou',
-    27: 'hulkenberg',
-    31: 'ocon',
-    44: 'hamilton',
-    55: 'sainz',
-    63: 'russell',
-    77: 'bottas',
-    81: 'piastri',
-    // 2025 rookies
+    // Red Bull Racing
+    3: 'max_verstappen',
     6: 'hadjar',
+    // Ferrari
+    16: 'leclerc',
+    44: 'hamilton',
+    // Mercedes
+    63: 'russell',
     12: 'antonelli',
-    30: 'lawson',
+    // McLaren
+    4: 'norris',
+    81: 'piastri',
+    // Aston Martin
+    14: 'alonso',
+    18: 'stroll',
+    // Alpine
+    10: 'gasly',
     43: 'colapinto',
-    61: 'doohan',
+    // Williams
+    23: 'albon',
+    55: 'sainz',
+    // RB F1 Team
+    30: 'lawson',
+    39: 'lindblad',
+    // Audi
+    27: 'hulkenberg',
+    5: 'bortoleto',
+    // Haas
+    31: 'ocon',
     87: 'bearman',
+    // Cadillac F1 Team
+    77: 'bottas',
+    11: 'perez',
   };
 
   /// Get Jolpica driver ID from driver number

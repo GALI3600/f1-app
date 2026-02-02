@@ -34,10 +34,8 @@ class _F1LogoPainter extends CustomPainter {
     required this.strokeWidth,
   });
 
-  // App gradient colors
+  // App gradient color
   static const Color ciano = Color(0xFF00D9FF);
-  static const Color roxo = Color(0xFF8B4FC9);
-  static const Color vermelho = Color(0xFFDC1E42);
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:f1sync/core/constants/jolpica_constants.dart';
 
 part 'lap.freezed.dart';
 part 'lap.g.dart';
@@ -9,6 +9,13 @@ int _safeInt(dynamic value, [int defaultValue = 0]) =>
     (value as num?)?.toInt() ?? defaultValue;
 
 /// Lap model representing lap timing data
+///
+/// Uses Jolpica API format (Timings) for lap data.
+/// Jolpica format:
+/// - driverId: string (e.g., "max_verstappen")
+/// - position: int
+/// - time: string (e.g., "1:30.456")
+/// - lapNumber: int (from parent Laps object)
 @freezed
 @JsonSerializable(createFactory: false)
 class Lap with _$Lap {
@@ -31,6 +38,10 @@ class Lap with _$Lap {
     @JsonKey(name: 'st_speed') int? stSpeed,
     @JsonKey(name: 'session_key') required int sessionKey,
     @JsonKey(name: 'meeting_key') required int meetingKey,
+    /// Position at the end of this lap (from Jolpica)
+    int? position,
+    /// Driver ID string (from Jolpica, e.g., "max_verstappen")
+    String? driverId,
   }) = _Lap;
 
   factory Lap.fromJson(Map<String, dynamic> json) {
@@ -66,8 +77,73 @@ class Lap with _$Lap {
       stSpeed: (json['st_speed'] as num?)?.toInt(),
       sessionKey: _safeInt(json['session_key']),
       meetingKey: _safeInt(json['meeting_key']),
+      position: json['position'] as int?,
+      driverId: json['driverId'] as String?,
+    );
+  }
+
+  /// Create Lap from Jolpica API Timing format
+  ///
+  /// The enrichedTiming map should contain:
+  /// - driverId: string
+  /// - position: int
+  /// - time: string (lap time)
+  /// - lapNumber: int
+  /// - round: int
+  /// - season: dynamic
+  factory Lap.fromJolpica(Map<String, dynamic> json) {
+    final driverId = json['driverId'] as String? ?? '';
+    final position = int.tryParse(json['position']?.toString() ?? '') ?? 0;
+    final timeStr = json['time'] as String? ?? '';
+    final lapNumber = json['lapNumber'] as int? ?? 0;
+    final round = json['round'] as int? ?? 0;
+
+    // Parse lap time string (e.g., "1:30.456" or "1.456")
+    final lapDuration = _parseLapTime(timeStr);
+
+    // Get driver number from driverId using the mapping
+    final driverNumber = _getDriverNumber(driverId);
+
+    return Lap(
+      driverNumber: driverNumber,
+      lapNumber: lapNumber,
+      lapDuration: lapDuration,
+      sessionKey: round * 100, // Race session
+      meetingKey: round,
+      position: position,
+      driverId: driverId,
     );
   }
 
   Map<String, dynamic> toJson() => _$LapToJson(this);
+}
+
+/// Parse lap time string to seconds
+/// Handles formats like "1:30.456" or "30.456"
+double _parseLapTime(String timeStr) {
+  if (timeStr.isEmpty) return 0;
+
+  try {
+    if (timeStr.contains(':')) {
+      final parts = timeStr.split(':');
+      final minutes = int.parse(parts[0]);
+      final seconds = double.parse(parts[1]);
+      return minutes * 60 + seconds;
+    } else {
+      return double.parse(timeStr);
+    }
+  } catch (e) {
+    return 0;
+  }
+}
+
+/// Get driver number from driver ID using the reverse mapping
+int _getDriverNumber(String driverId) {
+  // Reverse lookup in the driverIdMap
+  for (final entry in JolpicaConstants.driverIdMap.entries) {
+    if (entry.value == driverId) {
+      return entry.key;
+    }
+  }
+  return 0;
 }

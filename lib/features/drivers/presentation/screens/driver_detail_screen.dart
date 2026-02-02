@@ -8,20 +8,20 @@ import '../../../../shared/widgets/f1_loading.dart';
 import '../../../../core/error/error_mapper.dart';
 import '../providers/driver_detail_provider.dart';
 import '../providers/driver_career_provider.dart';
+import '../providers/driver_race_history_provider.dart';
 import '../widgets/driver_profile_header.dart';
-import '../widgets/lap_times_chart.dart';
-import '../widgets/stints_timeline.dart';
 import '../widgets/career_stats_card.dart';
+import '../widgets/race_history_list.dart';
 
 final _logger = Logger();
 
 /// Screen displaying detailed driver information with tabs
 class DriverDetailScreen extends ConsumerStatefulWidget {
-  final int driverNumber;
+  final String driverId;
 
   const DriverDetailScreen({
     super.key,
-    required this.driverNumber,
+    required this.driverId,
   });
 
   @override
@@ -36,7 +36,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -56,10 +56,10 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    _logger.i('DriverDetailScreen.build() for driver #${widget.driverNumber}');
+    _logger.i('DriverDetailScreen.build() for driver #${widget.driverId}');
 
     final detailAsync = ref.watch(driverDetailNotifierProvider(
-      driverNumber: widget.driverNumber,
+      driverId: widget.driverId,
     ));
     final isLandscape = ResponsiveUtils.isLandscape(context);
 
@@ -99,7 +99,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
             error,
             onRetry: () {
               ref.invalidate(driverDetailNotifierProvider(
-                driverNumber: widget.driverNumber,
+                driverId: widget.driverId,
               ));
             },
           ),
@@ -145,8 +145,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
                 ),
                 tabs: const [
                   Tab(text: 'Profile'),
-                  Tab(text: 'Lap Times'),
-                  Tab(text: 'Strategy'),
+                  Tab(text: 'Race History'),
                 ],
               ),
               teamColor,
@@ -160,11 +159,8 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
           // Profile tab
           _buildProfileTab(detail),
 
-          // Lap times tab
-          _buildLapTimesTab(detail, teamColor),
-
-          // Strategy tab
-          _buildStrategyTab(detail),
+          // Race history tab
+          _buildRaceHistoryTab(teamColor),
         ],
       ),
     );
@@ -235,8 +231,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
                   ),
                   tabs: const [
                     Tab(text: 'Profile'),
-                    Tab(text: 'Lap Times'),
-                    Tab(text: 'Strategy'),
+                    Tab(text: 'Race History'),
                   ],
                 ),
               ),
@@ -247,8 +242,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
                   controller: _tabController,
                   children: [
                     _buildProfileTab(detail),
-                    _buildLapTimesTab(detail, teamColor),
-                    _buildStrategyTab(detail),
+                    _buildRaceHistoryTab(teamColor),
                   ],
                 ),
               ),
@@ -262,7 +256,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
   Widget _buildProfileTab(DriverDetailData detail) {
     // Watch career stats
     final careerAsync = ref.watch(driverCareerNotifierProvider(
-      driverNumber: widget.driverNumber,
+      driverId: widget.driverId,
     ));
 
     return SingleChildScrollView(
@@ -276,16 +270,10 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
               if (career == null) {
                 return const SizedBox.shrink();
               }
-              return Column(
-                children: [
-                  CareerStatsCard(career: career),
-                  const SizedBox(height: 24),
-                ],
-              );
+              return CareerStatsCard(career: career);
             },
             loading: () => Container(
               padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
                 color: F1Colors.navy,
                 borderRadius: BorderRadius.circular(16),
@@ -307,255 +295,57 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
             ),
             error: (_, __) => const SizedBox.shrink(),
           ),
+        ],
+      ),
+    );
+  }
 
-          // Session stats header
-          Text(
-            'Session Stats',
-            style: F1TextStyles.headlineMedium,
-          ),
-          const SizedBox(height: 12),
+  Widget _buildRaceHistoryTab(Color teamColor) {
+    final historyAsync = ref.watch(driverRaceHistoryNotifierProvider(
+      driverId: widget.driverId,
+    ));
 
-          // Stats cards
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Total Laps',
-                  detail.totalLaps.toString(),
-                  Icons.flag,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  'Pit Stops',
-                  detail.pitStops.toString(),
-                  Icons.build,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Position',
-                  detail.currentPosition?.toString() ?? 'N/A',
-                  Icons.emoji_events,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  'Positions',
-                  detail.positionChanges > 0
-                      ? '+${detail.positionChanges}'
-                      : detail.positionChanges.toString(),
-                  detail.positionChanges > 0
-                      ? Icons.trending_up
-                      : Icons.trending_down,
-                  valueColor: detail.positionChanges > 0
-                      ? F1Colors.success
-                      : detail.positionChanges < 0
-                          ? F1Colors.error
-                          : null,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Fastest lap card
-          if (detail.fastestLap != null) ...[
+    return historyAsync.when(
+      data: (results) => RaceHistoryList(
+        results: results,
+        teamColor: teamColor,
+      ),
+      loading: () => const Center(
+        child: F1LoadingWidget(
+          size: 40,
+          color: F1Colors.ciano,
+          message: 'Loading race history...',
+        ),
+      ),
+      error: (error, _) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.error_outline,
+              color: F1Colors.vermelho,
+              size: 48,
+            ),
+            const SizedBox(height: 16),
             Text(
-              'Fastest Lap',
-              style: F1TextStyles.headlineMedium,
+              'Failed to load race history',
+              style: F1TextStyles.bodyMedium.copyWith(
+                color: F1Colors.textSecondary,
+              ),
             ),
-            const SizedBox(height: 12),
-            _buildFastestLapCard(detail.fastestLap!),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                ref.invalidate(driverRaceHistoryNotifierProvider(
+                  driverId: widget.driverId,
+                ));
+              },
+              child: const Text('Retry'),
+            ),
           ],
-
-          // Average lap time
-          Text(
-            'Average Lap Time',
-            style: F1TextStyles.headlineMedium,
-          ),
-          const SizedBox(height: 12),
-          _buildAverageLapCard(detail.averageLapTime),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLapTimesTab(DriverDetailData detail, Color teamColor) {
-    if (detail.laps.isEmpty) {
-      return const Center(
-        child: Text(
-          'No lap data available',
-          style: TextStyle(color: F1Colors.textSecondary),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: LapTimesChart(
-        laps: detail.laps,
-        lineColor: teamColor,
-        fastestLap: detail.fastestLap,
-      ),
-    );
-  }
-
-  Widget _buildStrategyTab(DriverDetailData detail) {
-    if (detail.stints.isEmpty) {
-      return const Center(
-        child: Text(
-          'No tire strategy data available',
-          style: TextStyle(color: F1Colors.textSecondary),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: StintsTimeline(
-        stints: detail.stints,
-        totalLaps: detail.totalLaps,
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-    String label,
-    String value,
-    IconData icon, {
-    Color? valueColor,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: F1Colors.navy,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.3),
-          width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: F1Colors.ciano,
-            size: 22,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: F1TextStyles.displaySmall.copyWith(
-              fontSize: 28,
-              color: valueColor,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: F1TextStyles.bodyMedium.copyWith(
-              color: F1Colors.textSecondary,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
     );
-  }
-
-  Widget _buildFastestLapCard(lap) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: F1Colors.navy,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: F1Colors.dourado.withValues(alpha: 0.5),
-          width: 2,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.timer,
-            color: F1Colors.dourado,
-            size: 32,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _formatLapTime(lap.lapDuration),
-                  style: F1TextStyles.lapTime.copyWith(
-                    color: F1Colors.dourado,
-                    fontSize: 22,
-                  ),
-                ),
-                Text(
-                  'Lap ${lap.lapNumber}',
-                  style: F1TextStyles.bodyMedium.copyWith(
-                    color: F1Colors.textSecondary,
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAverageLapCard(double avgTime) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: F1Colors.navy,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.av_timer,
-            color: F1Colors.ciano,
-            size: 32,
-          ),
-          const SizedBox(width: 16),
-          Text(
-            _formatLapTime(avgTime),
-            style: F1TextStyles.lapTime.copyWith(
-              color: F1Colors.ciano,
-              fontSize: 24,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatLapTime(double seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '${minutes}:${remainingSeconds.toStringAsFixed(3).padLeft(6, '0')}';
   }
 }
 

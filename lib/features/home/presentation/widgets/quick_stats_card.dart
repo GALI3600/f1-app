@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/theme/f1_text_styles.dart';
-import 'package:f1sync/features/drivers/data/models/driver.dart';
+import 'package:f1sync/features/home/presentation/providers/standings_provider.dart';
 import 'package:f1sync/shared/widgets/f1_card.dart';
 
 /// Quick statistics card for the home screen
 ///
 /// Displays key statistics in a grid layout:
-/// - Championship leader
-/// - Leading team
+/// - Championship leader (from real standings)
+/// - Leading team (from real standings)
 /// - Total drivers in season
 /// - Current session info
 class QuickStatsCard extends StatelessWidget {
-  /// List of drivers (sorted by position)
-  final List<Driver> drivers;
+  /// Standings data with championship leader and leading constructor
+  final StandingsData standings;
 
   /// Optional session name (e.g., "Race", "Qualifying")
   final String? sessionName;
@@ -23,21 +23,18 @@ class QuickStatsCard extends StatelessWidget {
 
   const QuickStatsCard({
     super.key,
-    required this.drivers,
+    required this.standings,
     this.sessionName,
     this.onStatTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Get the leading driver (first in list)
-    final leader = drivers.isNotEmpty ? drivers.first : null;
+    // Get the championship leader
+    final leader = standings.championshipLeader;
 
-    // Get the leading team (team of the first driver)
-    final leadingTeam = leader?.teamName;
-
-    // Get unique teams count
-    final teamsCount = drivers.map((d) => d.teamName).toSet().length;
+    // Get the leading constructor
+    final leadingTeam = standings.leadingConstructor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,8 +63,10 @@ class QuickStatsCard extends StatelessWidget {
               icon: Icons.emoji_events_rounded,
               iconColor: F1Colors.dourado,
               label: 'Championship Leader',
-              value: leader?.nameAcronym ?? '---',
-              subtitle: leader?.teamName,
+              value: leader?.driverCode ?? '---',
+              subtitle: leader != null
+                  ? '${leader.points.toInt()} pts'
+                  : null,
               onTap: onStatTap != null ? () => onStatTap!('leader') : null,
             ),
 
@@ -77,11 +76,13 @@ class QuickStatsCard extends StatelessWidget {
               iconColor: F1Colors.ciano,
               label: 'Leading Team',
               value: leadingTeam != null
-                  ? (leadingTeam.length > 12
-                      ? '${leadingTeam.substring(0, 12)}...'
-                      : leadingTeam)
+                  ? (leadingTeam.name.length > 12
+                      ? '${leadingTeam.name.substring(0, 12)}...'
+                      : leadingTeam.name)
                   : '---',
-              subtitle: '$teamsCount teams',
+              subtitle: leadingTeam != null
+                  ? '${leadingTeam.points.toInt()} pts'
+                  : '${standings.totalConstructors} teams',
               onTap: onStatTap != null ? () => onStatTap!('teams') : null,
             ),
 
@@ -90,8 +91,8 @@ class QuickStatsCard extends StatelessWidget {
               icon: Icons.person_rounded,
               iconColor: F1Colors.roxo,
               label: 'Drivers',
-              value: '${drivers.length}',
-              subtitle: 'in season',
+              value: '${standings.totalDrivers}',
+              subtitle: 'in championship',
               onTap: onStatTap != null ? () => onStatTap!('drivers') : null,
             ),
 

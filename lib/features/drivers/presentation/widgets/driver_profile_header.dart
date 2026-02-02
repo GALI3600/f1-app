@@ -31,31 +31,43 @@ class DriverProfileHeader extends StatelessWidget {
     }
   }
 
+  Color? _getTeamColor2() {
+    if (driver.teamColour2 == null) return null;
+    try {
+      final hex = driver.teamColour2!.startsWith('#')
+          ? driver.teamColour2!
+          : '#${driver.teamColour2}';
+      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
+    final teamColor2 = _getTeamColor2();
 
     if (isPanelMode) {
-      return _buildPanelLayout(teamColor);
+      return _buildPanelLayout(teamColor, teamColor2);
     }
     if (isLandscape) {
-      return _buildLandscapeLayout(teamColor);
+      return _buildLandscapeLayout(teamColor, teamColor2);
     }
-    return _buildPortraitLayout(teamColor);
+    return _buildPortraitLayout(teamColor, teamColor2);
   }
 
-  Widget _buildPortraitLayout(Color teamColor) {
+  Widget _buildPortraitLayout(Color teamColor, [Color? teamColor2]) {
     return Container(
       height: height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            teamColor.withValues(alpha: 0.8),
-            F1Colors.navyDeep,
-          ],
-          stops: const [0.0, 1.0],
+          colors: teamColor2 != null
+              ? [teamColor.withValues(alpha: 0.8), teamColor2.withValues(alpha: 0.6), F1Colors.navyDeep]
+              : [teamColor.withValues(alpha: 0.8), F1Colors.navyDeep],
+          stops: teamColor2 != null ? const [0.0, 0.5, 1.0] : const [0.0, 1.0],
         ),
       ),
       child: Stack(
@@ -211,18 +223,16 @@ class DriverProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildPanelLayout(Color teamColor) {
+  Widget _buildPanelLayout(Color teamColor, [Color? teamColor2]) {
     return Container(
       height: height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
-          colors: [
-            teamColor.withValues(alpha: 0.9),
-            teamColor.withValues(alpha: 0.6),
-            F1Colors.navyDeep,
-          ],
+          colors: teamColor2 != null
+              ? [teamColor.withValues(alpha: 0.9), teamColor2.withValues(alpha: 0.7), F1Colors.navyDeep]
+              : [teamColor.withValues(alpha: 0.9), teamColor.withValues(alpha: 0.6), F1Colors.navyDeep],
           stops: const [0.0, 0.4, 1.0],
         ),
       ),
@@ -359,17 +369,15 @@ class DriverProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildLandscapeLayout(Color teamColor) {
+  Widget _buildLandscapeLayout(Color teamColor, [Color? teamColor2]) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            teamColor.withValues(alpha: 0.9),
-            teamColor.withValues(alpha: 0.6),
-            F1Colors.navyDeep,
-          ],
+          colors: teamColor2 != null
+              ? [teamColor.withValues(alpha: 0.9), teamColor2.withValues(alpha: 0.7), F1Colors.navyDeep]
+              : [teamColor.withValues(alpha: 0.9), teamColor.withValues(alpha: 0.6), F1Colors.navyDeep],
           stops: const [0.0, 0.5, 1.0],
         ),
       ),
