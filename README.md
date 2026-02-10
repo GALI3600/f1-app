@@ -1,112 +1,146 @@
 <p align="center">
-  <img src="screenshots/logo.png" alt="F1Sync Logo" width="120" style="border-radius: 24px;">
+  <img src="assets/icons/f1-sync-icon.png" alt="F1Sync Logo" width="120" style="border-radius: 24px;">
 </p>
 
 <h1 align="center">F1Sync</h1>
 
 <p align="center">
-  A comprehensive Formula 1 information app built with Flutter, providing real-time race data, driver statistics, and session information using the OpenF1 and Jolpica APIs.
+  <strong>Your pocket companion for Formula 1</strong><br>
+  Real-time race data, driver statistics, standings, and session information — powered by the Jolpica and OpenF1 APIs.
 </p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter" alt="Flutter">
+  <img src="https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart" alt="Dart">
+  <img src="https://img.shields.io/badge/Riverpod-2.x-00B0FF" alt="Riverpod">
+  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web%20%7C%20Desktop-brightgreen" alt="Platforms">
+</p>
+
+---
+
+## Screenshots
+
+<p align="center">
+  <img src="screenshots/home.png" alt="Home Dashboard" width="260">
+  &nbsp;&nbsp;
+  <img src="screenshots/drivers.png" alt="Drivers" width="260">
+  &nbsp;&nbsp;
+  <img src="screenshots/driver-detail.png" alt="Driver Detail" width="260">
+</p>
+
+<p align="center">
+  <img src="screenshots/grand-prix.png" alt="Grand Prix Calendar" width="260">
+</p>
+
+---
 
 ## Features
 
-### Home Dashboard
-Current GP information, quick stats, and navigation to all features.
+| Feature | Description |
+|---------|-------------|
+| **Home Dashboard** | Current/next Grand Prix, championship leader, quick navigation grid |
+| **Grand Prix Calendar** | Browse race calendar by year, view GP details and full session schedules |
+| **Drivers** | Complete driver listings with search, team filtering, and sorting |
+| **Driver Details** | Career stats (wins, poles, podiums, championships), race history with pagination |
+| **Standings** | Driver and constructor championship standings by season |
+| **Sessions** | Session results, race control messages, and weather conditions |
+| **Lap Times & Stints** | Lap time charts and tire strategy visualization |
+| **Settings** | App preferences and configuration |
 
-<p align="center">
-  <img src="screenshots/home.png" alt="Home Dashboard" width="600">
-</p>
-
-### Grand Prix Calendar
-Browse race calendar by year, view Grand Prix details and session schedules.
-
-<p align="center">
-  <img src="screenshots/grand-prix.png" alt="Grand Prix Calendar" width="600">
-</p>
-
-### Drivers
-Complete driver listings with filtering, detailed profiles, and career statistics.
-
-<p align="center">
-  <img src="screenshots/drivers.png" alt="Drivers List" width="600">
-</p>
-
-### Driver Details
-View detailed driver profiles with career statistics including championships, wins, podiums, pole positions, and race starts.
-
-<p align="center">
-  <img src="screenshots/driver-detail.png" alt="Driver Details" width="600">
-</p>
-
-### Sessions
-Live session data including race control messages, weather conditions, and results.
-
-### Lap Times & Stints
-Detailed lap time charts and tire strategy visualization.
+---
 
 ## Tech Stack
 
 | Category | Technology |
 |----------|------------|
-| Framework | Flutter 3.x (Dart SDK >=3.0.0) |
+| Framework | Flutter 3.x (Dart SDK >= 3.0.0) |
 | State Management | Riverpod + Code Generation |
-| Navigation | GoRouter |
-| HTTP Client | Dio with interceptors |
+| Navigation | GoRouter (custom page transitions) |
+| HTTP Client | Dio (interceptors, retry, rate limiting) |
 | Local Storage | Hive + SharedPreferences |
 | Data Serialization | Freezed + JSON Serializable |
 | Charts | fl_chart |
 | Image Caching | cached_network_image |
+| SVG | flutter_svg |
+| Environment | flutter_dotenv |
+
+---
 
 ## Architecture
 
-The app follows a **feature-first clean architecture** pattern:
+The app follows a **feature-first clean architecture** pattern with three layers per feature:
 
 ```
 lib/
-├── core/                    # Core infrastructure
-│   ├── cache/              # Caching service
+├── core/
+│   ├── cache/              # Cache service (memory + disk)
 │   ├── config/             # App & API configuration
-│   ├── constants/          # API & app constants
-│   ├── error/              # Error handling & mapping
-│   ├── network/            # API client, interceptors, rate limiting
-│   ├── router/             # GoRouter configuration
-│   ├── theme/              # F1-themed dark theme (colors, gradients, typography)
-│   └── utils/              # Performance monitoring, responsive utilities
+│   ├── constants/          # API constants, driver assets (2026 grid)
+│   ├── error/              # Typed exceptions & error mapping
+│   ├── network/            # Jolpica API client, rate limiter, interceptors
+│   ├── router/             # GoRouter with fade/slide transitions
+│   ├── theme/              # F1 design system (colors, gradients, typography)
+│   └── utils/              # Responsive utilities
 │
-├── features/               # Feature modules (Clean Architecture per feature)
-│   ├── drivers/
-│   │   ├── data/          # Data sources & repositories implementation
-│   │   ├── domain/        # Repository interfaces
-│   │   └── presentation/  # Screens, widgets, providers
-│   ├── home/
-│   ├── laps/
-│   ├── meetings/
-│   ├── positions/
-│   ├── race_control/
-│   ├── session_results/
-│   ├── sessions/
-│   ├── stints/
-│   └── weather/
+├── features/
+│   ├── home/               # Dashboard
+│   ├── drivers/            # Driver list & detail
+│   ├── meetings/           # GP calendar & detail
+│   ├── sessions/           # Session detail
+│   ├── session_results/    # Result cards
+│   ├── standings/          # Championship standings
+│   ├── laps/               # Lap time data
+│   └── settings/           # App settings
 │
-├── shared/                 # Shared resources
-│   ├── models/            # Common data models
-│   ├── services/          # Cache, connectivity, haptics, storage services
-│   ├── utils/             # Date/time utilities, accessibility
-│   └── widgets/           # Reusable UI components
+├── shared/
+│   ├── services/           # Cache, connectivity, haptics, storage
+│   └── widgets/            # F1Card, F1Loading, DriverAvatar, etc.
 │
-└── main.dart              # App entry point
+└── main.dart
 ```
+
+Each feature module follows **Clean Architecture**:
+
+```
+feature/
+├── data/          # Remote data sources, models, repository impl
+├── domain/        # Repository interfaces (contracts)
+└── presentation/  # Screens, widgets, Riverpod providers
+```
+
+---
 
 ## API Integration
 
-F1Sync uses two complementary APIs for comprehensive F1 data coverage.
+F1Sync uses two complementary APIs:
+
+### Jolpica F1 API (Primary — Historical Data)
+
+**Base URL:** `https://api.jolpi.ca/ergast/f1`
+
+Successor to the deprecated Ergast API. Provides driver info, race results, standings, circuits, and constructors.
+
+| Endpoint | Description | Cache TTL |
+|----------|-------------|-----------|
+| `/{season}/drivers` | Drivers in a season | 7 days |
+| `/drivers/{id}/results` | Career race results | 7 days |
+| `/drivers/{id}/sprint` | Sprint results | 7 days |
+| `/{season}/driverStandings` | Driver standings | 7 days |
+| `/{season}/constructorStandings` | Constructor standings | 7 days |
+| `/{season}` | Season race schedule | 7 days |
+| `/{season}/{round}/results` | Race results | 7 days |
+| `/{season}/{round}/qualifying` | Qualifying results | 7 days |
+
+**Rate limit:** 200 requests/hour (enforced client-side at 1 req/sec)
 
 ### OpenF1 API (Real-time Data)
 
-The **OpenF1 API** (https://api.openf1.org/v1) provides real-time and current season data with 16 endpoints:
+**Base URL:** `https://api.openf1.org/v1`
 
-| Endpoint | Description | Cache Strategy |
-|----------|-------------|----------------|
+Provides live session data, telemetry, position tracking, and race control.
+
+| Endpoint | Description | Cache TTL |
+|----------|-------------|-----------|
 | `/drivers` | Driver info & team details | 1 hour |
 | `/meetings` | Grand Prix information | 7 days |
 | `/sessions` | Session info (FP, Quali, Race) | 1 hour |
@@ -115,37 +149,58 @@ The **OpenF1 API** (https://api.openf1.org/v1) provides real-time and current se
 | `/position` | Position changes | 5 minutes |
 | `/race_control` | Flags & messages | 5 minutes |
 | `/weather` | Track conditions | 5 minutes |
-| `/session_result` | Final results | Permanent |
-| `/car_data` | Telemetry (speed, RPM, etc.) | No cache |
-| `/location` | Car track positions | No cache |
-| `/intervals` | Gap to leader | No cache |
-| `/pit` | Pit stop info | 5 minutes |
-| `/team_radio` | Audio clips | 1 hour |
-| `/overtakes` | Overtake events (Beta) | 5 minutes |
-| `/starting_grid` | Grid positions (Beta) | Permanent |
 
-### Rate Limiting
+---
 
-The app implements client-side rate limiting (60 requests/minute) to respect API guidelines.
+## Caching Strategy
 
-### Jolpica API (Historical Data)
+Three-layer cache with automatic TTL management:
 
-For historical career statistics, the app uses the **Jolpica F1 API** (https://api.jolpi.ca/ergast/f1), a continuation of the deprecated Ergast API.
+```
+Memory (LRU)  →  Disk (Hive)  →  Network
+   ~ms              ~ms            ~seconds
+```
 
-| Endpoint | Description | Cache Strategy |
-|----------|-------------|----------------|
-| `/drivers/{id}` | Driver biographical info | 7 days |
-| `/drivers/{id}/results` | All race results | 7 days |
-| `/drivers/{id}/results/1` | Race wins | 7 days |
-| `/drivers/{id}/qualifying/1` | Pole positions | 7 days |
-| `/{year}/driverstandings` | Season standings | 7 days |
-| `/seasons` | All F1 seasons | 7 days |
-| `/circuits` | Circuit information | 7 days |
-| `/constructors` | Team information | 7 days |
+| TTL | Duration | Used For |
+|-----|----------|----------|
+| Short | 5 min | Live data (positions, race control, weather) |
+| Medium | 1 hour | Session data, driver info |
+| Long | 7 days | Historical data, race schedules |
+| Permanent | 365 days | Completed race results |
 
-**Used for**: Driver career stats (wins, poles, podiums, championships), historical race results.
+---
 
-**Rate limit**: 200 requests/hour
+## Theme
+
+Custom F1-inspired **dark-only** design system built on Material 3:
+
+| Element | Value |
+|---------|-------|
+| Background | Navy Deep `#15151E` |
+| Surface | Navy `#35353C` |
+| Accent | Racing Red `#E10600` |
+| Highlight | Gold `#C9974D` |
+| Font (Headers) | Formula1 Bold (custom) |
+| Font (Body) | Roboto |
+| Font (Data) | Roboto Mono |
+
+Includes team-specific colors for all 2026 F1 teams, position colors (P1 gold / P2 silver / P3 bronze), tire compound colors, and flag status colors.
+
+---
+
+## Routes
+
+| Route | Screen |
+|-------|--------|
+| `/` | Home Dashboard |
+| `/meetings` | Grand Prix Calendar |
+| `/meetings/:meetingKey` | Meeting Detail |
+| `/drivers` | Drivers List |
+| `/drivers/:driverId` | Driver Detail |
+| `/sessions/:sessionKey` | Session Detail |
+| `/settings` | Settings |
+
+---
 
 ## Getting Started
 
@@ -156,106 +211,38 @@ For historical career statistics, the app uses the **Jolpica F1 API** (https://a
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/f1sync.git
-   cd f1sync
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Set up environment**
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edit `.env` if needed (default configuration works out of the box):
-   ```
-   API_BASE_URL=https://api.openf1.org/v1
-   API_TIMEOUT=30000
-   ENVIRONMENT=development
-   ```
-
-4. **Generate code** (for Freezed, Riverpod, JSON serialization)
-   ```bash
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
-
-5. **Run the app**
-   ```bash
-   flutter run
-   ```
-
-## App Routes
-
-| Route | Screen | Description |
-|-------|--------|-------------|
-| `/` | Home | Dashboard with current GP and quick navigation |
-| `/meetings` | Meetings History | Race calendar with year selector |
-| `/meetings/:meetingKey` | Meeting Detail | GP details and session schedule |
-| `/drivers` | Drivers List | All drivers with filtering |
-| `/drivers/:driverNumber` | Driver Detail | Driver profile and career stats |
-| `/sessions/:sessionKey` | Session Detail | Session data, results, race control |
-
-## Theme
-
-The app features a custom F1-inspired dark theme with:
-
-- **Colors**: Navy deep (#0A1628), Racing red (#FF1801), Championship gold (#FFD700)
-- **Gradients**: Team-specific color schemes, F1-branded gradients
-- **Typography**: Racing-inspired text styles
-- **Team Colors**: Authentic colors for all F1 teams
-
-## Key Components
-
-### Shared Widgets
-
-- `F1Card` - Styled card container
-- `F1Loading` - Loading indicators with shimmer effects
-- `F1AppBar` - Customized app bar
-- `DriverAvatar` - Driver image with headshot caching
-- `TeamColorStrip` - Team color accent strips
-- `LiveIndicator` - Animated live session indicator
-- `OfflineBanner` - Connectivity status banner
-- `EmptyStateWidget` - Empty/error state displays
-
-### Services
-
-- `CacheService` - Multi-layer caching (memory + disk via Hive)
-- `ConnectivityService` - Network status monitoring
-- `HapticService` - Haptic feedback
-- `StorageService` - Persistent key-value storage
-- `RetryService` - Automatic request retry logic
-
-## Development
-
-### Code Generation
-
-After modifying models or providers with annotations:
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/f1sync.git
+cd f1sync
+
+# Install dependencies
+flutter pub get
+
+# Set up environment
+cp .env.example .env
+
+# Generate code (Freezed, Riverpod, JSON serialization)
 flutter pub run build_runner build --delete-conflicting-outputs
+
+# Run the app
+flutter run
 ```
 
-For continuous generation during development:
+### Development
+
 ```bash
+# Continuous code generation
 flutter pub run build_runner watch --delete-conflicting-outputs
-```
 
-### Analysis
-
-Run static analysis:
-```bash
+# Static analysis
 flutter analyze
-```
 
-### Testing
-
-```bash
+# Run tests
 flutter test
 ```
+
+---
 
 ## Platform Support
 
@@ -266,12 +253,14 @@ flutter test
 - Linux
 - Windows
 
+---
+
 ## License
 
 This project is for personal/educational use. F1, Formula 1, and related marks are trademarks of Formula One Licensing BV.
 
 ## Acknowledgments
 
-- [OpenF1 API](https://openf1.org/) for providing free real-time F1 data
-- [Jolpica F1 API](https://github.com/jolpica/jolpica-f1) for historical F1 data (Ergast successor)
-- Flutter and Dart teams for the amazing framework
+- [Jolpica F1 API](https://github.com/jolpica/jolpica-f1) — Historical F1 data (Ergast successor)
+- [OpenF1 API](https://openf1.org/) — Free real-time F1 data
+- Flutter and Dart teams for the framework
