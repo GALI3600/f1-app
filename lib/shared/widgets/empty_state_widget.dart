@@ -176,7 +176,7 @@ class F1EmptyStateWidget extends StatelessWidget {
                     icon: const Icon(Icons.arrow_forward_rounded),
                     label: Text(actionText),
                     style: TextButton.styleFrom(
-                      foregroundColor: F1Colors.ciano,
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
@@ -189,7 +189,7 @@ class F1EmptyStateWidget extends StatelessWidget {
                     icon: const Icon(Icons.arrow_forward_rounded),
                     label: Text(actionText),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: F1Colors.ciano,
+                      backgroundColor: Colors.white,
                       foregroundColor: F1Colors.navyDeep,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -323,7 +323,7 @@ class F1CustomEmptyStateWidget extends StatelessWidget {
               ElevatedButton(
                 onPressed: onAction,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: F1Colors.ciano,
+                  backgroundColor: Colors.white,
                   foregroundColor: F1Colors.navyDeep,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,

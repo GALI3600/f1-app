@@ -1,4 +1,5 @@
 import 'package:f1sync/core/theme/f1_colors.dart';
+import 'package:f1sync/core/theme/f1_text_styles.dart';
 import 'package:f1sync/features/sessions/data/models/session.dart';
 import 'package:f1sync/shared/widgets/live_indicator.dart';
 import 'package:flutter/material.dart';
@@ -6,9 +7,10 @@ import 'package:intl/intl.dart';
 
 /// Session Schedule List Widget
 /// Displays sessions with:
-/// - Name, date/time, type icon
-/// - Status: Upcoming, Live, Completed
-/// - Tap → Session detail
+/// - Type-specific icon & accent color
+/// - Name, date/time, status
+/// - Vermelho accent strip
+/// - Status badges: Upcoming, Live, Completed
 class SessionScheduleList extends StatelessWidget {
   final List<Session> sessions;
   final Function(Session)? onSessionTap;
@@ -22,14 +24,13 @@ class SessionScheduleList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (sessions.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(32),
+          padding: const EdgeInsets.all(32),
           child: Text(
             'No sessions scheduled',
-            style: TextStyle(
+            style: F1TextStyles.bodyMedium.copyWith(
               color: F1Colors.textSecondary,
-              fontSize: 16,
             ),
           ),
         ),
@@ -39,9 +40,9 @@ class SessionScheduleList extends StatelessWidget {
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: sessions.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final session = sessions[index];
         return SessionListItem(
@@ -67,214 +68,271 @@ class SessionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = _getSessionStatus(session);
+    final accentColor = _getSessionAccentColor(session.sessionType);
 
-    return Card(
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              // Session Type Icon
-              _buildSessionIcon(session.sessionType, status),
-
-              const SizedBox(width: 16),
-
-              // Session Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Session Name with Live Indicator
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            session.sessionName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: F1Colors.textPrimary,
-                            ),
-                          ),
-                        ),
-                        if (status == SessionStatus.live) ...[
-                          const SizedBox(width: 8),
-                          const LiveIndicator(),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'LIVE',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: F1Colors.vermelho,
-                            ),
-                          ),
-                        ],
-                      ],
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          decoration: BoxDecoration(
+            color: F1Colors.navy,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: F1Colors.border, width: 1),
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                // Accent strip (color by session type)
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
                     ),
-
-                    const SizedBox(height: 4),
-
-                    // Date and Time
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: _getStatusColor(status),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          _formatSessionTime(session.dateStart, session.dateEnd),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: _getStatusColor(status),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 4),
-
-                    // Status Text
-                    Text(
-                      _getStatusText(status, session.dateStart),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: _getStatusColor(status),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
 
-              // Status Badge
-              _buildStatusBadge(status),
-            ],
+                // Main content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 14, 14, 14),
+                    child: Row(
+                      children: [
+                        // Session type icon
+                        _buildSessionIcon(session.sessionType, status, accentColor),
+
+                        const SizedBox(width: 14),
+
+                        // Session info
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Session name + live indicator
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      session.sessionName,
+                                      style: F1TextStyles.headlineSmall.copyWith(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                  ),
+                                  if (status == SessionStatus.live) ...[
+                                    const SizedBox(width: 8),
+                                    const LiveIndicator(),
+                                  ],
+                                ],
+                              ),
+
+                              const SizedBox(height: 6),
+
+                              // Date + time
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.schedule_rounded,
+                                    size: 13,
+                                    color: F1Colors.textTertiary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      _formatSessionTime(session.dateStart),
+                                      style: F1TextStyles.bodySmall.copyWith(
+                                        color: F1Colors.textTertiary,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 8),
+
+                        // Right side: status badge + chevron
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            _buildStatusBadge(status, session.dateStart),
+                            const SizedBox(height: 6),
+                            Icon(
+                              Icons.chevron_right_rounded,
+                              color: F1Colors.textTertiary,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildSessionIcon(String sessionType, SessionStatus status) {
+  Widget _buildSessionIcon(String sessionType, SessionStatus status, Color accentColor) {
     IconData icon;
-    Color color;
 
     switch (sessionType.toLowerCase()) {
       case 'practice':
-        icon = Icons.settings;
-        color = F1Colors.ciano;
+        icon = Icons.build_rounded;
         break;
       case 'qualifying':
-        icon = Icons.flag;
-        color = F1Colors.dourado;
+      case 'sprint qualifying':
+        icon = Icons.timer_rounded;
+        break;
+      case 'sprint':
+        icon = Icons.bolt_rounded;
         break;
       case 'race':
-        icon = Icons.emoji_events;
-        color = F1Colors.vermelho;
+        icon = Icons.emoji_events_rounded;
         break;
       default:
-        icon = Icons.event;
-        color = F1Colors.textSecondary;
+        icon = Icons.event_rounded;
     }
 
-    // Dim icon if session is completed
-    if (status == SessionStatus.completed) {
-      color = color.withValues(alpha: 0.5);
-    }
+    final effectiveColor = status == SessionStatus.completed
+        ? accentColor.withValues(alpha: 0.5)
+        : accentColor;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: effectiveColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: effectiveColor.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Icon(
         icon,
-        color: color,
-        size: 24,
+        color: effectiveColor,
+        size: 22,
       ),
     );
   }
 
-  Widget _buildStatusBadge(SessionStatus status) {
-    if (status == SessionStatus.upcoming) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: F1Colors.ciano.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Text(
-          'Upcoming',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: F1Colors.ciano,
-          ),
-        ),
-      );
-    }
-
-    if (status == SessionStatus.completed) {
-      return const Icon(
-        Icons.check_circle,
-        color: F1Colors.success,
-        size: 24,
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  SessionStatus _getSessionStatus(Session session) {
-    final now = DateTime.now();
-
-    if (now.isAfter(session.dateEnd)) {
-      return SessionStatus.completed;
-    }
-
-    if (now.isAfter(session.dateStart) && now.isBefore(session.dateEnd)) {
-      return SessionStatus.live;
-    }
-
-    return SessionStatus.upcoming;
-  }
-
-  Color _getStatusColor(SessionStatus status) {
+  Widget _buildStatusBadge(SessionStatus status, DateTime startTime) {
     switch (status) {
       case SessionStatus.live:
-        return F1Colors.vermelho;
-      case SessionStatus.upcoming:
-        return F1Colors.ciano;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: F1Colors.vermelho.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: F1Colors.vermelho.withValues(alpha: 0.4),
+              width: 0.5,
+            ),
+          ),
+          child: Text(
+            'LIVE',
+            style: F1TextStyles.labelSmall.copyWith(
+              color: F1Colors.vermelho,
+              fontWeight: FontWeight.w800,
+              fontSize: 10,
+              letterSpacing: 0.8,
+            ),
+          ),
+        );
+
       case SessionStatus.completed:
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: F1Colors.success.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_rounded, size: 12, color: F1Colors.success),
+              const SizedBox(width: 3),
+              Text(
+                'Done',
+                style: F1TextStyles.labelSmall.copyWith(
+                  color: F1Colors.success,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        );
+
+      case SessionStatus.upcoming:
+        final timeUntil = startTime.difference(DateTime.now());
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: F1Colors.navyLight.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            _formatTimeUntil(timeUntil),
+            style: F1TextStyles.labelSmall.copyWith(
+              color: F1Colors.textSecondary,
+              fontWeight: FontWeight.w600,
+              fontSize: 10,
+            ),
+          ),
+        );
+    }
+  }
+
+  Color _getSessionAccentColor(String sessionType) {
+    switch (sessionType.toLowerCase()) {
+      case 'practice':
+        return F1Colors.textSecondary;
+      case 'qualifying':
+      case 'sprint qualifying':
+        return F1Colors.dourado;
+      case 'sprint':
+        return F1Colors.roxo;
+      case 'race':
+        return F1Colors.vermelho;
+      default:
         return F1Colors.textSecondary;
     }
   }
 
-  String _getStatusText(SessionStatus status, DateTime startTime) {
-    switch (status) {
-      case SessionStatus.live:
-        return 'In Progress';
-      case SessionStatus.upcoming:
-        final timeUntil = startTime.difference(DateTime.now());
-        return _formatTimeUntil(timeUntil);
-      case SessionStatus.completed:
-        return 'Completed';
+  SessionStatus _getSessionStatus(Session session) {
+    final now = DateTime.now();
+    if (now.isAfter(session.dateEnd)) return SessionStatus.completed;
+    if (now.isAfter(session.dateStart) && now.isBefore(session.dateEnd)) {
+      return SessionStatus.live;
     }
+    return SessionStatus.upcoming;
   }
 
-  String _formatSessionTime(DateTime start, DateTime end) {
-    final dateFormat = DateFormat('EEE, MMM dd • HH:mm');
-    return dateFormat.format(start);
+  String _formatSessionTime(DateTime start) {
+    return DateFormat('EEE, dd MMM • HH:mm').format(start);
   }
 
   String _formatTimeUntil(Duration duration) {
+    if (duration.isNegative) return 'Starting soon';
     if (duration.inDays > 0) {
       return 'In ${duration.inDays}d ${duration.inHours % 24}h';
     } else if (duration.inHours > 0) {

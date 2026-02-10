@@ -94,6 +94,12 @@ class DiskCache {
         return convertedMap as T;
       }
 
+      // Handle List type — deep-convert Maps within Lists
+      if (rawData is List) {
+        final convertedList = _convertList(rawData);
+        return convertedList as T;
+      }
+
       return rawData as T;
     } catch (e) {
       // Corrupted data - delete and return null

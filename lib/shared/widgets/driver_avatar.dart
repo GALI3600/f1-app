@@ -197,7 +197,7 @@ class DriverAvatar extends StatelessWidget {
       return Color(int.parse('FF$cleanHex', radix: 16));
     } catch (e) {
       // Fallback to cyan if parsing fails
-      return F1Colors.ciano;
+      return F1Colors.textSecondary;
     }
   }
 

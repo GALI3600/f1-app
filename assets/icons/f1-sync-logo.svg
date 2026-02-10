@@ -1,0 +1,15 @@
+<svg width="220" height="110" viewBox="0 0 220 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@800&amp;family=Space+Mono&amp;display=swap');
+  </style>
+  <!-- F1 -->
+  <text x="14" y="62" font-size="68" font-weight="800" fill="#ffffff" font-family="'Chakra Petch', sans-serif">F1</text>
+  <!-- Speed bars -->
+  <rect x="106" y="14" width="100" height="5" rx="2.5" fill="#e10600"/>
+  <rect x="106" y="28" width="78" height="5" rx="2.5" fill="#e10600" opacity="0.7"/>
+  <rect x="106" y="42" width="55" height="5" rx="2.5" fill="#e10600" opacity="0.4"/>
+  <!-- Separator -->
+  <rect x="106" y="62" width="55" height="1" fill="#333333"/>
+  <!-- SYNC -->
+  <text x="106" y="88" font-size="22" fill="#e10600" font-family="'Space Mono', monospace" letter-spacing="8">SYNC</text>
+</svg>

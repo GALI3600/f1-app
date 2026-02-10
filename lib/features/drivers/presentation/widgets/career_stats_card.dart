@@ -20,7 +20,7 @@ class CareerStatsCard extends StatelessWidget {
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.3),
+          color: F1Colors.border,
           width: 1,
         ),
       ),
@@ -63,7 +63,7 @@ class CareerStatsCard extends StatelessWidget {
                   label: 'Race Wins',
                   value: career.wins.toString(),
                   icon: Icons.flag,
-                  color: F1Colors.ciano,
+                  color: F1Colors.textSecondary,
                 ),
               ),
             ],
@@ -85,7 +85,7 @@ class CareerStatsCard extends StatelessWidget {
                   label: 'Pole Positions',
                   value: career.poles.toString(),
                   icon: Icons.speed,
-                  color: Colors.purple,
+                  color: F1Colors.textSecondary,
                 ),
               ),
             ],
@@ -153,7 +153,7 @@ class CareerStatsCard extends StatelessWidget {
               children: [
                 Icon(
                   Icons.leaderboard,
-                  color: F1Colors.ciano,
+                  color: F1Colors.textSecondary,
                   size: 18,
                 ),
                 const SizedBox(width: 8),
@@ -166,7 +166,7 @@ class CareerStatsCard extends StatelessWidget {
                 Text(
                   'P${career.currentSeasonPosition}',
                   style: F1TextStyles.bodyMedium.copyWith(
-                    color: F1Colors.ciano,
+                    color: F1Colors.textSecondary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

@@ -83,15 +83,15 @@ class F1Gradients {
 
   /// Loading shimmer gradient (animated)
   /// Usage: Skeleton loaders, loading states
-  static LinearGradient loading = LinearGradient(
+  static const LinearGradient loading = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [
       F1Colors.navy,
-      F1Colors.ciano.withValues(alpha: 0.3),
+      F1Colors.navyLight,
       F1Colors.navy,
     ],
-    stops: const [0.0, 0.5, 1.0],
+    stops: [0.0, 0.5, 1.0],
   );
 
   /// Speed gradient (velocity indicator)
@@ -126,8 +126,8 @@ class F1Gradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      F1Colors.ciano.withValues(alpha: 0.0),
-      F1Colors.ciano.withValues(alpha: 0.3),
+      F1Colors.border.withValues(alpha: 0.0),
+      F1Colors.border.withValues(alpha: 0.3),
     ],
   );
 
@@ -135,13 +135,13 @@ class F1Gradients {
 
   /// Cyan border gradient
   /// Usage: Card borders, input borders
-  static const LinearGradient cianBorder = LinearGradient(
+  static LinearGradient cianBorder = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      F1Colors.cianLight,
-      F1Colors.ciano,
-      F1Colors.cianDark,
+      F1Colors.border,
+      F1Colors.border.withValues(alpha: 0.8),
+      F1Colors.border,
     ],
   );
 
@@ -151,8 +151,8 @@ class F1Gradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      F1Colors.ciano,
-      F1Colors.roxo,
+      F1Colors.navyLight,
+      F1Colors.border,
       F1Colors.vermelho,
     ],
   );

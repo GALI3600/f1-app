@@ -124,7 +124,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Scaffold(
       backgroundColor: F1Colors.navyDeep,
       appBar: AppBar(
-        backgroundColor: F1Colors.navy,
+        backgroundColor: F1Colors.navyDeep,
         title: Text(
           'Configurações',
           style: F1TextStyles.headlineSmall.copyWith(
@@ -152,7 +152,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     height: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: F1Colors.ciano,
+                      color: F1Colors.vermelho,
                     ),
                   )
                 : const Icon(
@@ -190,7 +190,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       child: Text(
         title,
         style: F1TextStyles.bodySmall.copyWith(
-          color: F1Colors.ciano,
+          color: F1Colors.textSecondary,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,
         ),
@@ -211,7 +211,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         color: F1Colors.navy,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.2),
+          color: F1Colors.border,
           width: 1,
         ),
       ),
@@ -219,12 +219,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: F1Colors.ciano.withValues(alpha: 0.1),
+            color: F1Colors.navyLight.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             icon,
-            color: F1Colors.ciano,
+            color: Colors.white,
             size: 24,
           ),
         ),

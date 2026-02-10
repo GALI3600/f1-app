@@ -56,7 +56,7 @@ class DriverCard extends StatelessWidget {
   }
 
   /// Get driver-specific identification bar color
-  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
+  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad, Piastri
   /// Yellow bar for everyone else
   Color _getDriverBarColor() {
     // Use driverId for reliable identification
@@ -65,6 +65,7 @@ class DriverCard extends StatelessWidget {
       'russell',        // Mercedes
       'max_verstappen', // Red Bull
       'lindblad',       // Racing Bulls
+      'piastri',        // McLaren
     };
 
     if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {
@@ -135,14 +136,14 @@ class DriverCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: isSelected
               ? Border.all(
-                  color: F1Colors.ciano,
+                  color: F1Colors.vermelho,
                   width: 3,
                 )
               : null,
           boxShadow: [
             if (isSelected)
               BoxShadow(
-                color: F1Colors.ciano.withValues(alpha: 0.5),
+                color: F1Colors.vermelho.withValues(alpha: 0.5),
                 blurRadius: 12,
                 spreadRadius: 0,
               ),
@@ -159,23 +160,25 @@ class DriverCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Stack(
-          children: [
-            // Background gradient
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: _buildGradientColors(),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(isSelected ? 7 : 10),
+          child: Stack(
+            children: [
+              // Background gradient
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: _buildGradientColors(),
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Main content - column with bar on top, then horizontal layout
-            Column(
+              // Main content - column with bar on top, then horizontal layout
+              Column(
               children: [
                 // Team color space above bar
                 const SizedBox(height: 6),
@@ -286,7 +289,6 @@ class DriverCard extends StatelessWidget {
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
@@ -295,6 +297,7 @@ class DriverCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );
@@ -653,7 +656,7 @@ class DriverCardCompact extends StatelessWidget {
   }
 
   /// Get driver-specific identification bar color
-  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad
+  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad, Piastri
   /// Yellow bar for everyone else
   Color _getDriverBarColor() {
     const blackBarDrivers = {
@@ -661,6 +664,7 @@ class DriverCardCompact extends StatelessWidget {
       'russell',        // Mercedes
       'max_verstappen', // Red Bull
       'lindblad',       // Racing Bulls
+      'piastri',        // McLaren
     };
 
     if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {

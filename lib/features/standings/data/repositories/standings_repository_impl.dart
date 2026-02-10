@@ -2,13 +2,11 @@ import 'package:f1sync/features/standings/data/datasources/standings_remote_data
 import 'package:f1sync/features/standings/data/models/driver_standing.dart';
 import 'package:f1sync/features/standings/data/models/constructor_standing.dart';
 import 'package:f1sync/shared/services/cache/cache_service.dart';
-import 'package:logger/logger.dart';
 
 /// Repository for championship standings
 class StandingsRepository {
   final StandingsRemoteDataSource _remoteDataSource;
   final CacheService _cacheService;
-  final Logger _logger = Logger();
 
   StandingsRepository(this._remoteDataSource, this._cacheService);
 
@@ -20,26 +18,12 @@ class StandingsRepository {
   }) async {
     final cacheKey = 'driver_standings_$season';
 
-    // Try cache first
-    final cached = await _cacheService.get<List<dynamic>>(cacheKey);
-    if (cached != null) {
-      _logger.d('Driver standings cache hit for $season');
-      return cached
-          .map((e) => DriverStanding.fromJolpica(e as Map<String, dynamic>))
-          .toList();
-    }
-
-    _logger.d('Driver standings cache miss for $season, fetching from API');
-    final standings = await _remoteDataSource.getDriverStandings(season: season);
-
-    // Cache for 1 hour
-    await _cacheService.set(
-      cacheKey,
-      standings.map((s) => s.toJson()).toList(),
-      CacheTTL.medium,
+    return await _cacheService.getCachedList<DriverStanding>(
+      key: cacheKey,
+      ttl: CacheTTL.medium,
+      fetch: () => _remoteDataSource.getDriverStandings(season: season),
+      fromJson: DriverStanding.fromJson,
     );
-
-    return standings;
   }
 
   /// Get constructor standings for a season
@@ -50,26 +34,12 @@ class StandingsRepository {
   }) async {
     final cacheKey = 'constructor_standings_$season';
 
-    // Try cache first
-    final cached = await _cacheService.get<List<dynamic>>(cacheKey);
-    if (cached != null) {
-      _logger.d('Constructor standings cache hit for $season');
-      return cached
-          .map((e) => ConstructorStanding.fromJolpica(e as Map<String, dynamic>))
-          .toList();
-    }
-
-    _logger.d('Constructor standings cache miss for $season, fetching from API');
-    final standings = await _remoteDataSource.getConstructorStandings(season: season);
-
-    // Cache for 1 hour
-    await _cacheService.set(
-      cacheKey,
-      standings.map((s) => s.toJson()).toList(),
-      CacheTTL.medium,
+    return await _cacheService.getCachedList<ConstructorStanding>(
+      key: cacheKey,
+      ttl: CacheTTL.medium,
+      fetch: () => _remoteDataSource.getConstructorStandings(season: season),
+      fromJson: ConstructorStanding.fromJson,
     );
-
-    return standings;
   }
 
   /// Get the championship leader (P1 driver)

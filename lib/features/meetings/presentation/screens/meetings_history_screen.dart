@@ -5,7 +5,6 @@ import 'package:f1sync/shared/widgets/f1_app_bar.dart';
 import 'package:f1sync/shared/widgets/error_widget.dart';
 import 'package:f1sync/shared/widgets/f1_loading.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +25,6 @@ class MeetingsHistoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: F1AppBar(
         title: 'Grand Prix',
-        gradient: F1Gradients.main,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
@@ -87,7 +85,7 @@ class MeetingsHistoryScreen extends ConsumerWidget {
               loading: () => const Center(
                 child: F1LoadingWidget(
                   size: 50,
-                  color: F1Colors.ciano,
+                  color: F1Colors.textSecondary,
                   message: 'Loading Grand Prix...',
                 ),
               ),

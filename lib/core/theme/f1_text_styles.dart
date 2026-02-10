@@ -9,69 +9,70 @@ class F1TextStyles {
   // Base font family
   static const String _fontFamily = 'Roboto';
   static const String _monoFontFamily = 'RobotoMono';
+  static const String _f1FontFamily = 'Formula1';
 
   // ========== Display Styles ==========
 
-  /// Display Large - 48px, Extra Bold
+  /// Display Large - 48px, Extra Bold, Formula1 font
   /// Usage: Splash screens, hero headers
   static const TextStyle displayLarge = TextStyle(
     fontSize: 48,
-    fontWeight: FontWeight.w900,
+    fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
     letterSpacing: -0.5,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.1,
   );
 
-  /// Display Medium - 36px, Extra Bold
+  /// Display Medium - 36px, Extra Bold, Formula1 font
   /// Usage: Major section headers
   static const TextStyle displayMedium = TextStyle(
     fontSize: 36,
-    fontWeight: FontWeight.w800,
+    fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.2,
   );
 
-  /// Display Small - 28px, Bold
+  /// Display Small - 28px, Bold, Formula1 font
   /// Usage: Screen titles, modal headers
   static const TextStyle displaySmall = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.2,
   );
 
   // ========== Headline Styles ==========
 
-  /// Headline Large - 24px, Bold
+  /// Headline Large - 24px, Bold, Formula1 font
   /// Usage: Section headers, card titles
   static const TextStyle headlineLarge = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.3,
   );
 
-  /// Headline Medium - 20px, Semi-Bold
+  /// Headline Medium - 20px, Semi-Bold, Formula1 font
   /// Usage: Subsection headers
   static const TextStyle headlineMedium = TextStyle(
     fontSize: 20,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.3,
   );
 
-  /// Headline Small - 18px, Semi-Bold
+  /// Headline Small - 18px, Semi-Bold, Formula1 font
   /// Usage: Card headers, list headers
   static const TextStyle headlineSmall = TextStyle(
     fontSize: 18,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     height: 1.4,
   );
 
@@ -141,13 +142,13 @@ class F1TextStyles {
 
   // ========== F1-Specific Styles ==========
 
-  /// Driver Number - 64px, Extra Bold, Monospace
+  /// Driver Number - 64px, Bold, Formula1 font
   /// Usage: Driver number displays
   static const TextStyle driverNumber = TextStyle(
     fontSize: 64,
-    fontWeight: FontWeight.w900,
-    color: F1Colors.ciano,
-    fontFamily: _monoFontFamily,
+    fontWeight: FontWeight.w700,
+    color: F1Colors.textPrimary,
+    fontFamily: _f1FontFamily,
     letterSpacing: -2,
     height: 1.0,
   );
@@ -172,22 +173,22 @@ class F1TextStyles {
     letterSpacing: 0.5,
   );
 
-  /// Position Number - 24px, Extra Bold
+  /// Position Number - 24px, Bold, Formula1 font
   /// Usage: Position displays (P1, P2, etc)
   static const TextStyle position = TextStyle(
     fontSize: 24,
-    fontWeight: FontWeight.w900,
-    color: F1Colors.dourado,
-    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w700,
+    color: F1Colors.textPrimary,
+    fontFamily: _f1FontFamily,
   );
 
-  /// Position Small - 18px, Extra Bold
+  /// Position Small - 18px, Bold, Formula1 font
   /// Usage: Compact position displays
   static const TextStyle positionSmall = TextStyle(
     fontSize: 18,
-    fontWeight: FontWeight.w900,
-    color: F1Colors.dourado,
-    fontFamily: _fontFamily,
+    fontWeight: FontWeight.w700,
+    color: F1Colors.textPrimary,
+    fontFamily: _f1FontFamily,
   );
 
   /// Team Name - 14px, Semi-Bold, Uppercase
@@ -195,27 +196,27 @@ class F1TextStyles {
   static const TextStyle teamName = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    color: F1Colors.ciano,
+    color: F1Colors.textSecondary,
     letterSpacing: 0.5,
     fontFamily: _fontFamily,
   );
 
-  /// Driver Name - 16px, Bold
+  /// Driver Name - 16px, Bold, Formula1 font
   /// Usage: Driver name displays
   static const TextStyle driverName = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
   );
 
-  /// Driver Acronym - 14px, Extra Bold
+  /// Driver Acronym - 14px, Bold, Formula1 font
   /// Usage: Driver 3-letter codes (VER, HAM, etc)
   static const TextStyle driverAcronym = TextStyle(
     fontSize: 14,
-    fontWeight: FontWeight.w800,
+    fontWeight: FontWeight.w700,
     color: F1Colors.textPrimary,
-    fontFamily: _fontFamily,
+    fontFamily: _f1FontFamily,
     letterSpacing: 1,
   );
 

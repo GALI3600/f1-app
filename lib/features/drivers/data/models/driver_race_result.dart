@@ -39,6 +39,8 @@ class DriverRaceResult with _$DriverRaceResult {
     String? time,
     /// Whether driver had fastest lap
     @Default(false) bool hasFastestLap,
+    /// Whether this is a sprint result
+    @Default(false) bool isSprint,
   }) = _DriverRaceResult;
 
   factory DriverRaceResult.fromJson(Map<String, dynamic> json) =>
@@ -89,6 +91,45 @@ class DriverRaceResult with _$DriverRaceResult {
       teamName: constructor['name'] as String? ?? '',
       time: time?['time'] as String?,
       hasFastestLap: hasFastestLap,
+    );
+  }
+
+  /// Create DriverRaceResult from Jolpica API sprint result format
+  factory DriverRaceResult.fromJolpicaSprint(Map<String, dynamic> json) {
+    final circuit = json['Circuit'] as Map<String, dynamic>? ?? {};
+    final location = circuit['Location'] as Map<String, dynamic>? ?? {};
+    final constructor = json['Constructor'] as Map<String, dynamic>? ?? {};
+    final time = json['Time'] as Map<String, dynamic>?;
+
+    final season = int.tryParse(json['season']?.toString() ?? '') ?? 0;
+    final round = int.tryParse(json['round']?.toString() ?? '') ?? 0;
+    final position = int.tryParse(json['position']?.toString() ?? '') ?? 0;
+    final grid = int.tryParse(json['grid']?.toString() ?? '') ?? 0;
+    final points = double.tryParse(json['points']?.toString() ?? '') ?? 0;
+    final laps = int.tryParse(json['laps']?.toString() ?? '') ?? 0;
+
+    DateTime date;
+    try {
+      date = DateTime.parse(json['date'] as String? ?? '');
+    } catch (_) {
+      date = DateTime.now();
+    }
+
+    return DriverRaceResult(
+      season: season,
+      round: round,
+      raceName: json['raceName'] as String? ?? 'Unknown Sprint',
+      date: date,
+      circuitName: circuit['circuitName'] as String? ?? '',
+      country: location['country'] as String? ?? '',
+      position: position,
+      gridPosition: grid,
+      points: points,
+      laps: laps,
+      status: json['status'] as String? ?? '',
+      teamName: constructor['name'] as String? ?? '',
+      time: time?['time'] as String?,
+      isSprint: true,
     );
   }
 

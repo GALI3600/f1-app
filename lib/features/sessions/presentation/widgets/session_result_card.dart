@@ -4,13 +4,14 @@ import '../../../drivers/data/models/driver.dart';
 import '../../../../shared/widgets/driver_avatar.dart';
 import '../../../../shared/widgets/team_color_strip.dart';
 import '../../../../core/theme/f1_colors.dart';
+import '../../../../core/theme/f1_text_styles.dart';
 
 /// Card displaying a single result row in session results
 class SessionResultCard extends StatelessWidget {
   final SessionResult result;
   final Driver? driver;
   final bool isFastestLap;
-  final int? positionsGained; // Positive = gained, negative = lost
+  final int? positionsGained;
 
   const SessionResultCard({
     super.key,
@@ -22,187 +23,148 @@ class SessionResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            // Team color strip
-            if (driver != null)
-              TeamColorStrip(
-                teamColor: driver!.teamColour,
-                width: 4,
-              ),
-            // Position badge
-            _buildPositionBadge(context),
-            const SizedBox(width: 12),
-            // Driver info
-            if (driver != null) ...[
-              DriverAvatar(
-                imageUrl: driver!.headshotUrl,
-                teamColor: driver!.teamColour,
-                driverName: driver!.fullName,
-                size: DriverAvatarSize.small,
-              ),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          driver?.fullName ?? 'Driver ${result.driverNumber}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      // Fastest lap indicator
-                      if (isFastestLap)
-                        Container(
-                          margin: const EdgeInsets.only(left: 4),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: F1Colors.roxo.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: F1Colors.roxo),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.flash_on,
-                                size: 12,
-                                color: F1Colors.roxo,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                'FL',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: F1Colors.roxo,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        driver?.teamName ?? '',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: F1Colors.textSecondary,
-                            ),
-                      ),
-                      if (result.dnf || result.dns || result.dsq) ...[
-                        const SizedBox(width: 8),
-                        _buildStatusBadge(context),
-                      ],
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Gap/Time info
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (result.position == 1)
-                  Text(
-                    _formatDuration(result.duration),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoMono',
-                        ),
-                  )
-                else if (result.dnf || result.dns || result.dsq)
-                  Text(
-                    result.status ?? 'DNF',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoMono',
-                          color: F1Colors.vermelho,
-                        ),
-                  )
-                else if (result.gapToLeader > 0)
-                  Text(
-                    '+${_formatGap(result.gapToLeader)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoMono',
-                          color: F1Colors.textSecondary,
-                        ),
-                  )
-                else if (result.status != null && result.status!.startsWith('+'))
-                  // Lapped cars: "+1 Lap", "+2 Laps"
-                  Text(
-                    result.status!,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoMono',
-                          color: F1Colors.textSecondary,
-                        ),
-                  )
-                else
-                  Text(
-                    '-',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'RobotoMono',
-                          color: F1Colors.textSecondary,
-                        ),
-                  ),
-                if (result.numberOfLaps > 0) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    '${result.numberOfLaps} laps',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+      decoration: BoxDecoration(
+        color: F1Colors.navy,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: F1Colors.border, width: 1),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              // Team color strip
+              if (driver != null)
+                TeamColorStrip(
+                  teamColor: driver!.teamColour,
+                  width: 4,
+                ),
+
+              // Position badge
+              _buildPositionBadge(),
+
+              const SizedBox(width: 10),
+
+              // Driver avatar
+              if (driver != null) ...[
+                DriverAvatar(
+                  imageUrl: driver!.headshotUrl,
+                  teamColor: driver!.teamColour,
+                  driverName: driver!.fullName,
+                  size: DriverAvatarSize.small,
+                ),
+                const SizedBox(width: 10),
               ],
-            ),
-            // Positions gained/lost indicator
-            if (positionsGained != null && positionsGained != 0) ...[
+
+              // Driver info
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Name + badges row
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              driver?.fullName ?? 'Driver ${result.driverNumber}',
+                              style: F1TextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                height: 1.2,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (isFastestLap) ...[
+                            const SizedBox(width: 6),
+                            _buildFastestLapBadge(),
+                          ],
+                          if (result.dnf || result.dns || result.dsq) ...[
+                            const SizedBox(width: 6),
+                            _buildStatusBadge(),
+                          ],
+                        ],
+                      ),
+
+                      const SizedBox(height: 3),
+
+                      // Team name
+                      Text(
+                        driver?.teamName ?? result.teamName ?? '',
+                        style: F1TextStyles.bodySmall.copyWith(
+                          color: F1Colors.textTertiary,
+                          fontSize: 12,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
               const SizedBox(width: 8),
-              _buildPositionChangeIndicator(context),
+
+              // Time/gap info
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildTimeDisplay(),
+                    if (result.numberOfLaps > 0) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${result.numberOfLaps} laps',
+                        style: F1TextStyles.bodySmall.copyWith(
+                          color: F1Colors.textTertiary,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Position change indicator
+              if (positionsGained != null && positionsGained != 0) ...[
+                const SizedBox(width: 6),
+                _buildPositionChangeIndicator(),
+              ],
+
+              const SizedBox(width: 14),
             ],
-            const SizedBox(width: 12),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildPositionBadge(BuildContext context) {
+  Widget _buildPositionBadge() {
     return Container(
-      width: 40,
-      height: 40,
-      margin: const EdgeInsets.all(12),
+      width: 36,
+      height: 36,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: _getPositionGradient(),
         border: result.position > 3
-            ? Border.all(color: F1Colors.ciano, width: 2)
+            ? Border.all(color: F1Colors.border, width: 1.5)
             : null,
       ),
       child: Center(
         child: Text(
           '${result.position}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: result.position <= 3 ? Colors.black : Colors.white,
-              ),
+          style: F1TextStyles.positionSmall.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            color: result.position <= 3 ? Colors.black : Colors.white,
+          ),
         ),
       ),
     );
@@ -212,22 +174,57 @@ class SessionResultCard extends StatelessWidget {
     switch (result.position) {
       case 1:
         return const LinearGradient(
-          colors: [Color(0xFFFFD700), Color(0xFFFFA500)], // Gold
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFFFD700), Color(0xFFE5A100)],
         );
       case 2:
         return const LinearGradient(
-          colors: [Color(0xFFC0C0C0), Color(0xFF808080)], // Silver
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFD0D0D0), Color(0xFF909090)],
         );
       case 3:
         return const LinearGradient(
-          colors: [Color(0xFFCD7F32), Color(0xFF8B4513)], // Bronze
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFCD7F32), Color(0xFF9A5E1F)],
         );
       default:
         return null;
     }
   }
 
-  Widget _buildStatusBadge(BuildContext context) {
+  Widget _buildFastestLapBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+      decoration: BoxDecoration(
+        color: F1Colors.roxo.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: F1Colors.roxo.withValues(alpha: 0.5),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.flash_on_rounded, size: 11, color: F1Colors.roxo),
+          const SizedBox(width: 2),
+          Text(
+            'FL',
+            style: F1TextStyles.labelSmall.copyWith(
+              color: F1Colors.roxo,
+              fontWeight: FontWeight.w800,
+              fontSize: 9,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge() {
     String status;
     Color color;
 
@@ -245,30 +242,84 @@ class SessionResultCard extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color),
+        border: Border.all(
+          color: color.withValues(alpha: 0.5),
+          width: 0.5,
+        ),
       ),
       child: Text(
         status,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
+        style: F1TextStyles.labelSmall.copyWith(
+          color: color,
+          fontWeight: FontWeight.w800,
+          fontSize: 9,
+        ),
       ),
     );
   }
 
-  Widget _buildPositionChangeIndicator(BuildContext context) {
+  Widget _buildTimeDisplay() {
+    if (result.position == 1) {
+      return Text(
+        _formatDuration(result.duration),
+        style: F1TextStyles.lapTimeSmall.copyWith(
+          fontSize: 14,
+          color: F1Colors.textPrimary,
+        ),
+      );
+    }
+
+    if (result.dnf || result.dns || result.dsq) {
+      return Text(
+        result.status ?? 'DNF',
+        style: F1TextStyles.lapTimeSmall.copyWith(
+          fontSize: 14,
+          color: F1Colors.vermelho,
+        ),
+      );
+    }
+
+    if (result.gapToLeader > 0) {
+      return Text(
+        '+${_formatGap(result.gapToLeader)}',
+        style: F1TextStyles.lapTimeSmall.copyWith(
+          fontSize: 13,
+          color: F1Colors.textSecondary,
+        ),
+      );
+    }
+
+    if (result.status != null && result.status!.startsWith('+')) {
+      return Text(
+        result.status!,
+        style: F1TextStyles.lapTimeSmall.copyWith(
+          fontSize: 13,
+          color: F1Colors.textSecondary,
+        ),
+      );
+    }
+
+    return Text(
+      '-',
+      style: F1TextStyles.lapTimeSmall.copyWith(
+        fontSize: 14,
+        color: F1Colors.textTertiary,
+      ),
+    );
+  }
+
+  Widget _buildPositionChangeIndicator() {
     final isPositive = positionsGained! > 0;
     final color = isPositive ? F1Colors.success : F1Colors.vermelho;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -276,16 +327,17 @@ class SessionResultCard extends StatelessWidget {
         children: [
           Icon(
             isPositive ? Icons.arrow_upward : Icons.arrow_downward,
-            size: 12,
+            size: 11,
             color: color,
           ),
           const SizedBox(width: 2),
           Text(
             '${positionsGained!.abs()}',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.bold,
-                ),
+            style: F1TextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: FontWeight.w800,
+              fontSize: 10,
+            ),
           ),
         ],
       ),
@@ -297,7 +349,6 @@ class SessionResultCard extends StatelessWidget {
     final minutes = duration.inMinutes;
     final remainingSeconds = duration.inSeconds % 60;
     final milliseconds = duration.inMilliseconds % 1000;
-
     return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}.${(milliseconds ~/ 10).toString().padLeft(2, '0')}';
   }
 

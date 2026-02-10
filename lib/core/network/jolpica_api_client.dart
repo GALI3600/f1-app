@@ -443,6 +443,79 @@ class JolpicaApiClient {
     return allResults;
   }
 
+  /// Fetch all sprint results for a driver with automatic pagination
+  ///
+  /// Returns the driver's complete sprint history.
+  /// [driverId] is the driver's ID (e.g., "max_verstappen")
+  Future<List<Map<String, dynamic>>> getDriverSprintResults({
+    required String driverId,
+  }) async {
+    final allResults = <Map<String, dynamic>>[];
+    int offset = 0;
+    const int limit = 100;
+    int? total;
+
+    do {
+      await _rateLimiter.waitIfNeeded();
+
+      final pageResults = await _retryRequest(() async {
+        try {
+          final response = await _dio.get(
+            '/drivers/$driverId/sprint.json',
+            queryParameters: {
+              'limit': limit,
+              'offset': offset,
+            },
+          );
+
+          if (response.data is Map<String, dynamic>) {
+            final mrData = response.data['MRData'] as Map<String, dynamic>?;
+
+            if (total == null && mrData != null) {
+              total = int.tryParse(mrData['total']?.toString() ?? '0') ?? 0;
+            }
+
+            final raceTable = mrData?['RaceTable'] as Map<String, dynamic>?;
+            final races = raceTable?['Races'] as List?;
+
+            if (races != null) {
+              final results = <Map<String, dynamic>>[];
+              for (final race in races) {
+                final raceMap = race as Map<String, dynamic>;
+                final sprintResults = raceMap['SprintResults'] as List?;
+
+                if (sprintResults != null && sprintResults.isNotEmpty) {
+                  final result = sprintResults.first as Map<String, dynamic>;
+                  results.add({
+                    ...result,
+                    'season': raceMap['season'],
+                    'round': raceMap['round'],
+                    'raceName': raceMap['raceName'],
+                    'date': raceMap['date'],
+                    'Circuit': raceMap['Circuit'],
+                  });
+                }
+              }
+              return results;
+            }
+          }
+
+          return <Map<String, dynamic>>[];
+        } on DioException catch (e) {
+          throw _handleError(e);
+        } catch (e) {
+          throw ParseException('Failed to parse Jolpica driver sprint results response: $e');
+        }
+      });
+
+      allResults.addAll(pageResults);
+      offset += limit;
+
+    } while (total != null && offset < total!);
+
+    return allResults;
+  }
+
   /// Fetch driver standings for a season
   ///
   /// [season] can be a year (e.g., 2026) or 'current'

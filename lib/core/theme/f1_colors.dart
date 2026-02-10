@@ -8,22 +8,25 @@ class F1Colors {
   // ========== Main Brand Colors ==========
 
   /// Primary color - Cyan (#00D9FF)
-  /// Usage: Primary buttons, links, active elements, highlights
+  /// Usage: Legacy — kept for sector colors and specific references
   static const Color ciano = Color(0xFF00D9FF);
   static const Color cianLight = Color(0xFF33E3FF);
   static const Color cianDark = Color(0xFF00C8E6);
 
   /// Accent color - Purple (#8B4FC9)
-  /// Usage: Premium badges, special highlights, purple sectors (best personal lap)
+  /// Usage: Purple sectors (best personal lap), legacy references
   static const Color roxo = Color(0xFF8B4FC9);
   static const Color roxoLight = Color(0xFFA855F7);
   static const Color roxoDark = Color(0xFF7C3FAD);
 
-  /// Secondary color - Racing Red (#DC1E42)
-  /// Usage: Live indicators, FAB, important alerts, red sectors
-  static const Color vermelho = Color(0xFFDC1E42);
-  static const Color vermelhoLight = Color(0xFFE64D6B);
-  static const Color vermelhoDark = Color(0xFFB8142E);
+  /// Racing Red (#E10600)
+  /// Usage: Accent details — selected items, indicators, switches, live
+  static const Color vermelho = Color(0xFFE10600);
+  static const Color vermelhoLight = Color(0xFFFF2D28);
+  static const Color vermelhoDark = Color(0xFFC00500);
+
+  /// Accent alias (same as vermelho, for semantic clarity)
+  static const Color accent = Color(0xFFE10600);
 
   /// Highlight color - Gold (#C9974D)
   /// Usage: Pole position, records, achievements, P1 highlights
@@ -33,17 +36,20 @@ class F1Colors {
 
   // ========== Background Colors ==========
 
-  /// Deep navy background (#0A1628)
-  /// Usage: Main app background, scaffold background
-  static const Color navyDeep = Color(0xFF0A1628);
+  /// Deep background (#15151E)
+  /// Usage: Main app background, scaffold, AppBar, bottom nav
+  static const Color navyDeep = Color(0xFF15151E);
 
-  /// Navy surface (#1A2847)
+  /// Surface (#35353C)
   /// Usage: Cards, containers, elevated surfaces
-  static const Color navy = Color(0xFF1A2847);
+  static const Color navy = Color(0xFF35353C);
 
-  /// Light navy (#2A3857)
+  /// Surface light (#45454D)
   /// Usage: Elevated elements, hover states
-  static const Color navyLight = Color(0xFF2A3857);
+  static const Color navyLight = Color(0xFF45454D);
+
+  /// Border / divider color (#2A2A32)
+  static const Color border = Color(0xFF2A2A32);
 
   // ========== Status Colors ==========
 
@@ -158,7 +164,7 @@ class F1Colors {
       case 3:
         return positionThird;
       default:
-        return ciano;
+        return textPrimary;
     }
   }
 

@@ -1,15 +1,21 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:logger/logger.dart';
 import '../../../../core/network/providers.dart';
+import '../../../../shared/services/cache/cache_service.dart';
+import '../../../../shared/services/providers.dart';
 import '../../data/models/driver_race_result.dart';
 
 part 'driver_race_history_provider.g.dart';
 
 final _logger = Logger();
 
+/// Cache key prefix for driver race history
+const _raceHistoryCachePrefix = 'driver_race_history_';
+
 /// Provider for driver's race history
 ///
 /// Fetches all race results for a specific driver from Jolpica API
+/// Results are cached for 7 days (historical data rarely changes)
 /// Results are sorted by date descending (most recent first)
 @riverpod
 class DriverRaceHistoryNotifier extends _$DriverRaceHistoryNotifier {
@@ -19,22 +25,37 @@ class DriverRaceHistoryNotifier extends _$DriverRaceHistoryNotifier {
   }) async {
     _logger.i('DriverRaceHistoryNotifier.build() for driver $driverId');
 
+    final cacheService = ref.read(cacheServiceProvider);
     final apiClient = ref.watch(jolpicaApiClientProvider);
+    final cacheKey = '$_raceHistoryCachePrefix$driverId';
 
     try {
-      _logger.d('Fetching all race history for driver: $driverId');
+      final raceResults = await cacheService.getCachedList<DriverRaceResult>(
+        key: cacheKey,
+        ttl: CacheTTL.long,
+        fromJson: DriverRaceResult.fromJson,
+        fetch: () async {
+          _logger.d('Fetching all race + sprint history for driver: $driverId');
 
-      // API client handles pagination automatically
-      final results = await apiClient.getDriverResults(driverId: driverId);
+          // Fetch race and sprint results in parallel
+          final futures = await Future.wait([
+            apiClient.getDriverResults(driverId: driverId),
+            apiClient.getDriverSprintResults(driverId: driverId),
+          ]);
 
-      final raceResults = results
-          .map((json) => DriverRaceResult.fromJolpica(json))
-          .toList();
+          final raceJsons = futures[0];
+          final sprintJsons = futures[1];
 
-      // Sort by date descending (most recent first)
-      raceResults.sort((a, b) => b.date.compareTo(a.date));
+          final parsed = <DriverRaceResult>[
+            ...raceJsons.map((json) => DriverRaceResult.fromJolpica(json)),
+            ...sprintJsons.map((json) => DriverRaceResult.fromJolpicaSprint(json)),
+          ];
 
-      _logger.i('Loaded ${raceResults.length} total race results for $driverId');
+          parsed.sort((a, b) => b.date.compareTo(a.date));
+          _logger.i('Loaded ${raceJsons.length} races + ${sprintJsons.length} sprints for $driverId');
+          return parsed;
+        },
+      );
 
       return raceResults;
     } catch (e, stackTrace) {
@@ -44,8 +65,10 @@ class DriverRaceHistoryNotifier extends _$DriverRaceHistoryNotifier {
     }
   }
 
-  /// Refresh race history data
+  /// Refresh race history data (invalidates cache)
   Future<void> refresh() async {
+    final cacheService = ref.read(cacheServiceProvider);
+    await cacheService.invalidate('$_raceHistoryCachePrefix$driverId');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => build(driverId: driverId));
   }
@@ -87,22 +110,25 @@ class DriverRaceStats {
       );
     }
 
-    final wins = results.where((r) => r.isWin).length;
-    final podiums = results.where((r) => r.isPodium).length;
+    // Only count main races for wins/podiums/totalRaces (not sprints)
+    final races = results.where((r) => !r.isSprint).toList();
+    final wins = races.where((r) => r.isWin).length;
+    final podiums = races.where((r) => r.isPodium).length;
     final pointsFinishes = results.where((r) => r.isPointsFinish).length;
-    final dnfs = results.where((r) => r.dnf).length;
+    final dnfs = races.where((r) => r.dnf).length;
+    // Total points includes both race and sprint points
     final totalPoints = results.fold<double>(0, (sum, r) => sum + r.points);
-    final bestPosition = results.map((r) => r.position).reduce((a, b) => a < b ? a : b);
-    final bestGridPosition = results.map((r) => r.gridPosition).where((g) => g > 0).fold(999, (a, b) => a < b ? a : b);
+    final bestPosition = races.where((r) => r.position > 0).map((r) => r.position).fold(999, (a, b) => a < b ? a : b);
+    final bestGridPosition = races.map((r) => r.gridPosition).where((g) => g > 0).fold(999, (a, b) => a < b ? a : b);
 
     return DriverRaceStats(
-      totalRaces: results.length,
+      totalRaces: races.length,
       wins: wins,
       podiums: podiums,
       pointsFinishes: pointsFinishes,
       dnfs: dnfs,
       totalPoints: totalPoints,
-      bestPosition: bestPosition,
+      bestPosition: bestPosition == 999 ? 0 : bestPosition,
       bestGridPosition: bestGridPosition == 999 ? 0 : bestGridPosition,
     );
   }

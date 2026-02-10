@@ -50,7 +50,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
       final hex = teamColour.startsWith('#') ? teamColour : '#$teamColour';
       return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
     } catch (_) {
-      return F1Colors.ciano;
+      return F1Colors.textSecondary;
     }
   }
 
@@ -83,7 +83,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
         loading: () => const Center(
           child: F1LoadingWidget(
             size: 50,
-            color: F1Colors.ciano,
+            color: F1Colors.textSecondary,
             message: 'Loading driver data...',
           ),
         ),
@@ -283,7 +283,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
                 children: [
                   F1WheelLoading(
                     size: 24,
-                    color: F1Colors.ciano,
+                    color: F1Colors.textSecondary,
                   ),
                   SizedBox(width: 12),
                   Text(
@@ -313,7 +313,7 @@ class _DriverDetailScreenState extends ConsumerState<DriverDetailScreen>
       loading: () => const Center(
         child: F1LoadingWidget(
           size: 40,
-          color: F1Colors.ciano,
+          color: F1Colors.textSecondary,
           message: 'Loading race history...',
         ),
       ),

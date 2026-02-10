@@ -1,4 +1,5 @@
 import 'package:f1sync/core/theme/f1_colors.dart';
+import 'package:f1sync/core/theme/f1_text_styles.dart';
 import 'package:f1sync/features/meetings/presentation/providers/meetings_providers.dart';
 import 'package:f1sync/features/meetings/presentation/widgets/gp_header_card.dart';
 import 'package:f1sync/features/meetings/presentation/widgets/session_schedule_list.dart';
@@ -10,10 +11,10 @@ import 'package:go_router/go_router.dart';
 
 /// Meeting Detail Screen
 /// Displays GP information and session schedule:
-/// - GP header with country, name, dates
-/// - List of all sessions (FP, Quali, Race)
+/// - GP header with flag, name, circuit, dates
+/// - List of all sessions with type-specific accents
 /// - Session status indicators (Upcoming, Live, Completed)
-/// - Tap session to view details (future implementation)
+/// - Tap session to view details
 class MeetingDetailScreen extends ConsumerWidget {
   final int meetingKey;
 
@@ -31,15 +32,23 @@ class MeetingDetailScreen extends ConsumerWidget {
       body: meetingDetailAsync.when(
         data: (meetingDetail) => CustomScrollView(
           slivers: [
-            // Custom App Bar with back button
+            // App Bar
             SliverAppBar(
-              expandedHeight: 0,
               floating: true,
               pinned: true,
               backgroundColor: F1Colors.navyDeep,
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () => context.pop(),
+              ),
+              title: Text(
+                meetingDetail.meeting.meetingName,
+                style: F1TextStyles.headlineSmall.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 17,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               actions: [
                 IconButton(
@@ -49,34 +58,57 @@ class MeetingDetailScreen extends ConsumerWidget {
                   },
                 ),
               ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(1),
+                child: Container(height: 1, color: F1Colors.border),
+              ),
             ),
 
             // GP Header Card
             SliverToBoxAdapter(
-              child: GPHeaderCard(meeting: meetingDetail.meeting),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: GPHeaderCard(meeting: meetingDetail.meeting),
+              ),
             ),
 
             // Sessions Section Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
                 child: Row(
                   children: [
                     Container(
                       width: 4,
-                      height: 24,
+                      height: 22,
                       decoration: BoxDecoration(
-                        color: F1Colors.ciano,
+                        color: F1Colors.vermelho,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Session Schedule',
-                      style: TextStyle(
-                        fontSize: 20,
+                    const SizedBox(width: 10),
+                    Text(
+                      'Sessions',
+                      style: F1TextStyles.headlineSmall.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: F1Colors.textPrimary,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: F1Colors.navyLight.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${meetingDetail.sessions.length}',
+                        style: F1TextStyles.labelSmall.copyWith(
+                          color: F1Colors.textSecondary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],
@@ -103,7 +135,7 @@ class MeetingDetailScreen extends ConsumerWidget {
         loading: () => const Center(
           child: F1LoadingWidget(
             size: 50,
-            color: F1Colors.ciano,
+            color: F1Colors.textSecondary,
             message: 'Loading meeting...',
           ),
         ),

@@ -69,9 +69,10 @@ class _SeasonSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate season stats
-    final wins = results.where((r) => r.isWin).length;
-    final podiums = results.where((r) => r.isPodium).length;
+    // Calculate season stats (wins/podiums from races only, points from all)
+    final races = results.where((r) => !r.isSprint).toList();
+    final wins = races.where((r) => r.isWin).length;
+    final podiums = races.where((r) => r.isPodium).length;
     final points = results.fold<double>(0, (sum, r) => sum + r.points);
 
     return Column(
@@ -100,7 +101,7 @@ class _SeasonSection extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               if (podiums > wins) ...[
-                _StatChip(label: '$podiums podiums', color: F1Colors.ciano),
+                _StatChip(label: '$podiums podiums', color: F1Colors.textSecondary),
                 const SizedBox(width: 8),
               ],
               _StatChip(label: '${points.toInt()} pts', color: F1Colors.textPrimary),
@@ -238,8 +239,28 @@ class _RaceResultCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (result.isSprint)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: F1Colors.vermelho.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'SPRINT',
+                              style: TextStyle(
+                                color: F1Colors.vermelho,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         if (result.hasFastestLap)
                           Container(
+                            margin: EdgeInsets.only(left: result.isSprint ? 4 : 0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
@@ -324,7 +345,7 @@ class _RaceResultCard extends StatelessWidget {
       1 => F1Colors.dourado,
       2 => Colors.grey.shade400,
       3 => Colors.brown.shade400,
-      _ when position <= 10 => F1Colors.ciano.withValues(alpha: 0.8),
+      _ when position <= 10 => F1Colors.textSecondary.withValues(alpha: 0.8),
       _ => F1Colors.navy.withValues(alpha: 0.8),
     };
   }

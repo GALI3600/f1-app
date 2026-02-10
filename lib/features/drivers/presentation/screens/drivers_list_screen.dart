@@ -4,13 +4,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/f1_colors.dart';
 import '../../../../core/theme/f1_text_styles.dart';
 import '../../../../shared/widgets/f1_app_bar.dart';
-import '../../../../core/theme/f1_gradients.dart';
 import '../../../../shared/widgets/f1_loading.dart';
 import '../../../../core/error/error_mapper.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 import '../providers/drivers_list_provider.dart';
 import '../providers/driver_filter_provider.dart';
-import '../providers/driver_detail_provider.dart';
 import '../widgets/driver_card.dart';
 import '../widgets/driver_detail_panel.dart';
 
@@ -25,16 +23,6 @@ class DriversListScreen extends ConsumerStatefulWidget {
 class _DriversListScreenState extends ConsumerState<DriversListScreen> {
   String? _selectedDriverId;
 
-  Color _getTeamColor(String? teamColour) {
-    if (teamColour == null) return F1Colors.navy;
-    try {
-      final hex = teamColour.startsWith('#') ? teamColour : '#$teamColour';
-      return Color(int.parse(hex.substring(1), radix: 16) + 0xFF000000);
-    } catch (_) {
-      return F1Colors.navy;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final driversAsync = ref.watch(driversListNotifierProvider());
@@ -42,23 +30,9 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
     final filterState = ref.watch(driverFilterNotifierProvider);
     final teamNames = ref.watch(teamNamesProvider);
 
-    // Get selected driver's team color for AppBar corner (only after data loads)
-    Color? appBarCornerColorLeft;
-    if (_selectedDriverId != null) {
-      final detailAsync = ref.watch(driverDetailNotifierProvider(
-        driverId: _selectedDriverId!,
-      ));
-      appBarCornerColorLeft = detailAsync.whenOrNull(
-        data: (detail) => _getTeamColor(detail.driver.teamColour),
-      );
-    }
-
     return Scaffold(
       appBar: F1AppBar(
         title: 'Drivers',
-        gradient: F1Gradients.main,
-        cornerBackgroundColor: F1Colors.navy,
-        cornerBackgroundColorLeft: appBarCornerColorLeft,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
@@ -121,7 +95,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
           // Divider
           Container(
             width: 1,
-            color: F1Colors.ciano.withValues(alpha: 0.3),
+            color: F1Colors.border,
           ),
 
           // Drivers grid on the right
@@ -200,7 +174,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
       loading: () => const Center(
         child: F1LoadingWidget(
           size: 50,
-          color: F1Colors.ciano,
+          color: F1Colors.textSecondary,
           message: 'Loading drivers...',
         ),
       ),
@@ -227,7 +201,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
           color: F1Colors.navy,
           border: Border(
             bottom: BorderSide(
-              color: F1Colors.ciano.withValues(alpha: 0.3),
+              color: F1Colors.border,
               width: 1,
             ),
           ),
@@ -250,7 +224,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                   hintStyle: F1TextStyles.bodySmall.copyWith(
                     color: F1Colors.textSecondary,
                   ),
-                  prefixIcon: const Icon(Icons.search, color: F1Colors.ciano, size: 20),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white, size: 20),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                   filled: true,
                   fillColor: F1Colors.navyDeep,
@@ -299,7 +273,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
         color: F1Colors.navy,
         border: Border(
           bottom: BorderSide(
-            color: F1Colors.ciano.withValues(alpha: 0.3),
+            color: F1Colors.border,
             width: 1,
           ),
         ),
@@ -321,7 +295,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
               ),
               prefixIcon: const Icon(
                 Icons.search,
-                color: F1Colors.ciano,
+                color: Colors.white,
               ),
               suffixIcon: filterState.searchQuery.isNotEmpty
                   ? IconButton(
@@ -337,20 +311,20 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
               fillColor: F1Colors.navyDeep,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: F1Colors.ciano.withValues(alpha: 0.3),
+                borderSide: const BorderSide(
+                  color: F1Colors.border,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: F1Colors.ciano.withValues(alpha: 0.3),
+                borderSide: const BorderSide(
+                  color: F1Colors.border,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: F1Colors.ciano,
+                  color: Colors.white,
                   width: 2,
                 ),
               ),
@@ -377,7 +351,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                             .read(driverFilterNotifierProvider.notifier)
                             .setSelectedTeam(null);
                       },
-                      selectedColor: F1Colors.ciano,
+                      selectedColor: F1Colors.vermelho,
                       checkmarkColor: Colors.white,
                     ),
                   ),
@@ -394,7 +368,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
                               .read(driverFilterNotifierProvider.notifier)
                               .setSelectedTeam(selected ? team : null);
                         },
-                        selectedColor: F1Colors.ciano,
+                        selectedColor: F1Colors.vermelho,
                         checkmarkColor: Colors.white,
                       ),
                     );
@@ -413,12 +387,13 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? F1Colors.ciano : F1Colors.navyDeep,
+            color: selected ? F1Colors.vermelho : F1Colors.navyDeep,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? F1Colors.ciano : F1Colors.ciano.withValues(alpha: 0.3),
+              color: selected ? F1Colors.vermelho : F1Colors.border,
             ),
           ),
           child: Text(
@@ -532,7 +507,7 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
         borderRadius: BorderRadius.circular(isLandscapeCompact ? 10 : 16),
         color: F1Colors.navy.withValues(alpha: 0.5),
         border: Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.2),
+          color: F1Colors.border,
           width: 1,
           strokeAlign: BorderSide.strokeAlignInside,
         ),
@@ -543,14 +518,14 @@ class _DriversListScreenState extends ConsumerState<DriversListScreen> {
           children: [
             Icon(
               Icons.add_circle_outline,
-              color: F1Colors.ciano.withValues(alpha: 0.3),
+              color: F1Colors.textSecondary.withValues(alpha: 0.3),
               size: isLandscapeCompact ? 24 : 32,
             ),
             const SizedBox(height: 4),
             Text(
               '2026',
               style: F1TextStyles.bodySmall.copyWith(
-                color: F1Colors.ciano.withValues(alpha: 0.3),
+                color: F1Colors.textSecondary.withValues(alpha: 0.3),
                 fontSize: isLandscapeCompact ? 10 : 12,
               ),
             ),

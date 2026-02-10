@@ -87,6 +87,13 @@ class DriverProfileHeader extends StatelessWidget {
     return const [0.0, 1.0];
   }
 
+  /// Returns a contrasting text color (white or dark) based on background luminance
+  Color _contrastingTextColor(Color background) {
+    return background.computeLuminance() > 0.5
+        ? F1Colors.navyDeep
+        : Colors.white;
+  }
+
   @override
   Widget build(BuildContext context) {
     final teamColor = _getTeamColor();
@@ -189,7 +196,7 @@ class DriverProfileHeader extends StatelessWidget {
                     driver.driverNumber.toString(),
                     style: F1TextStyles.driverNumber.copyWith(
                       fontSize: 32,
-                      color: Colors.white,
+                      color: _contrastingTextColor(teamColor),
                     ),
                   ),
                 ),
@@ -318,7 +325,7 @@ class DriverProfileHeader extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: teamColor,
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
@@ -332,7 +339,7 @@ class DriverProfileHeader extends StatelessWidget {
                       driver.driverNumber.toString(),
                       style: F1TextStyles.driverNumber.copyWith(
                         fontSize: 28,
-                        color: teamColor,
+                        color: _contrastingTextColor(teamColor),
                       ),
                     ),
                   ),
@@ -501,7 +508,7 @@ class DriverProfileHeader extends StatelessWidget {
                     driver.driverNumber.toString(),
                     style: F1TextStyles.driverNumber.copyWith(
                       fontSize: 36,
-                      color: Colors.white,
+                      color: _contrastingTextColor(teamColor),
                     ),
                   ),
                 ),
@@ -703,7 +710,9 @@ class DriverProfileHeaderCompact extends StatelessWidget {
                 driver.driverNumber.toString(),
                 style: F1TextStyles.driverNumber.copyWith(
                   fontSize: 28,
-                  color: Colors.white,
+                  color: teamColor.computeLuminance() > 0.5
+                      ? F1Colors.navyDeep
+                      : Colors.white,
                 ),
               ),
             ),

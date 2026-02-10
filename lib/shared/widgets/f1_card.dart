@@ -176,13 +176,13 @@ class F1Card extends StatelessWidget {
     switch (variant) {
       case F1CardVariant.primary:
         return Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.3),
-          width: 1.5,
+          color: F1Colors.border,
+          width: 1,
         );
       case F1CardVariant.outlined:
         return Border.all(
-          color: F1Colors.ciano.withValues(alpha: 0.5),
-          width: 1.5,
+          color: F1Colors.border,
+          width: 1,
         );
       case F1CardVariant.gradient:
       case F1CardVariant.elevated:
@@ -196,8 +196,8 @@ class F1Card extends StatelessWidget {
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        F1Colors.ciano.withValues(alpha: 0.5),
-        F1Colors.roxo.withValues(alpha: 0.5),
+        F1Colors.border,
+        F1Colors.border.withValues(alpha: 0.6),
       ],
     );
   }
@@ -208,12 +208,12 @@ class F1Card extends StatelessWidget {
       case F1CardVariant.elevated:
         return [
           BoxShadow(
-            color: F1Colors.ciano.withValues(alpha: 0.15),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: F1Colors.roxo.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -222,7 +222,7 @@ class F1Card extends StatelessWidget {
       case F1CardVariant.gradient:
         return [
           BoxShadow(
-            color: F1Colors.ciano.withValues(alpha: 0.1),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

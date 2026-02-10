@@ -62,7 +62,7 @@ class _F1WheelLoadingState extends State<F1WheelLoading>
           errorWidget: (context, url, error) => Icon(
             Icons.circle_outlined,
             size: widget.size,
-            color: widget.color ?? F1Colors.ciano,
+            color: widget.color ?? F1Colors.textSecondary,
           ),
         ),
       ),

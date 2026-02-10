@@ -13,7 +13,7 @@ class LapTimesChart extends StatelessWidget {
   const LapTimesChart({
     super.key,
     required this.laps,
-    this.lineColor = F1Colors.ciano,
+    this.lineColor = F1Colors.textSecondary,
     this.fastestLap,
   });
 

@@ -48,7 +48,7 @@ class DriverCareerRepositoryImpl implements DriverCareerRepository {
 
     _logger.i('[CareerRepo] Fetching from API for $driverId');
 
-    // Fetch from API
+    // Fetch from API (legacy — all calls)
     try {
       final career = await _remoteDataSource.getDriverCareer(driverId);
 
@@ -74,6 +74,66 @@ class DriverCareerRepositoryImpl implements DriverCareerRepository {
       } else {
         _logger.w('[CareerRepo] API returned null for $driverId');
       }
+
+      return career;
+    } catch (e, stack) {
+      _logger.e('[CareerRepo] Error fetching career for $driverId: $e');
+      _logger.e('[CareerRepo] Stack: $stack');
+      return null;
+    }
+  }
+
+  @override
+  Future<DriverCareer?> getDriverCareerOptimized(
+    String driverId, {
+    required int wins,
+    required int podiums,
+    required int totalRaces,
+  }) async {
+    final cacheKey = '$_cacheKeyPrefix$driverId';
+    _logger.i('[CareerRepo] Getting career (optimized) for $driverId');
+
+    // Try cache first
+    try {
+      final cached = await _cacheService.get<Map<String, dynamic>>(cacheKey);
+      if (cached != null) {
+        final cachedCareer = _deserializeCareer(cached);
+        final looksRateLimited = cachedCareer.totalRaces > 100 &&
+            cachedCareer.wins == 0 &&
+            cachedCareer.poles == 0;
+        if (looksRateLimited) {
+          await _cacheService.invalidate(cacheKey);
+        } else {
+          _logger.i('[Cache] HIT for driver career: $driverId');
+          return cachedCareer;
+        }
+      }
+    } catch (e) {
+      _logger.w('[Cache] Error reading cache for $driverId: $e');
+    }
+
+    // Fetch from API (optimized — only poles, seasons, standings, championships)
+    try {
+      final career = await _remoteDataSource.getDriverCareerOptimized(
+        driverId: driverId,
+        wins: wins,
+        podiums: podiums,
+        totalRaces: totalRaces,
+      );
+
+      if (career != null) {
+        try {
+          await _cacheService.set(
+            cacheKey,
+            _serializeCareer(career),
+            JolpicaConstants.cacheTTL,
+          );
+          _logger.i('[Cache] Stored career for $driverId');
+        } catch (e) {
+          _logger.w('[Cache] Error storing cache for $driverId: $e');
+        }
+
+}
 
       return career;
     } catch (e, stack) {

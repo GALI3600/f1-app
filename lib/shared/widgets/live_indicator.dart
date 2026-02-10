@@ -344,7 +344,7 @@ class SessionStatusIndicator extends StatelessWidget {
       case SessionStatus.upcoming:
         return _SessionStatusConfig(
           label: 'UPCOMING',
-          color: F1Colors.ciano,
+          color: F1Colors.textSecondary,
         );
       case SessionStatus.finished:
         return _SessionStatusConfig(

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/theme/f1_text_styles.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:f1sync/core/constants/app_constants.dart';
 import 'package:f1sync/features/home/presentation/providers/current_gp_provider.dart';
 import 'package:f1sync/features/home/presentation/providers/current_session_provider.dart';
@@ -36,32 +35,16 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       // Gradient AppBar using F1 colors
       appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: 56,
-        title: const Center(
-          child: F1Logo(
-            size: 48,
-            color: Colors.white,
-            strokeWidth: 2.5,
-          ),
+        centerTitle: false,
+        toolbarHeight: 72,
+        title: const F1Logo(
+          size: 64,
+          color: Colors.white,
         ),
-        flexibleSpace: Container(
-          color: F1Colors.navy,
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: F1Gradients.main,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-            ),
-          ),
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
+        backgroundColor: F1Colors.navyDeep,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: F1Colors.border),
         ),
         actions: [
           // Live indicator (if session is active)
@@ -92,7 +75,7 @@ class HomeScreen extends ConsumerWidget {
             ref.refresh(currentStandingsProvider.future),
           ]);
         },
-        color: F1Colors.ciano,
+        color: F1Colors.vermelho,
         backgroundColor: F1Colors.navy,
         child: OrientationBuilder(
           builder: (context, orientation) {
@@ -227,7 +210,7 @@ class HomeScreen extends ConsumerWidget {
         // Divider
         Container(
           width: 1,
-          color: F1Colors.ciano.withValues(alpha: 0.3),
+          color: F1Colors.border,
         ),
 
         // Right panel - Navigation Grid

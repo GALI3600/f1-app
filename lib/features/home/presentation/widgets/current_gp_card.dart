@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
 import 'package:f1sync/core/theme/f1_text_styles.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:f1sync/features/meetings/data/models/meeting.dart';
 import 'package:f1sync/shared/widgets/f1_card.dart';
 import 'package:intl/intl.dart';
@@ -47,10 +46,7 @@ class CurrentGPCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // "NEXT GP" label with gradient
-                    ShaderMask(
-                      shaderCallback: (bounds) =>
-                          F1Gradients.cianRoxo.createShader(bounds),
-                      child: Text(
+                    Text(
                         '🏁 NEXT GP',
                         style: F1TextStyles.labelLarge.copyWith(
                           color: Colors.white,
@@ -58,7 +54,6 @@ class CurrentGPCard extends StatelessWidget {
                           letterSpacing: 1.5,
                         ),
                       ),
-                    ),
                     const SizedBox(height: 4),
                     // GP Name
                     Text(
@@ -79,12 +74,7 @@ class CurrentGPCard extends StatelessWidget {
           Container(
             height: 1,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  F1Colors.ciano.withValues(alpha: 0.3),
-                  F1Colors.roxo.withValues(alpha: 0.3),
-                ],
-              ),
+              color: F1Colors.border,
             ),
           ),
           const SizedBox(height: 16),
@@ -94,7 +84,7 @@ class CurrentGPCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.location_on_rounded,
-                color: F1Colors.ciano,
+                color: F1Colors.textSecondary,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -127,7 +117,7 @@ class CurrentGPCard extends StatelessWidget {
             children: [
               Icon(
                 Icons.calendar_today_rounded,
-                color: F1Colors.roxo,
+                color: F1Colors.textSecondary,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -144,7 +134,7 @@ class CurrentGPCard extends StatelessWidget {
                     Text(
                       _getTimeUntil(meeting.dateStart),
                       style: F1TextStyles.bodySmall.copyWith(
-                        color: F1Colors.ciano,
+                        color: F1Colors.textSecondary,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -154,28 +144,7 @@ class CurrentGPCard extends StatelessWidget {
             ],
           ),
 
-          // Optional "View Details" button
-          if (onTap != null) ...[
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  'View Details',
-                  style: F1TextStyles.labelMedium.copyWith(
-                    color: F1Colors.ciano,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: F1Colors.ciano,
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
+
         ],
       ),
     );

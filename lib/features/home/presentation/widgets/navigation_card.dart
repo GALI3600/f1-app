@@ -54,7 +54,7 @@ class NavigationGrid extends StatelessWidget {
             EnhancedNavigationCard(
               label: 'Grand Prix',
               subtitle: 'Race Calendar & Results',
-              accentColor: F1Colors.ciano,
+              accentColor: F1Colors.vermelho,
               route: '/meetings',
               imageUrl: 'https://www.f1-fansite.com/wp-content/uploads/2023/08/230032-scuderia-ferrari-belgian-gp-saturday_c640df81-ef4d-4701-a69c-8cd83cfe06d1-624x367.jpg',
               onTap: onNavigate,
@@ -62,7 +62,7 @@ class NavigationGrid extends StatelessWidget {
             EnhancedNavigationCard(
               label: 'Drivers',
               subtitle: 'Stats & Performance',
-              accentColor: F1Colors.roxo,
+              accentColor: F1Colors.vermelho,
               route: '/drivers',
               imageUrl: 'https://images.alphacoders.com/208/thumb-1920-208273.jpg',
               onTap: onNavigate,

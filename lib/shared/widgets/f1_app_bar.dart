@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:f1sync/core/theme/f1_colors.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 
-/// F1-themed AppBar with gradient background
+/// F1-themed AppBar with flat dark background
 ///
-/// A customizable app bar following the F1 design system with gradient
-/// background and consistent styling.
+/// A customizable app bar following the minimalist F1 design system.
 ///
 /// Usage:
 /// ```dart
@@ -32,16 +30,16 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Height of the app bar (defaults to 56px)
   final double height;
 
-  /// Custom gradient (overrides default cyan → purple)
+  /// Custom gradient (ignored — kept for API compat)
   final Gradient? gradient;
 
   /// Whether to show a bottom border
   final bool showBottomBorder;
 
-  /// Background color behind rounded corners (defaults to navy for drawer consistency)
+  /// Background color behind rounded corners (ignored — kept for API compat)
   final Color? cornerBackgroundColor;
 
-  /// Background color for left corner only (overrides cornerBackgroundColor for left side)
+  /// Background color for left corner only (ignored — kept for API compat)
   final Color? cornerBackgroundColorLeft;
 
   const F1AppBar({
@@ -60,45 +58,12 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultCornerColor = cornerBackgroundColor ?? F1Colors.navy;
-    final leftCornerColor = cornerBackgroundColorLeft ?? defaultCornerColor;
-    final rightCornerColor = defaultCornerColor;
-
-    return Stack(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Background layer with split colors for corners
-        SizedBox(
-          height: height,
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(color: leftCornerColor),
-              ),
-              Expanded(
-                child: Container(color: rightCornerColor),
-              ),
-            ],
-          ),
-        ),
-        // Foreground layer with gradient and rounded corners
         Container(
           height: height,
-          decoration: BoxDecoration(
-            gradient: gradient ?? F1Gradients.cianRoxo,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(20),
-              bottomRight: Radius.circular(20),
-            ),
-            border: showBottomBorder
-                ? Border(
-                    bottom: BorderSide(
-                      color: F1Colors.ciano.withValues(alpha: 0.3),
-                      width: 1,
-                    ),
-                  )
-                : null,
-          ),
-          clipBehavior: Clip.antiAlias,
+          color: F1Colors.navyDeep,
           child: AppBar(
             title: titleWidget ?? (title != null ? Text(title!) : null),
             leading: leading,
@@ -114,21 +79,26 @@ class F1AppBar extends StatelessWidget implements PreferredSizeWidget {
               fontSize: 20,
               fontWeight: FontWeight.w700,
               color: F1Colors.textPrimary,
+              fontFamily: 'Formula1',
               letterSpacing: 0.5,
             ),
           ),
+        ),
+        Container(
+          height: 1,
+          color: F1Colors.border,
         ),
       ],
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(height);
+  Size get preferredSize => Size.fromHeight(height + 1);
 }
 
-/// F1-themed SliverAppBar with gradient background
+/// F1-themed SliverAppBar with flat dark background
 ///
-/// A scrollable app bar with gradient background following the F1 design system.
+/// A scrollable app bar following the minimalist F1 design system.
 ///
 /// Usage:
 /// ```dart
@@ -166,7 +136,7 @@ class F1SliverAppBar extends StatelessWidget {
   /// Whether the app bar is floating
   final bool floating;
 
-  /// Custom gradient (overrides default cyan → purple)
+  /// Custom gradient (ignored — kept for API compat)
   final Gradient? gradient;
 
   /// Optional flexible space widget
@@ -196,7 +166,7 @@ class F1SliverAppBar extends StatelessWidget {
       expandedHeight: expandedHeight,
       pinned: pinned,
       floating: floating,
-      backgroundColor: Colors.transparent,
+      backgroundColor: F1Colors.navyDeep,
       elevation: 0,
       foregroundColor: F1Colors.textPrimary,
       iconTheme: const IconThemeData(
@@ -208,14 +178,14 @@ class F1SliverAppBar extends StatelessWidget {
         color: F1Colors.textPrimary,
         letterSpacing: 0.5,
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: gradient ?? F1Gradients.cianRoxo,
-          ),
-          child: flexibleSpace,
-        ),
-      ),
+      flexibleSpace: flexibleSpace != null
+          ? FlexibleSpaceBar(
+              background: Container(
+                color: F1Colors.navyDeep,
+                child: flexibleSpace,
+              ),
+            )
+          : null,
     );
   }
 }

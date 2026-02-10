@@ -35,8 +35,24 @@ class ConstructorStanding with _$ConstructorStanding {
     );
   }
 
-  factory ConstructorStanding.fromJson(Map<String, dynamic> json) =>
-      ConstructorStanding.fromJolpica(json);
+  /// Create from JSON — handles both Jolpica API format and flat toJson format
+  factory ConstructorStanding.fromJson(Map<String, dynamic> json) {
+    // Jolpica API format has nested 'Constructor' key
+    if (json.containsKey('Constructor')) {
+      return ConstructorStanding.fromJolpica(json);
+    }
+    // Flat format from toJson() / cache
+    final constructorId = json['constructorId'] as String? ?? '';
+    return ConstructorStanding(
+      position: (json['position'] as num?)?.toInt() ?? 0,
+      points: (json['points'] as num?)?.toDouble() ?? 0.0,
+      wins: (json['wins'] as num?)?.toInt() ?? 0,
+      constructorId: constructorId,
+      name: json['name'] as String? ?? '',
+      nationality: json['nationality'] as String? ?? '',
+      teamColour: json['teamColour'] as String? ?? _getConstructorColour(constructorId),
+    );
+  }
 
   Map<String, dynamic> toJson() => _$ConstructorStandingToJson(this);
 }

@@ -1,13 +1,15 @@
-import 'package:f1sync/core/theme/f1_gradients.dart';
+import 'package:f1sync/core/theme/f1_colors.dart';
+import 'package:f1sync/core/theme/f1_text_styles.dart';
 import 'package:f1sync/features/meetings/data/models/meeting.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// GP Header Card Widget
 /// Detail screen header displaying:
-/// - Large country flag/code
-/// - Official name, circuit, dates
-/// - Gradient background
+/// - Large country flag emoji
+/// - Official name, round, circuit, dates
+/// - Sprint weekend badge
+/// - Gradient background with vermelho accents
 class GPHeaderCard extends StatelessWidget {
   final Meeting meeting;
 
@@ -20,162 +22,204 @@ class GPHeaderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
       decoration: BoxDecoration(
-        gradient: F1Gradients.main,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
-        ),
+        color: F1Colors.navy,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: F1Colors.border, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.black.withValues(alpha: 0.3),
-              Colors.black.withValues(alpha: 0.7),
-            ],
-          ),
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(24),
-            bottomRight: Radius.circular(24),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 48, 24, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Country Flag/Code (Large)
-              _buildCountryBadge(),
-
-              const SizedBox(height: 24),
-
-              // Meeting Official Name
-              Text(
-                meeting.meetingOfficialName,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  height: 1.2,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Location and Circuit
-              Row(
-                children: [
-                  const Icon(
-                    Icons.location_on,
-                    size: 20,
-                    color: Colors.white70,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top section: flag + round + sprint badge
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Flag circle
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: F1Colors.navyLight.withValues(alpha: 0.6),
+                    border: Border.all(
+                      color: F1Colors.border,
+                      width: 2,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
+                  child: Center(
                     child: Text(
-                      '${meeting.location}, ${meeting.countryName}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
-                      ),
+                      _getFlagEmoji(meeting.countryCode),
+                      style: const TextStyle(fontSize: 34),
                     ),
                   ),
-                ],
-              ),
+                ),
 
-              const SizedBox(height: 8),
+                const SizedBox(width: 16),
 
-              // Circuit Name
-              Row(
-                children: [
-                  const Icon(
-                    Icons.sports_score,
-                    size: 20,
-                    color: Colors.white70,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      meeting.circuitShortName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
+                // Name + country
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Meeting name
+                      Text(
+                        meeting.meetingName,
+                        style: F1TextStyles.headlineLarge.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 16),
+                      const SizedBox(height: 6),
 
-              // Date
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.calendar_today,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatDateRange(meeting.dateStart),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                      // Country name
+                      Text(
+                        meeting.countryName,
+                        style: F1TextStyles.bodyMedium.copyWith(
+                          color: F1Colors.textSecondary,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+
+          const SizedBox(height: 16),
+
+          // Divider
+          Container(
+            height: 1,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            color: F1Colors.border,
+          ),
+
+          const SizedBox(height: 14),
+
+          // Info row: round, circuit, date
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
+            child: Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              children: [
+                // Round badge
+                _buildChip(
+                  icon: Icons.tag_rounded,
+                  label: 'Round ${meeting.meetingKey}',
+                  color: F1Colors.vermelho,
+                ),
+
+                // Circuit
+                _buildChip(
+                  icon: Icons.sports_score_rounded,
+                  label: meeting.circuitShortName,
+                  color: F1Colors.textSecondary,
+                ),
+
+                // Date
+                _buildChip(
+                  icon: Icons.calendar_today_rounded,
+                  label: _formatDateRange(meeting.dateStart),
+                  color: F1Colors.textSecondary,
+                ),
+
+                // Location
+                _buildChip(
+                  icon: Icons.location_on_rounded,
+                  label: meeting.location,
+                  color: F1Colors.textSecondary,
+                ),
+
+                // Sprint badge
+                if (meeting.isSprintWeekend)
+                  _buildChip(
+                    icon: Icons.bolt_rounded,
+                    label: 'Sprint Weekend',
+                    color: F1Colors.dourado,
+                    filled: true,
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildCountryBadge() {
+  Widget _buildChip({
+    required IconData icon,
+    required String label,
+    required Color color,
+    bool filled = false,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
-          width: 2,
-        ),
+        color: filled
+            ? color.withValues(alpha: 0.15)
+            : F1Colors.navyLight.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(8),
+        border: filled
+            ? Border.all(color: color.withValues(alpha: 0.4), width: 0.5)
+            : null,
       ),
-      child: Text(
-        meeting.countryCode,
-        style: const TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w900,
-          color: Colors.white,
-          letterSpacing: 2,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: F1TextStyles.labelSmall.copyWith(
+              color: color,
+              fontWeight: filled ? FontWeight.w700 : FontWeight.w500,
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  String _getFlagEmoji(String countryCode) {
+    var code = countryCode.toUpperCase();
+    if (code.length == 3) {
+      code = _countryCodeMap[code] ?? code.substring(0, 2);
+    }
+    if (code.length != 2) return '\u{1F3C1}';
+    final firstChar = code.codeUnitAt(0) + 127397;
+    final secondChar = code.codeUnitAt(1) + 127397;
+    return String.fromCharCodes([firstChar, secondChar]);
+  }
+
+  static const _countryCodeMap = {
+    'ARG': 'AR', 'AUS': 'AU', 'AUT': 'AT', 'BEL': 'BE', 'BRA': 'BR',
+    'CAN': 'CA', 'CHN': 'CN', 'COL': 'CO', 'DEN': 'DK', 'FIN': 'FI',
+    'FRA': 'FR', 'GBR': 'GB', 'GER': 'DE', 'HUN': 'HU', 'IND': 'IN',
+    'IRL': 'IE', 'ITA': 'IT', 'JPN': 'JP', 'MEX': 'MX', 'MON': 'MC',
+    'NED': 'NL', 'NZL': 'NZ', 'POL': 'PL', 'POR': 'PT', 'RSA': 'ZA',
+    'RUS': 'RU', 'ESP': 'ES', 'SUI': 'CH', 'SWE': 'SE', 'THA': 'TH',
+    'UAE': 'AE', 'USA': 'US', 'VEN': 'VE', 'SGP': 'SG', 'QAT': 'QA',
+    'SAU': 'SA', 'BHR': 'BH', 'AZE': 'AZ',
+  };
 
   String _formatDateRange(DateTime date) {
-    // Format: "Nov 24-26, 2023"
-    // For now, showing single date - could be extended to show weekend range
-    return DateFormat('MMM dd, yyyy').format(date);
+    return DateFormat('dd MMM yyyy').format(date);
   }
 }

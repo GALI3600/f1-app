@@ -220,7 +220,7 @@ class F1ErrorWidget extends StatelessWidget {
                     icon: const Icon(Icons.refresh_rounded),
                     label: Text(retryText),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: F1Colors.ciano,
+                      backgroundColor: Colors.white,
                       foregroundColor: F1Colors.navyDeep,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -290,7 +290,7 @@ class F1CompactErrorWidget extends StatelessWidget {
             IconButton(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              color: F1Colors.ciano,
+              color: Colors.white,
               iconSize: 20,
             ),
           ],

@@ -1,5 +1,4 @@
 import 'package:f1sync/core/theme/f1_colors.dart';
-import 'package:f1sync/core/theme/f1_gradients.dart';
 import 'package:flutter/material.dart';
 
 /// Year Selector Widget
@@ -81,11 +80,11 @@ class _SelectedChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          gradient: F1Gradients.cianRoxo,
+          color: F1Colors.vermelho,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: F1Colors.ciano.withValues(alpha: 0.3),
+              color: F1Colors.vermelho.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -125,7 +124,7 @@ class _UnselectedChip extends StatelessWidget {
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: F1Colors.ciano.withValues(alpha: 0.5),
+            color: F1Colors.border,
             width: 1.5,
           ),
         ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../../../../core/constants/jolpica_constants.dart';
@@ -12,27 +13,33 @@ class DriverCareerRemoteDataSource {
   DriverCareerRemoteDataSource(this._dio);
 
   /// Delay between API calls to avoid rate limiting
-  static const _requestDelay = Duration(milliseconds: 500);
+  /// Queue already serializes requests; this is extra safety margin
+  static const _requestDelay = Duration(milliseconds: 300);
 
   /// Max retries for 429 errors
   static const _maxRetries = 3;
 
-  /// Make a request with retry logic for 429 errors
+  /// Global queue to serialize all API requests and avoid 429 floods
+  static final _requestQueue = _RequestQueue();
+
+  /// Make a request with retry logic for 429 errors, serialized via global queue
   Future<Response<dynamic>> _requestWithRetry(String url, {Map<String, dynamic>? queryParameters}) async {
-    for (int attempt = 0; attempt < _maxRetries; attempt++) {
-      try {
-        return await _dio.get(url, queryParameters: queryParameters);
-      } on DioException catch (e) {
-        if (e.response?.statusCode == 429 && attempt < _maxRetries - 1) {
-          final waitTime = Duration(seconds: 2 * (attempt + 1));
-          _logger.w('[RateLimit] 429 received, waiting ${waitTime.inSeconds}s before retry ${attempt + 1}/$_maxRetries');
-          await Future.delayed(waitTime);
-        } else {
-          rethrow;
+    return _requestQueue.enqueue(() async {
+      for (int attempt = 0; attempt < _maxRetries; attempt++) {
+        try {
+          return await _dio.get(url, queryParameters: queryParameters);
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 429 && attempt < _maxRetries - 1) {
+            final waitTime = Duration(seconds: 3 * (attempt + 1));
+            _logger.w('[RateLimit] 429 received, waiting ${waitTime.inSeconds}s before retry ${attempt + 1}/$_maxRetries');
+            await Future.delayed(waitTime);
+          } else {
+            rethrow;
+          }
         }
       }
-    }
-    throw Exception('Max retries exceeded');
+      throw Exception('Max retries exceeded');
+    });
   }
 
   /// Fetch career stats that can't be calculated from race history
@@ -307,5 +314,28 @@ class DriverCareerRemoteDataSource {
     } catch (e) {
       return 0;
     }
+  }
+}
+
+/// Simple FIFO queue that serializes async operations to prevent concurrent API floods
+class _RequestQueue {
+  Future<void> _last = Future.value();
+
+  Future<T> enqueue<T>(Future<T> Function() task) {
+    final completer = Completer<T>();
+    final previous = _last;
+    _last = completer.future.catchError((_) {});
+
+    () async {
+      await previous;
+      try {
+        final result = await task();
+        completer.complete(result);
+      } catch (e, s) {
+        completer.completeError(e, s);
+      }
+    }();
+
+    return completer.future;
   }
 }

@@ -106,7 +106,7 @@ class TeamColorStrip extends StatelessWidget {
       return Color(int.parse('FF$cleanHex', radix: 16));
     } catch (e) {
       // Fallback to cyan if parsing fails
-      return F1Colors.ciano;
+      return F1Colors.textSecondary;
     }
   }
 }
@@ -197,7 +197,7 @@ class HorizontalTeamColorStrip extends StatelessWidget {
       return Color(int.parse('FF$cleanHex', radix: 16));
     } catch (e) {
       // Fallback to cyan if parsing fails
-      return F1Colors.ciano;
+      return F1Colors.textSecondary;
     }
   }
 }
@@ -259,7 +259,7 @@ class TeamColorCard extends StatelessWidget {
         boxShadow: showShadow
             ? [
                 BoxShadow(
-                  color: F1Colors.ciano.withValues(alpha: 0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -349,7 +349,7 @@ class TeamColorDivider extends StatelessWidget {
       return Color(int.parse('FF$cleanHex', radix: 16));
     } catch (e) {
       // Fallback to cyan if parsing fails
-      return F1Colors.ciano;
+      return F1Colors.textSecondary;
     }
   }
 }

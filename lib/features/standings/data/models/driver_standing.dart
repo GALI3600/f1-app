@@ -52,8 +52,28 @@ class DriverStanding with _$DriverStanding {
     );
   }
 
-  factory DriverStanding.fromJson(Map<String, dynamic> json) =>
-      DriverStanding.fromJolpica(json);
+  /// Create from JSON — handles both Jolpica API format and flat toJson format
+  factory DriverStanding.fromJson(Map<String, dynamic> json) {
+    // Jolpica API format has nested 'Driver' key
+    if (json.containsKey('Driver')) {
+      return DriverStanding.fromJolpica(json);
+    }
+    // Flat format from toJson() / cache
+    return DriverStanding(
+      position: (json['position'] as num?)?.toInt() ?? 0,
+      points: (json['points'] as num?)?.toDouble() ?? 0.0,
+      wins: (json['wins'] as num?)?.toInt() ?? 0,
+      driverId: json['driverId'] as String? ?? '',
+      driverCode: json['driverCode'] as String? ?? '',
+      givenName: json['givenName'] as String? ?? '',
+      familyName: json['familyName'] as String? ?? '',
+      nationality: json['nationality'] as String? ?? '',
+      constructorId: json['constructorId'] as String? ?? '',
+      constructorName: json['constructorName'] as String? ?? '',
+      teamColour: json['teamColour'] as String?,
+      headshotUrl: json['headshotUrl'] as String?,
+    );
+  }
 
   Map<String, dynamic> toJson() => _$DriverStandingToJson(this);
 

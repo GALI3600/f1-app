@@ -5,6 +5,7 @@ import '../../../../core/constants/jolpica_constants.dart';
 import '../../../../shared/services/providers.dart';
 import '../../data/datasources/driver_career_remote_data_source.dart';
 import '../../data/models/driver_career.dart';
+import '../../data/models/driver_race_result.dart';
 import '../../data/repositories/driver_career_repository_impl.dart';
 import '../../domain/repositories/driver_career_repository.dart';
 import 'driver_race_history_provider.dart';
@@ -50,52 +51,41 @@ DriverCareerRepository driverCareerRepository(DriverCareerRepositoryRef ref) {
 class DriverCareerNotifier extends _$DriverCareerNotifier {
   @override
   Future<DriverCareer?> build({required String driverId}) async {
-    _logger.i('[CareerProvider] Starting optimized fetch for $driverId');
+    _logger.i('[CareerProvider] Starting fetch for $driverId');
 
     try {
-      // First, get race history (may already be cached/loaded by UI)
-      final raceHistoryAsync = ref.watch(driverRaceHistoryNotifierProvider(driverId: driverId));
+      final repository = ref.read(driverCareerRepositoryProvider);
 
-      // Wait for race history to load
-      final raceHistory = await raceHistoryAsync.when(
-        data: (data) async => data,
-        loading: () async {
-          // If still loading, wait for it
-          _logger.d('[CareerProvider] Waiting for race history to load...');
-          return await ref.read(driverRaceHistoryNotifierProvider(driverId: driverId).future);
-        },
-        error: (e, _) async {
-          _logger.w('[CareerProvider] Race history failed, will use legacy fetch: $e');
-          return null;
-        },
-      );
-
-      final dataSource = ref.watch(driverCareerRemoteDataSourceProvider);
+      // Try optimized path: use race history to skip wins/podiums/races API calls
+      List<DriverRaceResult>? raceHistory;
+      try {
+        raceHistory = await ref.read(
+          driverRaceHistoryNotifierProvider(driverId: driverId).future,
+        );
+      } catch (e) {
+        _logger.w('[CareerProvider] Race history unavailable: $e');
+      }
 
       DriverCareer? career;
 
       if (raceHistory != null && raceHistory.isNotEmpty) {
-        // Calculate stats from race history (no extra API calls!)
+        // Optimized: calculate stats from history → only ~5 API calls
         final stats = DriverRaceStats.fromResults(raceHistory);
-        _logger.i('[CareerProvider] Calculated from history: wins=${stats.wins}, podiums=${stats.podiums}, races=${stats.totalRaces}');
-
-        // Use optimized method - only fetches poles, seasons, standings, championships
-        career = await dataSource.getDriverCareerOptimized(
-          driverId: driverId,
+        _logger.i('[CareerProvider] Using optimized path: wins=${stats.wins}, podiums=${stats.podiums}, races=${stats.totalRaces}');
+        career = await repository.getDriverCareerOptimized(
+          driverId,
           wins: stats.wins,
           podiums: stats.podiums,
           totalRaces: stats.totalRaces,
         );
       } else {
-        // Fallback: use legacy method if race history not available
-        _logger.w('[CareerProvider] No race history, using legacy fetch');
-        career = await dataSource.getDriverCareer(driverId);
+        // Fallback: legacy path (~12 API calls)
+        _logger.w('[CareerProvider] No race history, using legacy path');
+        career = await repository.getDriverCareer(driverId);
       }
 
       if (career != null) {
         _logger.i('[CareerProvider] Career loaded: ${career.fullName} - ${career.wins} wins, ${career.championships} titles');
-      } else {
-        _logger.w('[CareerProvider] No career data found for $driverId');
       }
 
       return career;
