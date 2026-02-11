@@ -56,8 +56,7 @@ class DriverCard extends StatelessWidget {
   }
 
   /// Get driver-specific identification bar color
-  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad, Piastri
-  /// Yellow bar for everyone else
+  /// Black bar for specific drivers per team, yellow for their teammates
   Color _getDriverBarColor() {
     // Use driverId for reliable identification
     const blackBarDrivers = {
@@ -66,6 +65,12 @@ class DriverCard extends StatelessWidget {
       'max_verstappen', // Red Bull
       'lindblad',       // Racing Bulls
       'piastri',        // McLaren
+      'albon',          // Williams
+      'hulkenberg',     // Audi
+      'stroll',         // Aston Martin
+      'gasly',          // Alpine
+      'perez',          // Cadillac
+      'ocon',           // Haas
     };
 
     if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {
@@ -656,8 +661,7 @@ class DriverCardCompact extends StatelessWidget {
   }
 
   /// Get driver-specific identification bar color
-  /// Black bar for: Leclerc, Russell, Verstappen, Lindblad, Piastri
-  /// Yellow bar for everyone else
+  /// Black bar for specific drivers per team, yellow for their teammates
   Color _getDriverBarColor() {
     const blackBarDrivers = {
       'leclerc',        // Ferrari
@@ -665,6 +669,12 @@ class DriverCardCompact extends StatelessWidget {
       'max_verstappen', // Red Bull
       'lindblad',       // Racing Bulls
       'piastri',        // McLaren
+      'albon',          // Williams
+      'hulkenberg',     // Audi
+      'stroll',         // Aston Martin
+      'gasly',          // Alpine
+      'perez',          // Cadillac
+      'ocon',           // Haas
     };
 
     if (driver.driverId != null && blackBarDrivers.contains(driver.driverId)) {

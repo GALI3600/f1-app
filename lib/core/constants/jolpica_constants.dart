@@ -169,4 +169,43 @@ class JolpicaConstants {
   /// Get championship count for a driver
   static int getChampionshipCount(String driverId) =>
       championshipYears[driverId]?.length ?? 0;
+
+  // ========== Pole Position Data (through end of 2025) ==========
+
+  /// Career pole positions through end of 2025 season
+  /// Source: formula1.com official stats
+  /// For seasons after 2025, the app fetches from the API and adds to these
+  static const int _polesDataThrough = 2025;
+
+  static const Map<String, int> driverPoles = {
+    'max_verstappen': 48,
+    'hamilton': 104,
+    'leclerc': 27,
+    'alonso': 22,
+    'bottas': 20,
+    'norris': 16,
+    'russell': 8,
+    'piastri': 6,
+    'sainz': 6,
+    'perez': 3,
+    'hulkenberg': 1,
+    'stroll': 1,
+    // Drivers with 0 career poles (omitted — defaults to 0)
+    // Historical drivers
+    'vettel': 57,
+    'rosberg': 30,
+    'raikkonen': 18,
+    'button': 8,
+    'ricciardo': 3,
+    'magnussen': 1,
+    'schumacher': 68,
+    'hakkinen': 26,
+  };
+
+  /// Get hardcoded pole count for a driver (through end of 2025)
+  static int getPolesThrough2025(String driverId) =>
+      driverPoles[driverId] ?? 0;
+
+  /// Year through which the hardcoded poles data is valid
+  static int get polesDataThrough => _polesDataThrough;
 }

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../core/theme/f1_colors.dart';
 
 /// F1 Pirelli tire spinning loading animation
@@ -23,9 +23,6 @@ class F1WheelLoading extends StatefulWidget {
 class _F1WheelLoadingState extends State<F1WheelLoading>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
-  static const String _tireImageUrl =
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/F1_tire_Pirelli_empty.svg/1024px-F1_tire_Pirelli_empty.svg.png';
 
   @override
   void initState() {
@@ -55,15 +52,9 @@ class _F1WheelLoadingState extends State<F1WheelLoading>
       child: SizedBox(
         width: widget.size,
         height: widget.size,
-        child: CachedNetworkImage(
-          imageUrl: _tireImageUrl,
+        child: SvgPicture.asset(
+          'assets/icons/f1_tire.svg',
           fit: BoxFit.contain,
-          placeholder: (context, url) => const SizedBox.shrink(),
-          errorWidget: (context, url, error) => Icon(
-            Icons.circle_outlined,
-            size: widget.size,
-            color: widget.color ?? F1Colors.textSecondary,
-          ),
         ),
       ),
     );

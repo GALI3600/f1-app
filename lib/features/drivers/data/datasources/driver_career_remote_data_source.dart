@@ -170,30 +170,50 @@ class DriverCareerRemoteDataSource {
     }
   }
 
-  /// Fetch driver pole positions (can't be calculated from race results)
+  /// Fetch driver pole positions
+  /// Uses hardcoded data (through 2025) + API data for newer seasons
   Future<int> _fetchDriverPoles(String driverId) async {
-    final url = '${JolpicaConstants.baseUrl}/drivers/$driverId/qualifying.json';
-    _logger.d('[Poles] Fetching: $url');
-    try {
-      final response = await _requestWithRetry(url, queryParameters: {'limit': 500});
-      final data = response.data as Map<String, dynamic>;
-      final races = data['MRData']?['RaceTable']?['Races'] as List? ?? [];
+    final basePoles = JolpicaConstants.getPolesThrough2025(driverId);
+    final dataThrough = JolpicaConstants.polesDataThrough;
+    final currentYear = DateTime.now().year;
 
-      int poles = 0;
-      for (final race in races) {
-        final qualifyingResults = race['QualifyingResults'] as List? ?? [];
-        if (qualifyingResults.isNotEmpty) {
-          final position = qualifyingResults[0]['position']?.toString();
-          if (position == '1') poles++;
-        }
-      }
-
-      _logger.d('[Poles] Total: $poles');
-      return poles;
-    } catch (e) {
-      _logger.e('[Poles] Failed: $e');
-      return 0;
+    // If we're still in the hardcoded data range, just return it
+    if (currentYear <= dataThrough) {
+      _logger.d('[Poles] Using hardcoded data: $basePoles');
+      return basePoles;
     }
+
+    // Fetch qualifying P1s from API for seasons after the hardcoded data
+    _logger.d('[Poles] Hardcoded: $basePoles, fetching ${dataThrough + 1}-$currentYear from API...');
+    int recentPoles = 0;
+
+    try {
+      for (int year = dataThrough + 1; year <= currentYear; year++) {
+        final url = '${JolpicaConstants.baseUrl}/$year/drivers/$driverId/qualifying.json';
+        final response = await _requestWithRetry(
+          url,
+          queryParameters: {'limit': 100},
+        );
+        final data = response.data as Map<String, dynamic>;
+        final races = data['MRData']?['RaceTable']?['Races'] as List? ?? [];
+
+        for (final race in races) {
+          final qualResults = race['QualifyingResults'] as List? ?? [];
+          if (qualResults.isNotEmpty) {
+            final position = qualResults[0]['position']?.toString();
+            if (position == '1') recentPoles++;
+          }
+        }
+
+        if (year < currentYear) await Future.delayed(_requestDelay);
+      }
+    } catch (e) {
+      _logger.w('[Poles] Failed to fetch recent poles: $e');
+    }
+
+    final total = basePoles + recentPoles;
+    _logger.d('[Poles] Total: $total ($basePoles hardcoded + $recentPoles from API)');
+    return total;
   }
 
   /// Fetch current year standings
